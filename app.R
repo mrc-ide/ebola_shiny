@@ -83,7 +83,7 @@ ui <- page_navbar(
             
             conditionalPanel(
               condition="input.answerR0=='Yes'",
-              plotOutput("plot"),
+              plotOutput("plotR0"),
 
               selectInput("conf_R0","How confident are you in your estimate?",
                             c("Very","Somewhat","Not very","Not at all")),
@@ -97,7 +97,33 @@ ui <- page_navbar(
             
   ),
   
-  bslib::nav_panel(title="2"
+  bslib::nav_panel(title="Case ascertainment",
+                   layout_sidebar(
+                     sidebar=sidebar(title="Case ascertainment",
+                                     p(""),
+                       
+                     )
+                   )
+                   
+  ),
+  
+  bslib::nav_panel(title="Contact tracing",
+                   layout_sidebar(
+                     sidebar=sidebar(title="Contact tracing",
+                                     p(""),
+                                     
+                     )
+                   )
+                   
+  ),
+  
+  bslib::nav_panel(title="Vaccination",
+                   layout_sidebar(
+                     sidebar=sidebar(title="Vaccination",
+                                     p(""),
+                                     
+                     )
+                   )
                    
   ),
   
@@ -119,7 +145,7 @@ server <- function(input, output, session) {
     updateSliderInput(session,"r0_max",min=input$r0_min+0.1)
   })
 
-  output$plot <- renderPlot({
+  output$plotR0 <- renderPlot({
     if(plotType()=="Uniform"){
       r0min<-input$r0_min
       r0max<-input$r0_max
