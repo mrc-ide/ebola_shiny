@@ -41,12 +41,12 @@ ui <- fluidPage(
       
       conditionalPanel(
         condition="input.r0_shape=='Uniform'",
-        sliderInput("r0_min","What do you think the minimum value of R0 is?",min=1,max=3,value=1.5,step=0.1,round=-1)
+        sliderInput("r0_min","What do you think the minimum value of R0 is?",min=0,max=3,value=1.5,step=0.1,round=-1)
       ),
       
       conditionalPanel(
         condition="input.r0_shape=='Uniform'",
-        sliderInput("r0_max","What do you think the maximum value of R0 is?",min=1.5,max=7,value=3,step=0.1,round=-1)
+        sliderInput("r0_max","What do you think the maximum value of R0 is?",min=1.5,max=10,value=3,step=0.1,round=-1)
       ),
       
       conditionalPanel(
@@ -95,22 +95,27 @@ server <- function(input, output, session) {
   plotType <- reactive({input$r0_shape
   })
   
+  xmin<-0
+  xmax<-10
+  
   output$plot <- renderPlot({
     if(plotType()=="Uniform"){
       r0min<-input$r0_min
       r0max<-input$r0_max
-      xpos<-seq(0,10,by=0.01)
+      xpos<-seq(xmin,xmax,by=0.01)
       ypos<-dunif(xpos,min=r0min,max=r0max,log=FALSE)
       
-      plot(xpos,ypos,type='l',xlab='R0',ylab='probability')
+      plot(xpos,ypos,type='l',xlab='R0',ylab='probability',main="Probability density function for R0")
     }
     else if(plotType()=="Normal"){
       r0mean<-input$r0_mean
       r0sd<-input$r0_sd
-      xpos<-seq(0,10,by=0.01)
+      xpos<-seq(xmin,xmax,by=0.01)
       ypos<-dnorm(xpos,mean=r0mean,sd=r0sd,log=FALSE)
+      denom<-(pnorm(xmax,r0mean,r0sd)-pnorm(xmin,r0mean,r0sd))
+      ypos<-ypos/denom
       
-      plot(xpos,ypos,type='l',xlab="R0",ylab='probability')
+      plot(xpos,ypos,type='l',xlab="R0",ylab='probability',main="Probability density function for R0")
     }
     else if(plotType()=="Skewed"){
       r0means<-input$r0_means
@@ -122,7 +127,7 @@ server <- function(input, output, session) {
       xpos<-seq(0,10,by=0.01)
       ypos<-dgamma(xpos,shape=r0sh,scale=r0scale,log=FALSE)
       
-      plot(xpos,ypos,type='l',xlab="R0",ylab='probability')
+      plot(xpos,ypos,type='l',xlab="R0",ylab='probability',main="Probability density function for R0")
     }
   })
   
