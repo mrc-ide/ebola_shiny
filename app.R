@@ -83,20 +83,27 @@ ui <- page_navbar(
             
             radioButtons(inputId="ExpEpi",label="Do you have experience analysing epidemiological data? E.g. calculating case fatality ratios, hospitalisation rates or reproduction number etc.",choices=c("No","Yes"),width="100%"),
             conditionalPanel(condition="input.ExpEpi=='Yes'",
-                             numericInput("ExpEpi_length","If yes, how many years experience do you have?",min=0,max=20,value=0,step=0.5,width="80%")
+                             selectInput("ExpEpi_length","If yes, how many years experience do you have?",c("0-2","3-5","6-9","10+"),width="80%")
                              ),
             radioButtons(inputId="ExpCase",label="Do you have experience with case investigation and ascertainment? E.g. conducting Viral Haemorrhagic Fever (VHF) questionnaires, assessing case alerts etc.",choices=c("No","Yes"),width="100%"),
             conditionalPanel(condition="input.ExpCase=='Yes'",
-                             numericInput("ExpCase_length","If yes, how many years experience do you have?",min=0,max=20,value=0,step=0.5,width="80%")
+                             selectInput("ExpCase_length","If yes, how many years experience do you have?",c("0-2","3-5","6-9","10+"),width="80%")
             ),
             radioButtons(inputId="ExpCT",label="Do you have experience with contact tracing? E.g. as a contact tracer or contact tracing supervisor etc.",choices=c("No","Yes"),width="100%"),
             conditionalPanel(condition="input.ExpCT=='Yes'",
-                             numericInput("ExpCT_length","If yes, how many years experience do you have?",min=0,max=20,value=0,step=0.5,width="80%")
+                             selectInput("ExpCT_length","If yes, how many years experience do you have?",c("0-2","3-5","6-9","10+"),width="80%")
             ),
             radioButtons(inputId="ExpVacc",label="Do you have experience with reactive vaccination campaigns? E.g. as a vaccinator or vaccination co-ordinator etc.",choices=c("No","Yes"),width="100%"),
             conditionalPanel(condition="input.ExpVacc=='Yes'",
-                             numericInput("ExpVacc_length","If yes, how many years experience do you have?",min=0,max=20,value=0,step=0.5,width="80%")
+                             selectInput("ExpVacc_length","If yes, how many years experience do you have?",c("0-2","3-5","6-9","10+"),width="80%")
             ),
+            selectInput(inputId="ExpSetting",label="What kind of settings do you have most experience in?",choices=c("Rural","Urban","Both","Neither"),width="100%",selected = NULL),
+            
+            selectInput(inputId="ExpOutbreaks",label="Which of the following recent outbreaks have you responded to? Please select all that apply",choices=c("West Africa, 2014-2016","Equateur, DRC, 2018", "North Kivu, DRC, 2018-2020", "Guinea, 2022","Other"),multiple=TRUE,width="100%",selected = NULL),
+            conditionalPanel(condition="input.ExpOutbreaks.indexOf('Other')>-1",
+                             textAreaInput("ExpOutbreaksOther","Please specify here:",width="80%")
+            ),
+            textInput("ExpWorkplace","Where do you currently work?",width="100%",placeholder="e.g. WHO"),
             
             layout_column_wrap(1/2,
               actionButton("previousExp","Previous"),
@@ -110,7 +117,7 @@ ui <- page_navbar(
             
             p(tags$h3("Basic reproduction number")),
             
-            p("The basic reproduction number of a pathogen (R0) is the number of infections caused by an infectious individual in an otherwise completely susceptible population.
+            p("The basic reproduction number of a pathogen (R0) is the mean number of infections caused by an infectious individual in an otherwise completely susceptible population.
             If you feel able to share your intuition for R0, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for R0, please continue to the next section"),
             
             
@@ -121,7 +128,7 @@ ui <- page_navbar(
                               width=300,
               p("Based on your knowledge and experience of recent Ebola outbreaks:"),
 
-              selectInput("answerR0","Can you provide your intuition about the distribution of R0?",
+              selectInput("answerR0","Can you provide your intuition about the distribution of R0 over multiple outbreaks?",
                           c("No","Yes")),
 
               conditionalPanel(
@@ -148,6 +155,16 @@ ui <- page_navbar(
                   condition="input.r0_shape=='Normal'",
                   sliderInput("r0_sd","What do you think the standard deviation of R0 is?",min=0.1,max=2,value=0.5,step=0.01,round=-2)
                 ),
+                
+                conditionalPanel(
+                  condition="input.r0_shape=='Normal'",
+                  sliderInput("r0_min_norm","What do you think minimum value of R0 is?",min=0,max=3,value=1,step=0.1,round=-1)
+                ),
+                
+                conditionalPanel(
+                  condition="input.r0_shape=='Normal'",
+                  sliderInput("r0_max_norm","What do you think maximum value of R0 is?",min=3,max=10,value=10,step=0.1,round=-1)
+                ),
 
                 conditionalPanel(
                   condition="input.r0_shape=='Skewed'",
@@ -157,7 +174,17 @@ ui <- page_navbar(
                 conditionalPanel(
                   condition="input.r0_shape=='Skewed'",
                   sliderInput("r0_var","What do you think the variance of R0 is?",min=0.01,max=2,value=0.5,step=0.01,round=-2)
-                )
+                ),
+                
+                conditionalPanel(
+                  condition="input.r0_shape=='Skewed'",
+                  sliderInput("r0_min_skew","What do you think minimum value of R0 is?",min=0,max=3,value=1,step=0.1,round=-1)
+                ),
+                
+                conditionalPanel(
+                  condition="input.r0_shape=='Skewed'",
+                  sliderInput("r0_max_skew","What do you think maximum value of R0 is?",min=3,max=10,value=10,step=0.1,round=-1)
+                ),
               )
             ),
 
@@ -450,7 +477,9 @@ ui <- page_navbar(
                    
                    p(tags$h3("Vaccination")),
                    
-                   p("Information about vaccination"),
+                   p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
+                     latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in 
+                     vaccination uptake "),
                    
                    card(
                      layout_sidebar(
@@ -511,6 +540,14 @@ server <- function(input, output, session) {
   observeEvent(input$r0_min,{
     updateSliderInput(session,"r0_max",min=input$r0_min+0.1)
   })
+  
+  observeEvent(input$r0_min_norm,{
+    updateSliderInput(session,"r0_max_norm",min=input$r0_min_norm+0.1)
+  })
+  
+  observeEvent(input$r0_min_skew,{
+    updateSliderInput(session,"r0_max_skew",min=input$r0_min_skew+0.1)
+  })
 
   output$plotR0 <- renderPlot({
     if(plotTypeR0()=="Uniform"){
@@ -520,8 +557,8 @@ server <- function(input, output, session) {
     }
     else if(plotTypeR0()=="Normal"){
       dat<-data.frame(xpos=seq(xmin,xmax,by=0.01))
-      dat$ypos<-dtruncnorm(x=dat$xpos,a=0,mean=input$r0_mean,sd=input$r0_sd)
-      dat$qt  <- cut(ptruncnorm(dat$xpos,a=0,mean=input$r0_mean,sd=input$r0_sd),breaks=qrt,labels=F)
+      dat$ypos<-dtruncnorm(x=dat$xpos,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
+      dat$qt  <- cut(ptruncnorm(dat$xpos,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd),breaks=qrt,labels=F)
     }
     else if(plotTypeR0()=="Skewed"){
       #then make these into gamma distribution parameters
@@ -548,10 +585,10 @@ server <- function(input, output, session) {
       upper95<-qunif(0.975,input$r0_min,input$r0_max)
     }
     else if(plotTypeR0()=="Normal"){
-      lower50<-qtruncnorm(p=0.25,a=0,mean=input$r0_mean,sd=input$r0_sd)
-      upper50<-qtruncnorm(p=0.75,a=0,mean=input$r0_mean,sd=input$r0_sd)
-      lower95<-qtruncnorm(p=0.025,a=0,mean=input$r0_mean,sd=input$r0_sd)
-      upper95<-qtruncnorm(p=0.975,a=0,mean=input$r0_mean,sd=input$r0_sd)
+      lower50<-qtruncnorm(p=0.25,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
+      upper50<-qtruncnorm(p=0.75,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
+      lower95<-qtruncnorm(p=0.025,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
+      upper95<-qtruncnorm(p=0.975,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
     }
     else if(plotTypeR0()=="Skewed"){
       lower50<-qgamma(0.25,scale=input$r0_var/input$r0_means,shape=(input$r0_means*input$r0_means)/input$r0_var)
@@ -568,7 +605,7 @@ server <- function(input, output, session) {
       median<-qunif(0.5,input$r0_min,input$r0_max)
     }
     else if(plotTypeR0()=="Normal"){
-      median<-qtruncnorm(p=0.5,a=0,mean=input$r0_mean,sd=input$r0_sd)
+      median<-qtruncnorm(p=0.5,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
     }
     else if(plotTypeR0()=="Skewed"){
       median<-qgamma(p=0.5,scale=input$r0_var/input$r0_means,shape=((input$r0_means*input$r0_means)/input$r0_var))
