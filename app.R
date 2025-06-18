@@ -138,12 +138,12 @@ ui <- page_navbar(
 
                 conditionalPanel(
                   condition="input.r0_shape=='Uniform'",
-                  sliderInput("r0_min","What do you think the minimum value of R0 is?",min=0,max=3,value=1.5,step=0.1,round=-1)
+                  sliderInput("r0_min","What do you think the minimum value of R0 is?",min=0,max=10,value=0,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
                   condition="input.r0_shape=='Uniform'",
-                  sliderInput("r0_max","What do you think the maximum value of R0 is?",min=3,max=10,value=3,step=0.1,round=-1)
+                  sliderInput("r0_max","What do you think the maximum value of R0 is?",min=0,max=10,value=10,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
@@ -235,12 +235,12 @@ ui <- page_navbar(
                                          
                                          conditionalPanel(
                                            condition="input.Asc_shape=='Uniform'",
-                                           sliderInput("Asc_min","What do you think the minimum value of case ascertainment is?",min=0,max=1,value=0.5,step=0.05,round=-2)
+                                           sliderInput("Asc_min","What do you think the minimum value of case ascertainment is?",min=0,max=1,value=0,step=0.05,round=-2)
                                          ),
                                          
                                          conditionalPanel(
                                            condition="input.Asc_shape=='Uniform'",
-                                           sliderInput("Asc_max","What do you think the maximum value of case ascertainment is?",min=0.5,max=1,value=0.7,step=0.05,round=-2)
+                                           sliderInput("Asc_max","What do you think the maximum value of case ascertainment is?",min=0,max=1,value=1,step=0.05,round=-2)
                                          ),
                                          
                                          conditionalPanel(
@@ -321,12 +321,12 @@ ui <- page_navbar(
                                                            
                                                            conditionalPanel(
                                                              condition="input.CTprop_shape=='Uniform'",
-                                                             sliderInput("CTprop_min","What do you think the minimum value of the proportion of contacts who are traced is?",min=0,max=1,value=0.5,step=0.05,round=-2)
+                                                             sliderInput("CTprop_min","What do you think the minimum value of the proportion of contacts who are traced is?",min=0,max=1,value=0,step=0.05,round=-2)
                                                            ),
                                                            
                                                            conditionalPanel(
                                                              condition="input.CTprop_shape=='Uniform'",
-                                                             sliderInput("CTprop_max","What do you think the maximum value of the proportion of contacts who are traced is?",min=0.5,max=1,value=0.7,step=0.05,round=-2)
+                                                             sliderInput("CTprop_max","What do you think the maximum value of the proportion of contacts who are traced is?",min=0,max=1,value=1,step=0.05,round=-2)
                                                            ),
                                                            
                                                            conditionalPanel(
@@ -403,12 +403,12 @@ ui <- page_navbar(
                                                            
                                                            conditionalPanel(
                                                              condition="input.CTfoll_shape=='Uniform'",
-                                                             sliderInput("CTfoll_min","What do you think the minimum value of the proportion of contacts who complete follow-up is?",min=0,max=1,value=0.5,step=0.05,round=-2)
+                                                             sliderInput("CTfoll_min","What do you think the minimum value of the proportion of contacts who complete follow-up is?",min=0,max=1,value=0,step=0.05,round=-2)
                                                            ),
                                                            
                                                            conditionalPanel(
                                                              condition="input.CTfoll_shape=='Uniform'",
-                                                             sliderInput("CTfoll_max","What do you think the maximum value of the proportion of contacts who complete follow-up is?",min=0.5,max=1,value=0.7,step=0.05,round=-2)
+                                                             sliderInput("CTfoll_max","What do you think the maximum value of the proportion of contacts who complete follow-up is?",min=0,max=1,value=1,step=0.05,round=-2)
                                                            ),
                                                            
                                                            conditionalPanel(
