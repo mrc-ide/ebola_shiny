@@ -45,8 +45,8 @@ ui <- page_navbar(
       many of these parameters, related to both transmission and outbreak response, have important implications for policy decisions."),
     
     p("This survey aims to fill these gaps in the literature using the subjective judgement of experts with experience working in EVD outbreak response.
-       We are specifically interested in parameters pertaining to: reproduction nunber, case ascertainment, contact tracing and vaccination. We would welcome your 
-       input on any or all of these parameters; please feel free to skip any parameters for which you don't feel confident making a judgement about."),
+       We are specifically interested in parameters pertaining to: reproduction number, case ascertainment, contact tracing and vaccination. We would welcome your 
+       input on any or all of these parameters; please feel free to skip any parameters about which you don't feel confident making a judgement."),
     
     p(tags$h3("Explanatory notes")),
     
@@ -214,7 +214,7 @@ ui <- page_navbar(
                    
                    p(tags$h3("Case ascertainment")),
                    
-                   p("Case ascertainment refers to the proportion of all cases that are identified and added to the case line list (this could be as confirmed, probable or suscept cases.) In an ideal outbreak response, case ascertainment would be 1, i.e. all cases would be recorded.
+                   p("Case ascertainment refers to the proportion of all cases that are identified and added to the case line list (this could be as confirmed, probable or suspect cases). In an ideal outbreak response, case ascertainment would be 1, i.e. all cases would be recorded.
                    In practice, there are many reasons why this is not possible, e.g. due to limited resources or stigma attached to being identified as an EVD case. We are interested in understanding the proportion of cases that are ascertained as it directly impacts the success of the policies and interventions
                    that we model, such as contact tracing and targeted vaccination.
                      If you feel able to share your intuition regarding case ascertainment, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for case ascertainment, please continue to the next section"),
@@ -274,10 +274,10 @@ ui <- page_navbar(
                          selectInput("conf_Asc","How confident are you about the shape of the distribution?",
                                      c("Very","Somewhat","Slightly","Not very"),width="80%"),
                          
-                         selectInput("is_corr_Asc_R0","Do you think there is any correlation between case ascertainment and reproduction number? i.e if the reproduction number is higher, case ascertainment is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                         selectInput("is_corr_Asc_R0","Do you think there is any correlation between case ascertainment and reproduction number? e.g. if the reproduction number is higher, case ascertainment is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
                          
                          conditionalPanel(condition="input.is_corr_Asc_R0=='Yes'",
-                                          selectInput("corr_Asc_R0","Do you think the correlation is positive (i.e. when reproduction number is high, case ascertainment is high and vice versa) or negative (i.e. when reproduction number is low, case ascertainment is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                          selectInput("corr_Asc_R0","Do you think the correlation is positive (i.e. when reproduction number is high, case ascertainment is high and when reproduction number is low, case ascertainment is low) or negative (i.e. when reproduction number is low, case ascertainment is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
                            
                          ),
                          
@@ -297,9 +297,9 @@ ui <- page_navbar(
                    
                    p(tags$h3("Contact tracing")),
                    
-                   p("Once a case has been ascertained, contact tracing teams compile lists of close contacts, who are at high risk of infection, to undergo a 21 day follow-up period.
-                     If they develop symptoms during this time, they are quickly tested, isolate and treated to prevent further chains of transmission. To understand whether contact tracing 
-                     is likely to be effecttive, we are interested in understanding: a) what proportion of contacts are traced, and b) what proportion of contacts complete follow-up. 
+                   p("Once a case has been ascertained, contact tracing teams compile lists of close contacts, who are at high risk of infection, to undergo a 21 day follow-up.
+                     If they develop symptoms during this time, they are quickly tested, isolated and treated to prevent further chains of transmission. To understand whether contact tracing 
+                     is likely to be effective, we are interested in understanding: a) what proportion of contacts are traced, and b) what proportion of contacts complete follow-up. 
                      If you feel able to share your intuition regarding contact tracing, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for contact tracing, please continue to the next section"),
                    
                    card(
@@ -316,7 +316,7 @@ ui <- page_navbar(
                                                          
                                                          conditionalPanel(
                                                            condition="input.answerCTprop=='Yes'",
-                                                           selectInput("CTprop_shape","What do you think the shape of the distribution of the proportion of contacts who are traced?",
+                                                           selectInput("CTprop_shape","What do you think the shape of the distribution of the proportion of contacts who are traced is?",
                                                                        c("Uniform","Normal","Skewed")),
                                                            
                                                            conditionalPanel(
@@ -361,17 +361,17 @@ ui <- page_navbar(
                                            selectInput("conf_CTprop","How confident are you about the shape of the distribution?",
                                                        c("Very","Somewhat","Slightly","Not very"),width="80%"),
                                            
-                                           selectInput("is_corr_CTprop_R0","Do you think there is any correlation between the proportion of contacts traced and reproduction number? i.e if the reproduction number is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                           selectInput("is_corr_CTprop_R0","Do you think there is any correlation between the proportion of contacts traced and the reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
                                            
                                            conditionalPanel(condition="input.is_corr_CTprop_R0=='Yes'",
-                                                            selectInput("corr_CTprop_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts traced is high and vice versa) or negative (i.e. when reproduction number is low, the proportion of contacts traced is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                            selectInput("corr_CTprop_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts traced is high and when reproduction number is low, the proportion of contacts traced is low) or negative (i.e. when reproduction number is low, the proportion of contacts traced is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
                                                             
                                            ),
                                            
-                                           selectInput("is_corr_CTprop_Asc","Do you think there is any correlation between the proportion of contacts traced and case ascertainment? i.e if case ascertainment is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                           selectInput("is_corr_CTprop_Asc","Do you think there is any correlation between the proportion of contacts traced and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
                                            
                                            conditionalPanel(condition="input.is_corr_CTprop_Asc=='Yes'",
-                                                            selectInput("corr_CTprop_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts traced is high and vice versa) or negative (i.e. when case ascertainment is low, the proportion of contacts traced is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                            selectInput("corr_CTprop_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts traced is high and when case ascertainment is low, the proportion of contacts traced is low) or negative (i.e. when case ascertainment is low, the proportion of contacts traced is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
                                                             
                                            ),
                                            
@@ -398,7 +398,7 @@ ui <- page_navbar(
                                                          
                                                          conditionalPanel(
                                                            condition="input.answerCTfoll=='Yes'",
-                                                           selectInput("CTfoll_shape","What do you think the shape of the distribution of the proportion of contacts who complete follow-up?",
+                                                           selectInput("CTfoll_shape","What do you think the shape of the distribution of the proportion of contacts who complete follow-up is?",
                                                                        c("Uniform","Normal","Skewed")),
                                                            
                                                            conditionalPanel(
@@ -443,17 +443,17 @@ ui <- page_navbar(
                                            selectInput("conf_CTfoll","How confident are you about the shape of the distribution?",
                                                        c("Very","Somewhat","Slightly","Not very"),width="80%"),
                                            
-                                           selectInput("is_corr_CTfoll_R0","Do you think there is any correlation between the proportion of contacts who complete follow-up? and reproduction number? i.e if the reproduction number is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                           selectInput("is_corr_CTfoll_R0","Do you think there is any correlation between the proportion of contacts who complete follow-up and reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
                                            
                                            conditionalPanel(condition="input.is_corr_CTfoll_R0=='Yes'",
-                                                            selectInput("corr_CTfoll_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts who complete follow-up is high and vice versa) or negative (i.e. when reproduction number is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                            selectInput("corr_CTfoll_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts who complete follow-up is high and when reproduction number is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when reproduction number is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
                                                             
                                            ),
                                            
-                                           selectInput("is_corr_CTfoll_Asc","Do you think there is any correlation between the proportion of contacts who complete follow-up and case ascertainment? i.e if case ascertainment is higher, the proportion of contacts who complete follow-up is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                           selectInput("is_corr_CTfoll_Asc","Do you think there is any correlation between the proportion of contacts who complete follow-up and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts who complete follow-up is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
                                            
                                            conditionalPanel(condition="input.is_corr_CTfoll_Asc=='Yes'",
-                                                            selectInput("corr_CTfoll_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow-up is high and vice versa) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                            selectInput("corr_CTfoll_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow-up is high and when case ascertainment is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
                                                             
                                            ),
                                            
@@ -479,7 +479,7 @@ ui <- page_navbar(
                    
                    p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
                      latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in 
-                     vaccination uptake "),
+                     vaccine uptake "),
                    
                    card(
                      layout_sidebar(
