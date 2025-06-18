@@ -8,6 +8,7 @@
 #
 
 # load libraries
+#library(distr)
 library(shiny)
 library(tidyverse)
 library(bslib)
@@ -231,7 +232,7 @@ ui <- page_navbar(
                                        conditionalPanel(
                                          condition="input.answerAsc=='Yes'",
                                          selectInput("Asc_shape","What do you think the shape of the distribution of case ascertainment is?",
-                                                     c("Uniform","Normal","Skewed")),
+                                                     c("Uniform","Normal","Beta")),
                                          
                                          conditionalPanel(
                                            condition="input.Asc_shape=='Uniform'",
@@ -253,14 +254,24 @@ ui <- page_navbar(
                                            sliderInput("Asc_sd","What do you think the standard deviation of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.01,round=-2)
                                          ),
                                          
+                                         # conditionalPanel(
+                                         #   condition="input.Asc_shape=='Skewed'",
+                                         #   sliderInput("Asc_means","What do you think the mean value of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
+                                         # ),
+                                         # 
+                                         # conditionalPanel(
+                                         #   condition="input.Asc_shape=='Skewed'",
+                                         #   sliderInput("Asc_var","What do you think the variance of case ascertainment is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
+                                         # ),
+                                         
                                          conditionalPanel(
-                                           condition="input.Asc_shape=='Skewed'",
-                                           sliderInput("Asc_means","What do you think the mean value of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
+                                           condition="input.Asc_shape=='Beta'",
+                                           sliderInput("Asc_means","What do you think the mean value of case ascertainment is?",min=0.01,max=0.99,value=0.5,step=0.05,round=-2)
                                          ),
                                          
                                          conditionalPanel(
-                                           condition="input.Asc_shape=='Skewed'",
-                                           sliderInput("Asc_var","What do you think the variance of case ascertainment is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
+                                           condition="input.Asc_shape=='Beta'",
+                                           sliderInput("Asc_betasd","What do you think the standard deviation of case ascertainment is?",min=0.01,max=round(sqrt(1/12),2),value=sqrt(1/12),step=0.001,round=-3)
                                          )
                                        )
                        ),
@@ -655,15 +666,74 @@ server <- function(input, output, session) {
       datAsc$ypos<-dgamma(datAsc$xpos,shape=AscShape,scale=AscScale,log=F)/pgamma(1,shape=AscShape,scale=AscScale)
       datAsc$qt  <- cut(pgamma(datAsc$xpos,shape=AscShape,scale=AscScale,log=F)/pgamma(1,shape=AscShape,scale=AscScale),breaks=qrt,labels=F)
     }
+    else if(plotTypeAsc()=="Beta"){
+      #then make these into beta distribution parameters
+      # parameters alpha and beta
+      # mean = alpha /(alpha + beta)
+      # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
+      # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
+      # beta = alpha *(1 - mean)/mean
+      Asc_var <- input$Asc_betasd^2
+      AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
+      AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
+      # print(c(10, AscAlpha, AscBeta))
+      # normalise alpha and beta so that their min value is 1 and their proportions remain the same
+      if(min(AscAlpha,AscBeta)<1){
+        minab <- min(AscAlpha,AscBeta)
+        AscAlpha <- AscAlpha/minab
+        AscBeta <- AscBeta/minab
+        # print(c(11, AscAlpha, AscBeta, sqrt(AscAlpha*AscBeta / ((AscAlpha + AscBeta)^2 * (AscAlpha + AscBeta + 1)))))
+      }
+      datAsc <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+      betadist = distr::Beta(shape1 = AscAlpha, shape2 = AscBeta)
+      datAsc$ypos <- distr::d(betadist)(datAsc$xpos)
+      datAsc$qt  <- cut(distr::p(betadist)(datAsc$xpos),breaks=qrt,labels=F) #cut(pbeta(datAsc$xpos,alpha=AscShape,beta=AscScale,log=F),breaks=qrt,labels=F)
+    }
     
     ggplot(datAsc,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
       labs(x="Proportion of cases ascertained",y="pdf",color="Percentile",title="Probability density of case ascertainment proportion")+
       theme_gray(base_size = text_size)+theme(legend.position ="none") + 
       scale_x_continuous(breaks=breaksunit)
-    
   }
   )
+  
+  observeEvent(input$Asc_means, {
+    # If the beta mean changes, compute the new implied standard deviation
+    # parameters alpha and beta
+    # mean = alpha /(alpha + beta)
+    # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
+    # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
+    # beta = alpha *(1 - mean)/mean
+    Asc_var <- input$Asc_betasd^2
+    # by definition we require
+    # mean *(1 - mean) > variance
+    if(input$Asc_means * (1-input$Asc_means) < Asc_var){
+      Asc_var <- input$Asc_means * (1-input$Asc_means)
+      max_sd = sqrt(Asc_var)
+      # print(c(12, max_sd, Asc_var, input$Asc_means))
+      updateSliderInput(
+        session,
+        "Asc_betasd",
+        value = max_sd
+      )
+    }
+    AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
+    AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
+    # normalise alpha and beta so that both are at least 1
+    if(min(AscAlpha,AscBeta)<1){
+      minab <- min(AscAlpha,AscBeta)
+      AscAlpha <- AscAlpha/minab
+      AscBeta <- AscBeta/minab
+      implied_sd = sqrt(AscAlpha*AscBeta / ((AscAlpha + AscBeta)^2 * (AscAlpha + AscBeta + 1)))
+      # print(c(13, implied_sd, Asc_var, input$Asc_means, AscAlpha, AscBeta))
+      updateSliderInput(
+        session,
+        "Asc_betasd",
+        value = implied_sd
+      )
+    }
+  })
   
   output$Ascconf<-renderText({
     if(plotTypeAsc()=="Uniform"){
@@ -678,15 +748,21 @@ server <- function(input, output, session) {
       lower95<-qtruncnorm(p=0.025,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
       upper95<-qtruncnorm(p=0.975,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
     }
-    else if(plotTypeAsc()=="Skewed"){
-      AscAlpha<-input$Asc_means*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      AscBeta<-(1-input$Asc_means)*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
-      AscScale<-input$Asc_var/input$Asc_means
-      lower50<-qgamma(p=0.25*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-      upper50<-qgamma(p=0.75*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-      lower95<-qgamma(p=0.025*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-      upper95<-qgamma(p=0.975*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+    else if(plotTypeAsc()=="Beta"){
+      # mean = alpha /(alpha + beta)
+      # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
+      # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
+      # beta = alpha *(1 - mean)/mean
+      Asc_var <- input$Asc_betasd^2
+      AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
+      AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
+      # AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
+      # AscScale<-input$Asc_var/input$Asc_means
+      betadist = distr::Beta(shape1 = AscAlpha, shape2 = AscBeta)
+      lower50 <- distr::q(betadist)(0.25)
+      upper50 <- distr::q(betadist)(0.75) # qbeta(p=0.75*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+      lower95 <- distr::q(betadist)(0.025) # qbeta(p=0.025*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+      upper95 <- distr::q(betadist)(0.975) # qbeta(p=0.975*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
     }
     paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
           confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
