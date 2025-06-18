@@ -8,6 +8,8 @@
 #
 
 # load libraries
+# distr has a conflict with shiny; both have a function called "p". Below, I have included distr's function p using "distr::p". 
+# To be able to load the library in the normal way, we would need to replace every "p" with "shiny::p"; I think this works. 
 #library(distr)
 library(shiny)
 library(tidyverse)
@@ -775,13 +777,21 @@ server <- function(input, output, session) {
     else if(plotTypeAsc()=="Normal"){
       median<-qtruncnorm(p=0.5,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
     }
-    else if(plotTypeAsc()=="Skewed"){
-      AscAlpha<-input$Asc_means*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      AscBeta<-(1-input$Asc_means)*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
-      AscScale<-input$Asc_var/input$Asc_means
-      median<-qgamma(p=0.5*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+    else if(plotTypeAsc()=="Beta"){
+      # AscAlpha<-input$Asc_means*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
+      # AscBeta<-(1-input$Asc_means)*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
+      # AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
+      # AscScale<-input$Asc_var/input$Asc_means
+      # median<-qgamma(p=0.5*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
                      # ,shape1=AscAlpha,shape2=AscBeta)
+      Asc_var <- input$Asc_betasd^2
+      AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
+      AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
+      # AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
+      # AscScale<-input$Asc_var/input$Asc_means
+      betadist = distr::Beta(shape1 = AscAlpha, shape2 = AscBeta)
+      median <- distr::q(betadist)(0.5)
+      
     }
     paste("Your median value for case ascertainment is:",round(median,digits=2))
   })
