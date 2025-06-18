@@ -519,6 +519,9 @@ server <- function(input, output, session) {
   xmax<-10
   xmaxUnit<-1
   qrt<-c(0,0.025,0.25,0.5,0.75,0.975,1)
+  text_size = 20
+  breaks10 = 0:xmax
+  breaksunit = seq(0,1,length=11)
   
   observeEvent(input$nextOverview,{
     updateNavbarPage(session=session,"mainpage",selected="Your experience")
@@ -532,7 +535,7 @@ server <- function(input, output, session) {
     updateNavbarPage(session=session,"mainpage",selected="Reproduction number")
   })
   
-  #reproduction number r0
+  ## reproduction number r0 ########################################################
   
   plotTypeR0 <- reactive({input$r0_shape
   })
@@ -572,7 +575,8 @@ server <- function(input, output, session) {
     ggplot(dat,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
       labs(x="R0",y="pdf",color="Percentile",title="Probability density of R0")+
-      theme_gray()+theme(legend.position ="none")
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaks10)
     
   }
   )
@@ -621,7 +625,7 @@ server <- function(input, output, session) {
     updateNavbarPage(session=session,"mainpage",selected="Case ascertainment")
   })
   
-  #case ascertainment
+  ## case ascertainment ###################################################################################
   
   observeEvent(input$Asc_min,{
     updateSliderInput(session,"Asc_max",min=input$Asc_min+0.1)
@@ -655,7 +659,8 @@ server <- function(input, output, session) {
     ggplot(datAsc,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
       labs(x="Proportion of cases ascertained",y="pdf",color="Percentile",title="Probability density of case ascertainment proportion")+
-      theme_gray()+theme(legend.position ="none")
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksunit)
     
   }
   )
@@ -713,7 +718,7 @@ server <- function(input, output, session) {
     updateNavbarPage(session=session,"mainpage",selected="Contact tracing")
   })
   
-  #proportion of contacts traced
+  ## proportion of contacts traced ##############################################################
   
   observeEvent(input$CTprop_min,{
     updateSliderInput(session,"CTprop_max",min=input$CTprop_min+0.1)
@@ -744,8 +749,9 @@ server <- function(input, output, session) {
     
     ggplot(datCTprop,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
-      labs(x="Proportion of cases ascertained",y="pdf",color="Percentile",title="Probability density of case ascertainment proportion")+
-      theme_gray()+theme(legend.position ="none")
+      labs(x="Proportion of contacts traced",y="pdf",color="Percentile",title="Probability density of proportion of contacts traced")+
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksunit)
     
   }
   )
@@ -799,7 +805,7 @@ server <- function(input, output, session) {
     accordion_panel_open(session=session,id="CT",values="CTfollow")
   })
   
-  #proportion of contacts followed up
+  ## proportion of contacts followed up #############################################################
   
   observeEvent(input$CTfoll_min,{
     updateSliderInput(session,"CTfoll_max",min=input$CTfoll_min+0.1)
@@ -830,8 +836,9 @@ server <- function(input, output, session) {
     
     ggplot(datCTfoll,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
-      labs(x="Proportion of cases ascertained",y="pdf",color="Percentile",title="Probability density of case ascertainment proportion")+
-      theme_gray()+theme(legend.position ="none")
+      labs(x="Proportion of contacts followed up",y="pdf",color="Percentile",title="Probability density of proportion of contacts followed up")+
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksunit)
     
   }
   )
@@ -873,7 +880,7 @@ server <- function(input, output, session) {
       CTfollScale<-input$CTfoll_var/input$CTfoll_means
       median<-qgamma(p=0.5*pgamma(1,shape=CTfollShape,scale=CTfollScale),shape=CTfollShape,scale=CTfollScale)
     }
-    paste("Your median value for the proportion of contacts traced is:",round(median,digits=2))
+    paste("Your median value for the proportion contacts followed up is:",round(median,digits=2))
   })
   
   
