@@ -195,7 +195,7 @@ ui <- page_navbar(
               textOutput("R0conf"),
 
               selectInput("conf_R0","How confident are you about the shape of the distribution?",
-                            c("Very","Somewhat","Slightly","Not very"),width="50%"),
+                            c("Very","Somewhat","Slightly","Not very"),width="50%", selected = "Not very"),
 
               textAreaInput("source_R","Please provide any context or sources that have guided your intuition:",width="80%"
               )
@@ -272,7 +272,7 @@ ui <- page_navbar(
                          textOutput("Ascconf"),
                          
                          selectInput("conf_Asc","How confident are you about the shape of the distribution?",
-                                     c("Very","Somewhat","Slightly","Not very"),width="80%"),
+                                     c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
                          
                          selectInput("is_corr_Asc_R0","Do you think there is any correlation between case ascertainment and reproduction number? e.g. if the reproduction number is higher, case ascertainment is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
                          
@@ -359,7 +359,7 @@ ui <- page_navbar(
                                            textOutput("CTpropconf"),
                                            
                                            selectInput("conf_CTprop","How confident are you about the shape of the distribution?",
-                                                       c("Very","Somewhat","Slightly","Not very"),width="80%"),
+                                                       c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
                                            
                                            selectInput("is_corr_CTprop_R0","Do you think there is any correlation between the proportion of contacts traced and the reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
                                            
@@ -441,7 +441,7 @@ ui <- page_navbar(
                                            textOutput("CTfollconf"),
                                            
                                            selectInput("conf_CTfoll","How confident are you about the shape of the distribution?",
-                                                       c("Very","Somewhat","Slightly","Not very"),width="80%"),
+                                                       c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
                                            
                                            selectInput("is_corr_CTfoll_R0","Do you think there is any correlation between the proportion of contacts who complete follow-up and reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
                                            
