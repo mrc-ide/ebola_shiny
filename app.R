@@ -535,6 +535,24 @@ server <- function(input, output, session) {
   text_size = 20
   breaks10 = 0:xmax
   breaksunit = seq(0,1,length=11)
+  get_beta_parameters <- function(betamean, betasd){
+    # parameters alpha and beta
+    # mean = alpha /(alpha + beta)
+    # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
+    # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
+    # beta = alpha *(1 - mean)/mean
+    # always check for -ve parameters, as we get an error otherwise
+    var <- betasd^2
+    if(betamean * (1-betamean) < var)
+      var <- (betamean * (1-betamean))*.99
+    # print(var)
+    Alpha <- (betamean^2 * (1-betamean) - betamean*var) / var
+    Beta <- Alpha * (1 - betamean) / betamean
+    # print(c(Alpha,Beta))
+    c(Alpha, Beta)
+  }
+  v <- reactiveValues(asc_dist = NULL, 
+                      AscSlider=NULL)
   
   observeEvent(input$nextOverview,{
     updateNavbarPage(session=session,"mainpage",selected="Your experience")
@@ -647,16 +665,36 @@ server <- function(input, output, session) {
   plotTypeAsc <- reactive({input$Asc_shape
   })
   
+  observeEvent(input$Asc_means, {
+    # If the beta mean changes, compute the new implied standard deviation
+    Asc_var <- input$Asc_betasd^2
+    # by definition we require
+    # mean*(1 - mean) > variance
+    if(input$Asc_means * (1-input$Asc_means) < Asc_var){
+      Asc_var <- input$Asc_means * (1-input$Asc_means)
+      max_sd = round(sqrt(Asc_var), 3)
+      updateSliderInput(session, "Asc_betasd", value = max_sd)
+    }
+    beta_pars <- get_beta_parameters(input$Asc_means, round(sqrt(Asc_var), 3))
+    AscAlpha <- beta_pars[1]
+    AscBeta <- beta_pars[2]
+    # normalise alpha and beta so that both are at least 1
+    if(min(AscAlpha,AscBeta)<1){
+      minab <- min(AscAlpha,AscBeta)
+      AscAlpha <- AscAlpha/minab
+      AscBeta <- AscBeta/minab
+      implied_sd = round(sqrt(AscAlpha*AscBeta / ((AscAlpha + AscBeta)^2 * (AscAlpha + AscBeta + 1))), 3)
+      updateSliderInput(session, "Asc_betasd", value = implied_sd)
+    }
+  })
+  
   output$plotAsc <- renderPlot({
+    datAsc <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
     if(plotTypeAsc()=="Uniform"){
-      datAsc<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      datAsc$ypos<-dunif(datAsc$xpos,min=input$Asc_min,max=input$Asc_max,log=F)
-      datAsc$qt  <- cut(punif(datAsc$xpos,min=input$Asc_min,max=input$Asc_max,log=F),breaks=qrt,labels=F)
+      asc_dist = distr::Unif(Min=input$Asc_min,Max=input$Asc_max)
     }
     else if(plotTypeAsc()=="Normal"){
-      datAsc<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      datAsc$ypos<-dtruncnorm(x=datAsc$xpos,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
-      datAsc$qt  <- cut(ptruncnorm(datAsc$xpos,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd),breaks=qrt,labels=F)
+      asc_dist = distr::Truncate(distr::Norm(mean=input$Asc_mean,sd=input$Asc_sd),lower=0,upper=1)
     }
     else if(plotTypeAsc()=="Skewed"){
       #then make these into gamma or beta distribution parameters
@@ -665,32 +703,19 @@ server <- function(input, output, session) {
       AscAlpha<-input$Asc_means*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
       AscBeta<-(1-input$Asc_means)*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
       datAsc<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      datAsc$ypos<-dgamma(datAsc$xpos,shape=AscShape,scale=AscScale,log=F)/pgamma(1,shape=AscShape,scale=AscScale)
-      datAsc$qt  <- cut(pgamma(datAsc$xpos,shape=AscShape,scale=AscScale,log=F)/pgamma(1,shape=AscShape,scale=AscScale),breaks=qrt,labels=F)
+      asc_dist = distr::Gammad(shape1 = AscAlpha, shape2 = AscBeta)
     }
     else if(plotTypeAsc()=="Beta"){
       #then make these into beta distribution parameters
-      # parameters alpha and beta
-      # mean = alpha /(alpha + beta)
-      # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
-      # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
-      # beta = alpha *(1 - mean)/mean
-      Asc_var <- input$Asc_betasd^2
-      AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
-      AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
-      # print(c(10, AscAlpha, AscBeta))
-      # normalise alpha and beta so that their min value is 1 and their proportions remain the same
-      if(min(AscAlpha,AscBeta)<1){
-        minab <- min(AscAlpha,AscBeta)
-        AscAlpha <- AscAlpha/minab
-        AscBeta <- AscBeta/minab
-        # print(c(11, AscAlpha, AscBeta, sqrt(AscAlpha*AscBeta / ((AscAlpha + AscBeta)^2 * (AscAlpha + AscBeta + 1)))))
-      }
-      datAsc <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      betadist = distr::Beta(shape1 = AscAlpha, shape2 = AscBeta)
-      datAsc$ypos <- distr::d(betadist)(datAsc$xpos)
-      datAsc$qt  <- cut(distr::p(betadist)(datAsc$xpos),breaks=qrt,labels=F) #cut(pbeta(datAsc$xpos,alpha=AscShape,beta=AscScale,log=F),breaks=qrt,labels=F)
+      beta_pars <- get_beta_parameters(input$Asc_means, input$Asc_betasd)
+      datAsc <- subset(datAsc,xpos*(1-xpos)!=0)
+      # print(c(14, input$Asc_means, input$Asc_betasd, beta_pars))
+      asc_dist = distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2])
+      # if(sum(beta_pars<.99)>0) return(NULL) # cut if parameters have not been updated
     }
+    v$asc_dist = asc_dist
+    datAsc$ypos <- distr::d(asc_dist)(datAsc$xpos)
+    datAsc$qt  <- cut(distr::p(asc_dist)(datAsc$xpos),breaks=qrt,labels=F) #cut(pbeta(datAsc$xpos,alpha=AscShape,beta=AscScale,log=F),breaks=qrt,labels=F)
     
     ggplot(datAsc,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
@@ -700,99 +725,19 @@ server <- function(input, output, session) {
   }
   )
   
-  observeEvent(input$Asc_means, {
-    # If the beta mean changes, compute the new implied standard deviation
-    # parameters alpha and beta
-    # mean = alpha /(alpha + beta)
-    # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
-    # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
-    # beta = alpha *(1 - mean)/mean
-    Asc_var <- input$Asc_betasd^2
-    # by definition we require
-    # mean *(1 - mean) > variance
-    if(input$Asc_means * (1-input$Asc_means) < Asc_var){
-      Asc_var <- input$Asc_means * (1-input$Asc_means)
-      max_sd = sqrt(Asc_var)
-      # print(c(12, max_sd, Asc_var, input$Asc_means))
-      updateSliderInput(
-        session,
-        "Asc_betasd",
-        value = max_sd
-      )
-    }
-    AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
-    AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
-    # normalise alpha and beta so that both are at least 1
-    if(min(AscAlpha,AscBeta)<1){
-      minab <- min(AscAlpha,AscBeta)
-      AscAlpha <- AscAlpha/minab
-      AscBeta <- AscBeta/minab
-      implied_sd = sqrt(AscAlpha*AscBeta / ((AscAlpha + AscBeta)^2 * (AscAlpha + AscBeta + 1)))
-      # print(c(13, implied_sd, Asc_var, input$Asc_means, AscAlpha, AscBeta))
-      updateSliderInput(
-        session,
-        "Asc_betasd",
-        value = implied_sd
-      )
-    }
-  })
-  
   output$Ascconf<-renderText({
-    if(plotTypeAsc()=="Uniform"){
-      lower50<-qunif(0.25,input$Asc_min,input$Asc_max)
-      upper50<-qunif(0.75,input$Asc_min,input$Asc_max)
-      lower95<-qunif(0.025,input$Asc_min,input$Asc_max)
-      upper95<-qunif(0.975,input$Asc_min,input$Asc_max)
-    }
-    else if(plotTypeAsc()=="Normal"){
-      lower50<-qtruncnorm(p=0.25,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
-      upper50<-qtruncnorm(p=0.75,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
-      lower95<-qtruncnorm(p=0.025,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
-      upper95<-qtruncnorm(p=0.975,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
-    }
-    else if(plotTypeAsc()=="Beta"){
-      # mean = alpha /(alpha + beta)
-      # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
-      # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
-      # beta = alpha *(1 - mean)/mean
-      Asc_var <- input$Asc_betasd^2
-      AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
-      AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
-      # AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
-      # AscScale<-input$Asc_var/input$Asc_means
-      betadist = distr::Beta(shape1 = AscAlpha, shape2 = AscBeta)
-      lower50 <- distr::q(betadist)(0.25)
-      upper50 <- distr::q(betadist)(0.75) # qbeta(p=0.75*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-      lower95 <- distr::q(betadist)(0.025) # qbeta(p=0.025*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-      upper95 <- distr::q(betadist)(0.975) # qbeta(p=0.975*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-    }
+    asc_dist = v$asc_dist
+    lower50 <- distr::q(asc_dist)(0.25)
+    upper50 <- distr::q(asc_dist)(0.75) # qbeta(p=0.75*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+    lower95 <- distr::q(asc_dist)(0.025) # qbeta(p=0.025*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+    upper95 <- distr::q(asc_dist)(0.975) # qbeta(p=0.975*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
     paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
           confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
   })
   
   output$Ascmedian<-renderText({
-    if(plotTypeAsc()=="Uniform"){
-      median<-qunif(0.5,input$Asc_min,input$Asc_max)
-    }
-    else if(plotTypeAsc()=="Normal"){
-      median<-qtruncnorm(p=0.5,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
-    }
-    else if(plotTypeAsc()=="Beta"){
-      # AscAlpha<-input$Asc_means*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      # AscBeta<-(1-input$Asc_means)*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      # AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
-      # AscScale<-input$Asc_var/input$Asc_means
-      # median<-qgamma(p=0.5*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-                     # ,shape1=AscAlpha,shape2=AscBeta)
-      Asc_var <- input$Asc_betasd^2
-      AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
-      AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
-      # AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
-      # AscScale<-input$Asc_var/input$Asc_means
-      betadist = distr::Beta(shape1 = AscAlpha, shape2 = AscBeta)
-      median <- distr::q(betadist)(0.5)
-      
-    }
+    asc_dist = v$asc_dist
+    median <- distr::q(asc_dist)(0.5)
     paste("Your median value for case ascertainment is:",round(median,digits=2))
   })
   
