@@ -939,7 +939,6 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$submit,{
-    print(input)
     categories <- c('R0','Asc','CTprop','CTfoll')
     answers <- c()
     if(!is.null(input[[paste0('Asc','_shape')]])){
@@ -990,13 +989,10 @@ server <- function(input, output, session) {
       if(!is.null(input[[cc]])) answers = rbind(answers, c(cc, input[[cc]]))
     expinfo = c()
     expvars = c('ExpCT', 'ExpCT_length', 'ExpCase', 'ExpCase_length', 'ExpEpi', 'ExpEpi_length', 'ExpOutbreaks', 'ExpOutbreaksOther', 'ExpSetting', 'ExpVacc', 'ExpVacc_length', 'ExpWorkplace')
-    expvars = as.data.frame(sapply(expvars,function(x)ifelse(is.null(input[[x]]),'',input[[x]])))
+    expvars = as.data.frame(sapply(expvars,function(x)ifelse(is.null(input[[x]]),'',paste0(input[[x]],collapse=', '))))
     answers <- as.data.frame(answers)
-    print(answers)
-    print(expvars)
     print(expvars)
     colnames(expvars) <- c('Value')
-    print(1)
     colnames(answers) <- c('Variable','Value')
     # answerAsc, answerCTfoll, answerCTprop, answerR0, 
     # mainpage, nextAsc, nextCTfollow, nextCTprop, nextExp, nextOverview, nextR0, nextVax, 
@@ -1005,6 +1001,7 @@ server <- function(input, output, session) {
     filename = paste0(format(now(), "%Y%m%d_%H%M%S_"), "data_set.xlsx")
     xlsx::write.xlsx(expvars,file = filename,sheetName='User data', append=F,row.names = T)
     xlsx::write.xlsx(answers,file = filename,sheetName='Parameter data', append=T,row.names = F)
+    ## maybe create a "thanks" page or restart? i think you need to close and reopen to reset everything for the next user.
     updateNavbarPage(session=session,"mainpage",selected="Overview")
   })
 
