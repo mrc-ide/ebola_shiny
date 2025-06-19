@@ -10,7 +10,7 @@
 # load libraries
 # distr has a conflict with shiny; both have a function called "p". Below, I have included distr's function p using "distr::p". 
 # To be able to load the library in the normal way, we would need to replace every "p" with "shiny::p"; I think this works. 
-#library(distr)
+library(xlsx)
 library(shiny)
 library(tidyverse)
 library(bslib)
@@ -200,7 +200,7 @@ ui <- page_navbar(
               selectInput("conf_R0","How confident are you about the shape of the distribution?",
                             c("Very","Somewhat","Slightly","Not very"),width="50%", selected = "Not very"),
 
-              textAreaInput("source_R","Please provide any context or sources that have guided your intuition:",width="80%"
+              textAreaInput("source_R0","Please provide any context or sources that have guided your intuition:",width="80%"
               )
             ),
             
@@ -938,9 +938,75 @@ server <- function(input, output, session) {
     updateNavbarPage(session=session,"mainpage",selected="Vaccination")
   })
   
-  # observeEvent(input$submit,{
-  #   updateNavbarPage(session=session,"mainpage",selected="Contact tracing")
-  # })
+  observeEvent(input$submit,{
+    print(input)
+    categories <- c('R0','Asc','CTprop','CTfoll')
+    answers <- c()
+    if(!is.null(input[[paste0('Asc','_shape')]])){
+      thisdist = input[[paste0('Asc','_shape')]]
+      answers = rbind(answers, c('Asc distribution', thisdist))
+      if(thisdist=='Uniform') answers = rbind(answers, rbind(c('Asc min', input$Asc_min),c('Asc max', input$Asc_max)))
+      ## how do you distinguish the min and max that were specified by truncation?
+      # if(thisdist!='Uniform'&()) answers = rbind(answers, rbind(c('Min', Asc_min),c('Min', Asc_max)))
+      if(thisdist=='Normal') answers = rbind(answers, rbind(c('Asc mean', input$Asc_mean),c('Asc SD', input$Asc_sd)))
+      if(thisdist=='Beta') answers = rbind(answers, rbind(c('Asc mean', input$Asc_means),c('Asc SD', input$Asc_betasd)))
+      if(!is.null(input$conf_Asc)) answers = rbind(answers, c('conf_Asc', input$conf_Asc))
+      if(!is.null(input$source_Asc)) answers = rbind(answers, c('source_Asc', input$source_Asc))
+    }
+    if(!is.null(input$r0_shape)){
+      r0dist = input$r0_shape
+      answers = rbind(answers, c('R0 distribution', r0dist))
+      if(r0dist=='Uniform') answers = rbind(answers, rbind(c('R0 min', input$r0_min),c('R0 max', input$r0_max)))
+      if(r0dist=='Normal') answers = rbind(answers, rbind(c('R0 min', input$r0_min_norm),c('R0 max', input$r0_max_norm)))
+      if(r0dist=='Normal') answers = rbind(answers, rbind(c('R0 mean', input$r0_mean),c('R0 SD', input$r0_sd)))
+      if(r0dist=='Skew') answers = rbind(answers, rbind(c('R0 mean', input$r0_means),c('R0 var', input$r0_var)))
+      if(r0dist=='Skew') answers = rbind(answers, rbind(c('R0 min', input$r0_min_skew),c('R0 max', input$r0_max_skew)))
+      if(!is.null(input$conf_R0)) answers = rbind(answers, c('conf_R0', input$conf_R0))
+      if(!is.null(input$source_R0)) answers = rbind(answers, c('source_R0', input$source_R0))
+    }
+    if(!is.null(input$CTprop_shape)){
+      thisdist = input$CTprop_shape
+      answers = rbind(answers, c('CTprop distribution', thisdist))
+      if(thisdist=='Uniform') answers = rbind(answers, rbind(c('CTprop min', input$CTprop_min),c('CTprop max', input$CTprop_max)))
+      if(thisdist=='Normal') answers = rbind(answers, rbind(c('CTprop mean', input$CTprop_mean),c('CTprop SD', input$CTprop_sd)))
+      if(thisdist=='Skew') answers = rbind(answers, rbind(c('CTprop mean', input$CTprop_means),c('CTprop var', input$CTprop_var)))
+      if(!is.null(input$conf_CTprop)) answers = rbind(answers, c('conf_CTprop', input$conf_CTprop))
+      if(!is.null(input$source_CTprop)) answers = rbind(answers, c('source_CTprop', input$source_CTprop))
+    }
+    if(!is.null(input$CTfoll_shape)){
+      thisdist = input$CTfoll_shape
+      answers = rbind(answers, c('CTfoll distribution', thisdist))
+      if(thisdist=='Uniform') answers = rbind(answers, rbind(c('CTfoll min', input$CTfoll_min),c('CTfoll max', input$CTfoll_max)))
+      if(thisdist=='Normal') answers = rbind(answers, rbind(c('CTfoll mean', input$CTfoll_mean),c('CTfoll SD', input$CTfoll_sd)))
+      if(thisdist=='Skew') answers = rbind(answers, rbind(c('CTfoll mean', input$CTfoll_means),c('CTfoll var', input$CTfoll_var)))
+      if(!is.null(input$conf_CTfoll)) answers = rbind(answers, c('conf_CTfoll', input$conf_CTfoll))
+      if(!is.null(input$source_CTfoll)) answers = rbind(answers, c('source_CTfoll', input$source_CTfoll))
+    }
+    corqs = c('is_corr_Asc_R0', 'is_corr_CTfoll_Asc', 'is_corr_CTfoll_R0', 'is_corr_CTprop_Asc', 'is_corr_CTprop_R0')
+    cors = c('corr_Asc_R0', 'corr_CTfoll_Asc', 'corr_CTfoll_R0', 'corr_CTprop_Asc', 'corr_CTprop_R0')
+    for(cc in corqs)
+      if(!is.null(input[[cc]])) answers = rbind(answers, c(cc, input[[cc]]))
+    for(cc in cors)
+      if(!is.null(input[[cc]])) answers = rbind(answers, c(cc, input[[cc]]))
+    expinfo = c()
+    expvars = c('ExpCT', 'ExpCT_length', 'ExpCase', 'ExpCase_length', 'ExpEpi', 'ExpEpi_length', 'ExpOutbreaks', 'ExpOutbreaksOther', 'ExpSetting', 'ExpVacc', 'ExpVacc_length', 'ExpWorkplace')
+    expvars = as.data.frame(sapply(expvars,function(x)ifelse(is.null(input[[x]]),'',input[[x]])))
+    answers <- as.data.frame(answers)
+    print(answers)
+    print(expvars)
+    print(expvars)
+    colnames(expvars) <- c('Value')
+    print(1)
+    colnames(answers) <- c('Variable','Value')
+    # answerAsc, answerCTfoll, answerCTprop, answerR0, 
+    # mainpage, nextAsc, nextCTfollow, nextCTprop, nextExp, nextOverview, nextR0, nextVax, 
+    # previousAsc, previousCTfollow, previousCTprop, previousExp, previousR0, previousSubmit, previousVax, 
+    print(answers)
+    filename = paste0(format(now(), "%Y%m%d_%H%M%S_"), "data_set.xlsx")
+    xlsx::write.xlsx(expvars,file = filename,sheetName='User data', append=F,row.names = T)
+    xlsx::write.xlsx(answers,file = filename,sheetName='Parameter data', append=T,row.names = F)
+    updateNavbarPage(session=session,"mainpage",selected="Overview")
+  })
 
 }
 
