@@ -8,6 +8,9 @@
 #
 
 # load libraries
+# distr has a conflict with shiny; both have a function called "p". Below, I have included distr's function p using "distr::p". 
+# To be able to load the library in the normal way, we would need to replace every "p" with "shiny::p"; I think this works. 
+#library(distr)
 library(shiny)
 library(tidyverse)
 library(bslib)
@@ -45,8 +48,8 @@ ui <- page_navbar(
       many of these parameters, related to both transmission and outbreak response, have important implications for policy decisions."),
     
     p("This survey aims to fill these gaps in the literature using the subjective judgement of experts with experience working in EVD outbreak response.
-       We are specifically interested in parameters pertaining to: reproduction nunber, case ascertainment, contact tracing and vaccination. We would welcome your 
-       input on any or all of these parameters; please feel free to skip any parameters for which you don't feel confident making a judgement about."),
+       We are specifically interested in parameters pertaining to: reproduction number, case ascertainment, contact tracing and vaccination. We would welcome your 
+       input on any or all of these parameters; please feel free to skip any parameters about which you don't feel confident making a judgement."),
     
     p(tags$h3("Explanatory notes")),
     
@@ -138,12 +141,12 @@ ui <- page_navbar(
 
                 conditionalPanel(
                   condition="input.r0_shape=='Uniform'",
-                  sliderInput("r0_min","What do you think the minimum value of R0 is?",min=0,max=3,value=1.5,step=0.1,round=-1)
+                  sliderInput("r0_min","What do you think the minimum value of R0 is?",min=0,max=10,value=0,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
                   condition="input.r0_shape=='Uniform'",
-                  sliderInput("r0_max","What do you think the maximum value of R0 is?",min=3,max=10,value=3,step=0.1,round=-1)
+                  sliderInput("r0_max","What do you think the maximum value of R0 is?",min=0,max=10,value=10,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
@@ -195,7 +198,7 @@ ui <- page_navbar(
               textOutput("R0conf"),
 
               selectInput("conf_R0","How confident are you about the shape of the distribution?",
-                            c("Very","Somewhat","Slightly","Not very"),width="50%"),
+                            c("Very","Somewhat","Slightly","Not very"),width="50%", selected = "Not very"),
 
               textAreaInput("source_R","Please provide any context or sources that have guided your intuition:",width="80%"
               )
@@ -214,7 +217,7 @@ ui <- page_navbar(
                    
                    p(tags$h3("Case ascertainment")),
                    
-                   p("Case ascertainment refers to the proportion of all cases that are identified and added to the case line list (this could be as confirmed, probable or suscept cases.) In an ideal outbreak response, case ascertainment would be 1, i.e. all cases would be recorded.
+                   p("Case ascertainment refers to the proportion of all cases that are identified and added to the case line list (this could be as confirmed, probable or suspect cases). In an ideal outbreak response, case ascertainment would be 1, i.e. all cases would be recorded.
                    In practice, there are many reasons why this is not possible, e.g. due to limited resources or stigma attached to being identified as an EVD case. We are interested in understanding the proportion of cases that are ascertained as it directly impacts the success of the policies and interventions
                    that we model, such as contact tracing and targeted vaccination.
                      If you feel able to share your intuition regarding case ascertainment, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for case ascertainment, please continue to the next section"),
@@ -231,16 +234,16 @@ ui <- page_navbar(
                                        conditionalPanel(
                                          condition="input.answerAsc=='Yes'",
                                          selectInput("Asc_shape","What do you think the shape of the distribution of case ascertainment is?",
-                                                     c("Uniform","Normal","Skewed")),
+                                                     c("Uniform","Normal","Beta")),
                                          
                                          conditionalPanel(
                                            condition="input.Asc_shape=='Uniform'",
-                                           sliderInput("Asc_min","What do you think the minimum value of case ascertainment is?",min=0,max=1,value=0.5,step=0.05,round=-2)
+                                           sliderInput("Asc_min","What do you think the minimum value of case ascertainment is?",min=0,max=1,value=0,step=0.05,round=-2)
                                          ),
                                          
                                          conditionalPanel(
                                            condition="input.Asc_shape=='Uniform'",
-                                           sliderInput("Asc_max","What do you think the maximum value of case ascertainment is?",min=0.5,max=1,value=0.7,step=0.05,round=-2)
+                                           sliderInput("Asc_max","What do you think the maximum value of case ascertainment is?",min=0,max=1,value=1,step=0.05,round=-2)
                                          ),
                                          
                                          conditionalPanel(
@@ -253,14 +256,24 @@ ui <- page_navbar(
                                            sliderInput("Asc_sd","What do you think the standard deviation of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.01,round=-2)
                                          ),
                                          
+                                         # conditionalPanel(
+                                         #   condition="input.Asc_shape=='Skewed'",
+                                         #   sliderInput("Asc_means","What do you think the mean value of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
+                                         # ),
+                                         # 
+                                         # conditionalPanel(
+                                         #   condition="input.Asc_shape=='Skewed'",
+                                         #   sliderInput("Asc_var","What do you think the variance of case ascertainment is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
+                                         # ),
+                                         
                                          conditionalPanel(
-                                           condition="input.Asc_shape=='Skewed'",
-                                           sliderInput("Asc_means","What do you think the mean value of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
+                                           condition="input.Asc_shape=='Beta'",
+                                           sliderInput("Asc_means","What do you think the mean value of case ascertainment is?",min=0.01,max=0.99,value=0.5,step=0.05,round=-2)
                                          ),
                                          
                                          conditionalPanel(
-                                           condition="input.Asc_shape=='Skewed'",
-                                           sliderInput("Asc_var","What do you think the variance of case ascertainment is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
+                                           condition="input.Asc_shape=='Beta'",
+                                           sliderInput("Asc_betasd","What do you think the standard deviation of case ascertainment is?",min=0.01,max=round(sqrt(1/12),2),value=sqrt(1/12),step=0.001,round=-3)
                                          )
                                        )
                        ),
@@ -272,12 +285,12 @@ ui <- page_navbar(
                          textOutput("Ascconf"),
                          
                          selectInput("conf_Asc","How confident are you about the shape of the distribution?",
-                                     c("Very","Somewhat","Slightly","Not very"),width="80%"),
+                                     c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
                          
-                         selectInput("is_corr_Asc_R0","Do you think there is any correlation between case ascertainment and reproduction number? i.e if the reproduction number is higher, case ascertainment is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                         selectInput("is_corr_Asc_R0","Do you think there is any correlation between case ascertainment and reproduction number? e.g. if the reproduction number is higher, case ascertainment is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
                          
                          conditionalPanel(condition="input.is_corr_Asc_R0=='Yes'",
-                                          selectInput("corr_Asc_R0","Do you think the correlation is positive (i.e. when reproduction number is high, case ascertainment is high and vice versa) or negative (i.e. when reproduction number is low, case ascertainment is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                          selectInput("corr_Asc_R0","Do you think the correlation is positive (i.e. when reproduction number is high, case ascertainment is high and when reproduction number is low, case ascertainment is low) or negative (i.e. when reproduction number is low, case ascertainment is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
                            
                          ),
                          
@@ -297,9 +310,9 @@ ui <- page_navbar(
                    
                    p(tags$h3("Contact tracing")),
                    
-                   p("Once a case has been ascertained, contact tracing teams compile lists of close contacts, who are at high risk of infection, to undergo a 21 day follow-up period.
-                     If they develop symptoms during this time, they are quickly tested, isolate and treated to prevent further chains of transmission. To understand whether contact tracing 
-                     is likely to be effecttive, we are interested in understanding: a) what proportion of contacts are traced, and b) what proportion of contacts complete follow-up. 
+                   p("Once a case has been ascertained, contact tracing teams compile lists of close contacts, who are at high risk of infection, to undergo a 21 day follow-up.
+                     If they develop symptoms during this time, they are quickly tested, isolated and treated to prevent further chains of transmission. To understand whether contact tracing 
+                     is likely to be effective, we are interested in understanding: a) what proportion of contacts are traced, and b) what proportion of contacts complete follow-up. 
                      If you feel able to share your intuition regarding contact tracing, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for contact tracing, please continue to the next section"),
                    
                    card(
@@ -316,17 +329,17 @@ ui <- page_navbar(
                                                          
                                                          conditionalPanel(
                                                            condition="input.answerCTprop=='Yes'",
-                                                           selectInput("CTprop_shape","What do you think the shape of the distribution of the proportion of contacts who are traced?",
+                                                           selectInput("CTprop_shape","What do you think the shape of the distribution of the proportion of contacts who are traced is?",
                                                                        c("Uniform","Normal","Skewed")),
                                                            
                                                            conditionalPanel(
                                                              condition="input.CTprop_shape=='Uniform'",
-                                                             sliderInput("CTprop_min","What do you think the minimum value of the proportion of contacts who are traced is?",min=0,max=1,value=0.5,step=0.05,round=-2)
+                                                             sliderInput("CTprop_min","What do you think the minimum value of the proportion of contacts who are traced is?",min=0,max=1,value=0,step=0.05,round=-2)
                                                            ),
                                                            
                                                            conditionalPanel(
                                                              condition="input.CTprop_shape=='Uniform'",
-                                                             sliderInput("CTprop_max","What do you think the maximum value of the proportion of contacts who are traced is?",min=0.5,max=1,value=0.7,step=0.05,round=-2)
+                                                             sliderInput("CTprop_max","What do you think the maximum value of the proportion of contacts who are traced is?",min=0,max=1,value=1,step=0.05,round=-2)
                                                            ),
                                                            
                                                            conditionalPanel(
@@ -359,19 +372,19 @@ ui <- page_navbar(
                                            textOutput("CTpropconf"),
                                            
                                            selectInput("conf_CTprop","How confident are you about the shape of the distribution?",
-                                                       c("Very","Somewhat","Slightly","Not very"),width="80%"),
+                                                       c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
                                            
-                                           selectInput("is_corr_CTprop_R0","Do you think there is any correlation between the proportion of contacts traced and reproduction number? i.e if the reproduction number is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                           selectInput("is_corr_CTprop_R0","Do you think there is any correlation between the proportion of contacts traced and the reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
                                            
                                            conditionalPanel(condition="input.is_corr_CTprop_R0=='Yes'",
-                                                            selectInput("corr_CTprop_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts traced is high and vice versa) or negative (i.e. when reproduction number is low, the proportion of contacts traced is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                            selectInput("corr_CTprop_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts traced is high and when reproduction number is low, the proportion of contacts traced is low) or negative (i.e. when reproduction number is low, the proportion of contacts traced is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
                                                             
                                            ),
                                            
-                                           selectInput("is_corr_CTprop_Asc","Do you think there is any correlation between the proportion of contacts traced and case ascertainment? i.e if case ascertainment is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                           selectInput("is_corr_CTprop_Asc","Do you think there is any correlation between the proportion of contacts traced and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
                                            
                                            conditionalPanel(condition="input.is_corr_CTprop_Asc=='Yes'",
-                                                            selectInput("corr_CTprop_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts traced is high and vice versa) or negative (i.e. when case ascertainment is low, the proportion of contacts traced is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                            selectInput("corr_CTprop_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts traced is high and when case ascertainment is low, the proportion of contacts traced is low) or negative (i.e. when case ascertainment is low, the proportion of contacts traced is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
                                                             
                                            ),
                                            
@@ -398,17 +411,17 @@ ui <- page_navbar(
                                                          
                                                          conditionalPanel(
                                                            condition="input.answerCTfoll=='Yes'",
-                                                           selectInput("CTfoll_shape","What do you think the shape of the distribution of the proportion of contacts who complete follow-up?",
+                                                           selectInput("CTfoll_shape","What do you think the shape of the distribution of the proportion of contacts who complete follow-up is?",
                                                                        c("Uniform","Normal","Skewed")),
                                                            
                                                            conditionalPanel(
                                                              condition="input.CTfoll_shape=='Uniform'",
-                                                             sliderInput("CTfoll_min","What do you think the minimum value of the proportion of contacts who complete follow-up is?",min=0,max=1,value=0.5,step=0.05,round=-2)
+                                                             sliderInput("CTfoll_min","What do you think the minimum value of the proportion of contacts who complete follow-up is?",min=0,max=1,value=0,step=0.05,round=-2)
                                                            ),
                                                            
                                                            conditionalPanel(
                                                              condition="input.CTfoll_shape=='Uniform'",
-                                                             sliderInput("CTfoll_max","What do you think the maximum value of the proportion of contacts who complete follow-up is?",min=0.5,max=1,value=0.7,step=0.05,round=-2)
+                                                             sliderInput("CTfoll_max","What do you think the maximum value of the proportion of contacts who complete follow-up is?",min=0,max=1,value=1,step=0.05,round=-2)
                                                            ),
                                                            
                                                            conditionalPanel(
@@ -441,19 +454,19 @@ ui <- page_navbar(
                                            textOutput("CTfollconf"),
                                            
                                            selectInput("conf_CTfoll","How confident are you about the shape of the distribution?",
-                                                       c("Very","Somewhat","Slightly","Not very"),width="80%"),
+                                                       c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
                                            
-                                           selectInput("is_corr_CTfoll_R0","Do you think there is any correlation between the proportion of contacts who complete follow-up? and reproduction number? i.e if the reproduction number is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                           selectInput("is_corr_CTfoll_R0","Do you think there is any correlation between the proportion of contacts who complete follow-up and reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
                                            
                                            conditionalPanel(condition="input.is_corr_CTfoll_R0=='Yes'",
-                                                            selectInput("corr_CTfoll_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts who complete follow-up is high and vice versa) or negative (i.e. when reproduction number is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                            selectInput("corr_CTfoll_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts who complete follow-up is high and when reproduction number is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when reproduction number is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
                                                             
                                            ),
                                            
-                                           selectInput("is_corr_CTfoll_Asc","Do you think there is any correlation between the proportion of contacts who complete follow-up and case ascertainment? i.e if case ascertainment is higher, the proportion of contacts who complete follow-up is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                           selectInput("is_corr_CTfoll_Asc","Do you think there is any correlation between the proportion of contacts who complete follow-up and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts who complete follow-up is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
                                            
                                            conditionalPanel(condition="input.is_corr_CTfoll_Asc=='Yes'",
-                                                            selectInput("corr_CTfoll_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow-up is high and vice versa) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                            selectInput("corr_CTfoll_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow-up is high and when case ascertainment is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
                                                             
                                            ),
                                            
@@ -479,7 +492,7 @@ ui <- page_navbar(
                    
                    p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
                      latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in 
-                     vaccination uptake "),
+                     vaccine uptake "),
                    
                    card(
                      layout_sidebar(
@@ -519,6 +532,9 @@ server <- function(input, output, session) {
   xmax<-10
   xmaxUnit<-1
   qrt<-c(0,0.025,0.25,0.5,0.75,0.975,1)
+  text_size = 20
+  breaks10 = 0:xmax
+  breaksunit = seq(0,1,length=11)
   
   observeEvent(input$nextOverview,{
     updateNavbarPage(session=session,"mainpage",selected="Your experience")
@@ -532,7 +548,7 @@ server <- function(input, output, session) {
     updateNavbarPage(session=session,"mainpage",selected="Reproduction number")
   })
   
-  #reproduction number r0
+  ## reproduction number r0 ########################################################
   
   plotTypeR0 <- reactive({input$r0_shape
   })
@@ -572,7 +588,8 @@ server <- function(input, output, session) {
     ggplot(dat,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
       labs(x="R0",y="pdf",color="Percentile",title="Probability density of R0")+
-      theme_gray()+theme(legend.position ="none")
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaks10)
     
   }
   )
@@ -621,7 +638,7 @@ server <- function(input, output, session) {
     updateNavbarPage(session=session,"mainpage",selected="Case ascertainment")
   })
   
-  #case ascertainment
+  ## case ascertainment ###################################################################################
   
   observeEvent(input$Asc_min,{
     updateSliderInput(session,"Asc_max",min=input$Asc_min+0.1)
@@ -651,14 +668,74 @@ server <- function(input, output, session) {
       datAsc$ypos<-dgamma(datAsc$xpos,shape=AscShape,scale=AscScale,log=F)/pgamma(1,shape=AscShape,scale=AscScale)
       datAsc$qt  <- cut(pgamma(datAsc$xpos,shape=AscShape,scale=AscScale,log=F)/pgamma(1,shape=AscShape,scale=AscScale),breaks=qrt,labels=F)
     }
+    else if(plotTypeAsc()=="Beta"){
+      #then make these into beta distribution parameters
+      # parameters alpha and beta
+      # mean = alpha /(alpha + beta)
+      # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
+      # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
+      # beta = alpha *(1 - mean)/mean
+      Asc_var <- input$Asc_betasd^2
+      AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
+      AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
+      # print(c(10, AscAlpha, AscBeta))
+      # normalise alpha and beta so that their min value is 1 and their proportions remain the same
+      if(min(AscAlpha,AscBeta)<1){
+        minab <- min(AscAlpha,AscBeta)
+        AscAlpha <- AscAlpha/minab
+        AscBeta <- AscBeta/minab
+        # print(c(11, AscAlpha, AscBeta, sqrt(AscAlpha*AscBeta / ((AscAlpha + AscBeta)^2 * (AscAlpha + AscBeta + 1)))))
+      }
+      datAsc <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+      betadist = distr::Beta(shape1 = AscAlpha, shape2 = AscBeta)
+      datAsc$ypos <- distr::d(betadist)(datAsc$xpos)
+      datAsc$qt  <- cut(distr::p(betadist)(datAsc$xpos),breaks=qrt,labels=F) #cut(pbeta(datAsc$xpos,alpha=AscShape,beta=AscScale,log=F),breaks=qrt,labels=F)
+    }
     
     ggplot(datAsc,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
       labs(x="Proportion of cases ascertained",y="pdf",color="Percentile",title="Probability density of case ascertainment proportion")+
-      theme_gray()+theme(legend.position ="none")
-    
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksunit)
   }
   )
+  
+  observeEvent(input$Asc_means, {
+    # If the beta mean changes, compute the new implied standard deviation
+    # parameters alpha and beta
+    # mean = alpha /(alpha + beta)
+    # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
+    # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
+    # beta = alpha *(1 - mean)/mean
+    Asc_var <- input$Asc_betasd^2
+    # by definition we require
+    # mean *(1 - mean) > variance
+    if(input$Asc_means * (1-input$Asc_means) < Asc_var){
+      Asc_var <- input$Asc_means * (1-input$Asc_means)
+      max_sd = sqrt(Asc_var)
+      # print(c(12, max_sd, Asc_var, input$Asc_means))
+      updateSliderInput(
+        session,
+        "Asc_betasd",
+        value = max_sd
+      )
+    }
+    AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
+    AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
+    # normalise alpha and beta so that both are at least 1
+    if(min(AscAlpha,AscBeta)<1){
+      minab <- min(AscAlpha,AscBeta)
+      AscAlpha <- AscAlpha/minab
+      AscBeta <- AscBeta/minab
+      implied_sd = sqrt(AscAlpha*AscBeta / ((AscAlpha + AscBeta)^2 * (AscAlpha + AscBeta + 1)))
+      # print(c(13, implied_sd, Asc_var, input$Asc_means, AscAlpha, AscBeta))
+      updateSliderInput(
+        session,
+        "Asc_betasd",
+        value = implied_sd
+      )
+    }
+  })
   
   output$Ascconf<-renderText({
     if(plotTypeAsc()=="Uniform"){
@@ -673,15 +750,21 @@ server <- function(input, output, session) {
       lower95<-qtruncnorm(p=0.025,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
       upper95<-qtruncnorm(p=0.975,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
     }
-    else if(plotTypeAsc()=="Skewed"){
-      AscAlpha<-input$Asc_means*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      AscBeta<-(1-input$Asc_means)*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
-      AscScale<-input$Asc_var/input$Asc_means
-      lower50<-qgamma(p=0.25*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-      upper50<-qgamma(p=0.75*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-      lower95<-qgamma(p=0.025*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-      upper95<-qgamma(p=0.975*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+    else if(plotTypeAsc()=="Beta"){
+      # mean = alpha /(alpha + beta)
+      # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
+      # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
+      # beta = alpha *(1 - mean)/mean
+      Asc_var <- input$Asc_betasd^2
+      AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
+      AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
+      # AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
+      # AscScale<-input$Asc_var/input$Asc_means
+      betadist = distr::Beta(shape1 = AscAlpha, shape2 = AscBeta)
+      lower50 <- distr::q(betadist)(0.25)
+      upper50 <- distr::q(betadist)(0.75) # qbeta(p=0.75*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+      lower95 <- distr::q(betadist)(0.025) # qbeta(p=0.025*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+      upper95 <- distr::q(betadist)(0.975) # qbeta(p=0.975*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
     }
     paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
           confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
@@ -694,13 +777,21 @@ server <- function(input, output, session) {
     else if(plotTypeAsc()=="Normal"){
       median<-qtruncnorm(p=0.5,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
     }
-    else if(plotTypeAsc()=="Skewed"){
-      AscAlpha<-input$Asc_means*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      AscBeta<-(1-input$Asc_means)*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
-      AscScale<-input$Asc_var/input$Asc_means
-      median<-qgamma(p=0.5*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+    else if(plotTypeAsc()=="Beta"){
+      # AscAlpha<-input$Asc_means*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
+      # AscBeta<-(1-input$Asc_means)*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
+      # AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
+      # AscScale<-input$Asc_var/input$Asc_means
+      # median<-qgamma(p=0.5*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
                      # ,shape1=AscAlpha,shape2=AscBeta)
+      Asc_var <- input$Asc_betasd^2
+      AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
+      AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
+      # AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
+      # AscScale<-input$Asc_var/input$Asc_means
+      betadist = distr::Beta(shape1 = AscAlpha, shape2 = AscBeta)
+      median <- distr::q(betadist)(0.5)
+      
     }
     paste("Your median value for case ascertainment is:",round(median,digits=2))
   })
@@ -713,7 +804,7 @@ server <- function(input, output, session) {
     updateNavbarPage(session=session,"mainpage",selected="Contact tracing")
   })
   
-  #proportion of contacts traced
+  ## proportion of contacts traced ##############################################################
   
   observeEvent(input$CTprop_min,{
     updateSliderInput(session,"CTprop_max",min=input$CTprop_min+0.1)
@@ -744,8 +835,9 @@ server <- function(input, output, session) {
     
     ggplot(datCTprop,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
-      labs(x="Proportion of cases ascertained",y="pdf",color="Percentile",title="Probability density of case ascertainment proportion")+
-      theme_gray()+theme(legend.position ="none")
+      labs(x="Proportion of contacts traced",y="pdf",color="Percentile",title="Probability density of proportion of contacts traced")+
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksunit)
     
   }
   )
@@ -799,7 +891,7 @@ server <- function(input, output, session) {
     accordion_panel_open(session=session,id="CT",values="CTfollow")
   })
   
-  #proportion of contacts followed up
+  ## proportion of contacts followed up #############################################################
   
   observeEvent(input$CTfoll_min,{
     updateSliderInput(session,"CTfoll_max",min=input$CTfoll_min+0.1)
@@ -830,8 +922,9 @@ server <- function(input, output, session) {
     
     ggplot(datCTfoll,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
-      labs(x="Proportion of cases ascertained",y="pdf",color="Percentile",title="Probability density of case ascertainment proportion")+
-      theme_gray()+theme(legend.position ="none")
+      labs(x="Proportion of contacts followed up",y="pdf",color="Percentile",title="Probability density of proportion of contacts followed up")+
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksunit)
     
   }
   )
@@ -873,7 +966,7 @@ server <- function(input, output, session) {
       CTfollScale<-input$CTfoll_var/input$CTfoll_means
       median<-qgamma(p=0.5*pgamma(1,shape=CTfollShape,scale=CTfollScale),shape=CTfollShape,scale=CTfollScale)
     }
-    paste("Your median value for the proportion of contacts traced is:",round(median,digits=2))
+    paste("Your median value for the proportion contacts followed up is:",round(median,digits=2))
   })
   
   
