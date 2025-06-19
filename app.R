@@ -136,57 +136,57 @@ ui <- page_navbar(
 
               conditionalPanel(
                 condition="input.answerR0=='Yes'",
-                selectInput("r0_shape","What do you think the shape of the distribution of R0 is?",
+                selectInput("R0_shape","What do you think the shape of the distribution of R0 is?",
                             c("Uniform","Normal","Skewed")),
 
                 conditionalPanel(
-                  condition="input.r0_shape=='Uniform'",
-                  sliderInput("r0_min","What do you think the minimum value of R0 is?",min=0,max=10,value=0,step=0.1,round=-1)
+                  condition="input.R0_shape=='Uniform'",
+                  sliderInput("R0_min","What do you think the minimum value of R0 is?",min=0,max=10,value=0,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
-                  condition="input.r0_shape=='Uniform'",
-                  sliderInput("r0_max","What do you think the maximum value of R0 is?",min=0,max=10,value=10,step=0.1,round=-1)
+                  condition="input.R0_shape=='Uniform'",
+                  sliderInput("R0_max","What do you think the maximum value of R0 is?",min=0,max=10,value=10,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
-                  condition="input.r0_shape=='Normal'",
-                  sliderInput("r0_mean","What do you think the mean value of R0 is?",min=1,max=5,value=2,step=0.1,round=-1)
+                  condition="input.R0_shape=='Normal'",
+                  sliderInput("R0_mean","What do you think the mean value of R0 is?",min=1,max=5,value=2,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
-                  condition="input.r0_shape=='Normal'",
-                  sliderInput("r0_sd","What do you think the standard deviation of R0 is?",min=0.1,max=2,value=0.5,step=0.01,round=-2)
+                  condition="input.R0_shape=='Normal'",
+                  sliderInput("R0_sd","What do you think the standard deviation of R0 is?",min=0.1,max=2,value=0.5,step=0.01,round=-2)
                 ),
                 
                 conditionalPanel(
-                  condition="input.r0_shape=='Normal'",
-                  sliderInput("r0_min_norm","What do you think minimum value of R0 is?",min=0,max=3,value=1,step=0.1,round=-1)
+                  condition="input.R0_shape=='Normal'",
+                  sliderInput("R0_min_norm","What do you think minimum value of R0 is?",min=0,max=3,value=1,step=0.1,round=-1)
                 ),
                 
                 conditionalPanel(
-                  condition="input.r0_shape=='Normal'",
-                  sliderInput("r0_max_norm","What do you think maximum value of R0 is?",min=3,max=10,value=10,step=0.1,round=-1)
+                  condition="input.R0_shape=='Normal'",
+                  sliderInput("R0_max_norm","What do you think maximum value of R0 is?",min=3,max=10,value=10,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
-                  condition="input.r0_shape=='Skewed'",
-                  sliderInput("r0_means","What do you think the mean value of R0 is?",min=1,max=5,value=1.5,step=0.1,round=-1)
+                  condition="input.R0_shape=='Skewed'",
+                  sliderInput("R0_means","What do you think the mean value of R0 is?",min=1,max=5,value=1.5,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
-                  condition="input.r0_shape=='Skewed'",
-                  sliderInput("r0_var","What do you think the variance of R0 is?",min=0.01,max=2,value=0.5,step=0.01,round=-2)
+                  condition="input.R0_shape=='Skewed'",
+                  sliderInput("R0_var","What do you think the variance of R0 is?",min=0.01,max=2,value=0.5,step=0.01,round=-2)
                 ),
                 
                 conditionalPanel(
-                  condition="input.r0_shape=='Skewed'",
-                  sliderInput("r0_min_skew","What do you think minimum value of R0 is?",min=0,max=3,value=1,step=0.1,round=-1)
+                  condition="input.R0_shape=='Skewed'",
+                  sliderInput("R0_min_skew","What do you think minimum value of R0 is?",min=0,max=3,value=1,step=0.1,round=-1)
                 ),
                 
                 conditionalPanel(
-                  condition="input.r0_shape=='Skewed'",
-                  sliderInput("r0_max_skew","What do you think maximum value of R0 is?",min=3,max=10,value=10,step=0.1,round=-1)
+                  condition="input.R0_shape=='Skewed'",
+                  sliderInput("R0_max_skew","What do you think maximum value of R0 is?",min=3,max=10,value=10,step=0.1,round=-1)
                 ),
               )
             ),
@@ -566,41 +566,41 @@ server <- function(input, output, session) {
     updateNavbarPage(session=session,"mainpage",selected="Reproduction number")
   })
   
-  ## reproduction number r0 ########################################################
+  ## reproduction number R0 ########################################################
   
-  plotTypeR0 <- reactive({input$r0_shape
+  plotTypeR0 <- reactive({input$R0_shape
   })
   
-  observeEvent(input$r0_min,{
-    updateSliderInput(session,"r0_max",min=input$r0_min+0.1)
+  observeEvent(input$R0_min,{
+    updateSliderInput(session,"R0_max",min=input$R0_min+0.1)
   })
   
-  observeEvent(input$r0_min_norm,{
-    updateSliderInput(session,"r0_max_norm",min=input$r0_min_norm+0.1)
+  observeEvent(input$R0_min_norm,{
+    updateSliderInput(session,"R0_max_norm",min=input$R0_min_norm+0.1)
   })
   
-  observeEvent(input$r0_min_skew,{
-    updateSliderInput(session,"r0_max_skew",min=input$r0_min_skew+0.1)
+  observeEvent(input$R0_min_skew,{
+    updateSliderInput(session,"R0_max_skew",min=input$R0_min_skew+0.1)
   })
 
   output$plotR0 <- renderPlot({
     if(plotTypeR0()=="Uniform"){
       dat<-data.frame(xpos=seq(xmin,xmax,by=0.01))
-      dat$ypos<-dunif(dat$xpos,min=input$r0_min,max=input$r0_max,log=F)
-      dat$qt  <- cut(punif(dat$xpos,min=input$r0_min,max=input$r0_max,log=F),breaks=qrt,labels=F)
+      dat$ypos<-dunif(dat$xpos,min=input$R0_min,max=input$R0_max,log=F)
+      dat$qt  <- cut(punif(dat$xpos,min=input$R0_min,max=input$R0_max,log=F),breaks=qrt,labels=F)
     }
     else if(plotTypeR0()=="Normal"){
       dat<-data.frame(xpos=seq(xmin,xmax,by=0.01))
-      dat$ypos<-dtruncnorm(x=dat$xpos,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
-      dat$qt  <- cut(ptruncnorm(dat$xpos,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd),breaks=qrt,labels=F)
+      dat$ypos<-dtruncnorm(x=dat$xpos,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
+      dat$qt  <- cut(ptruncnorm(dat$xpos,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd),breaks=qrt,labels=F)
     }
     else if(plotTypeR0()=="Skewed"){
       #then make these into gamma distribution parameters
-      r0scale<-input$r0_var/input$r0_means
-      r0sh<-(input$r0_means*input$r0_means)/input$r0_var
+      R0scale<-input$R0_var/input$R0_means
+      R0sh<-(input$R0_means*input$R0_means)/input$R0_var
       dat<-data.frame(xpos=seq(xmin,xmax,by=0.01))
-      dat$ypos<-dgamma(dat$xpos,shape=r0sh,scale=r0scale,log=F)
-      dat$qt  <- cut(pgamma(dat$xpos,shape=r0sh,scale=r0scale,log=F),breaks=qrt,labels=F)
+      dat$ypos<-dgamma(dat$xpos,shape=R0sh,scale=R0scale,log=F)
+      dat$qt  <- cut(pgamma(dat$xpos,shape=R0sh,scale=R0scale,log=F),breaks=qrt,labels=F)
     }
     
     ggplot(dat,aes(x=xpos,y=ypos))+
@@ -614,22 +614,22 @@ server <- function(input, output, session) {
   
   output$R0conf<-renderText({
     if(plotTypeR0()=="Uniform"){
-      lower50<-qunif(0.25,input$r0_min,input$r0_max)
-      upper50<-qunif(0.75,input$r0_min,input$r0_max)
-      lower95<-qunif(0.025,input$r0_min,input$r0_max)
-      upper95<-qunif(0.975,input$r0_min,input$r0_max)
+      lower50<-qunif(0.25,input$R0_min,input$R0_max)
+      upper50<-qunif(0.75,input$R0_min,input$R0_max)
+      lower95<-qunif(0.025,input$R0_min,input$R0_max)
+      upper95<-qunif(0.975,input$R0_min,input$R0_max)
     }
     else if(plotTypeR0()=="Normal"){
-      lower50<-qtruncnorm(p=0.25,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
-      upper50<-qtruncnorm(p=0.75,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
-      lower95<-qtruncnorm(p=0.025,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
-      upper95<-qtruncnorm(p=0.975,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
+      lower50<-qtruncnorm(p=0.25,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
+      upper50<-qtruncnorm(p=0.75,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
+      lower95<-qtruncnorm(p=0.025,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
+      upper95<-qtruncnorm(p=0.975,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
     }
     else if(plotTypeR0()=="Skewed"){
-      lower50<-qgamma(0.25,scale=input$r0_var/input$r0_means,shape=(input$r0_means*input$r0_means)/input$r0_var)
-      upper50<-qgamma(0.75,scale=input$r0_var/input$r0_means,shape=(input$r0_means*input$r0_means)/input$r0_var)
-      lower95<-qgamma(p=0.025,scale=input$r0_var/input$r0_means,shape=(input$r0_means*input$r0_means)/input$r0_var)
-      upper95<-qgamma(p=0.975,scale=input$r0_var/input$r0_means,shape=(input$r0_means*input$r0_means)/input$r0_var)
+      lower50<-qgamma(0.25,scale=input$R0_var/input$R0_means,shape=(input$R0_means*input$R0_means)/input$R0_var)
+      upper50<-qgamma(0.75,scale=input$R0_var/input$R0_means,shape=(input$R0_means*input$R0_means)/input$R0_var)
+      lower95<-qgamma(p=0.025,scale=input$R0_var/input$R0_means,shape=(input$R0_means*input$R0_means)/input$R0_var)
+      upper95<-qgamma(p=0.975,scale=input$R0_var/input$R0_means,shape=(input$R0_means*input$R0_means)/input$R0_var)
     }
     paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
           confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
@@ -637,13 +637,13 @@ server <- function(input, output, session) {
   
   output$R0median<-renderText({
     if(plotTypeR0()=="Uniform"){
-      median<-qunif(0.5,input$r0_min,input$r0_max)
+      median<-qunif(0.5,input$R0_min,input$R0_max)
     }
     else if(plotTypeR0()=="Normal"){
-      median<-qtruncnorm(p=0.5,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
+      median<-qtruncnorm(p=0.5,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
     }
     else if(plotTypeR0()=="Skewed"){
-      median<-qgamma(p=0.5,scale=input$r0_var/input$r0_means,shape=((input$r0_means*input$r0_means)/input$r0_var))
+      median<-qgamma(p=0.5,scale=input$R0_var/input$R0_means,shape=((input$R0_means*input$R0_means)/input$R0_var))
     }
     paste("Your median value for R0 is:",round(median,digits=2))
   })
@@ -952,14 +952,14 @@ server <- function(input, output, session) {
       if(!is.null(input$conf_Asc)) answers = rbind(answers, c('conf_Asc', input$conf_Asc))
       if(!is.null(input$source_Asc)) answers = rbind(answers, c('source_Asc', input$source_Asc))
     }
-    if(!is.null(input$r0_shape)){
-      r0dist = input$r0_shape
-      answers = rbind(answers, c('R0 distribution', r0dist))
-      if(r0dist=='Uniform') answers = rbind(answers, rbind(c('R0 min', input$r0_min),c('R0 max', input$r0_max)))
-      if(r0dist=='Normal') answers = rbind(answers, rbind(c('R0 min', input$r0_min_norm),c('R0 max', input$r0_max_norm)))
-      if(r0dist=='Normal') answers = rbind(answers, rbind(c('R0 mean', input$r0_mean),c('R0 SD', input$r0_sd)))
-      if(r0dist=='Skew') answers = rbind(answers, rbind(c('R0 mean', input$r0_means),c('R0 var', input$r0_var)))
-      if(r0dist=='Skew') answers = rbind(answers, rbind(c('R0 min', input$r0_min_skew),c('R0 max', input$r0_max_skew)))
+    if(!is.null(input$R0_shape)){
+      R0dist = input$R0_shape
+      answers = rbind(answers, c('R0 distribution', R0dist))
+      if(R0dist=='Uniform') answers = rbind(answers, rbind(c('R0 min', input$R0_min),c('R0 max', input$R0_max)))
+      if(R0dist=='Normal') answers = rbind(answers, rbind(c('R0 min', input$R0_min_norm),c('R0 max', input$R0_max_norm)))
+      if(R0dist=='Normal') answers = rbind(answers, rbind(c('R0 mean', input$R0_mean),c('R0 SD', input$R0_sd)))
+      if(R0dist=='Skew') answers = rbind(answers, rbind(c('R0 mean', input$R0_means),c('R0 var', input$R0_var)))
+      if(R0dist=='Skew') answers = rbind(answers, rbind(c('R0 min', input$R0_min_skew),c('R0 max', input$R0_max_skew)))
       if(!is.null(input$conf_R0)) answers = rbind(answers, c('conf_R0', input$conf_R0))
       if(!is.null(input$source_R0)) answers = rbind(answers, c('source_R0', input$source_R0))
     }
