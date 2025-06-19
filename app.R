@@ -800,7 +800,7 @@ server <- function(input, output, session) {
       lower95<-qtruncnorm(p=0.025,a=0,b=1,mean=input$CTprop_mean,sd=input$CTprop_sd)
       upper95<-qtruncnorm(p=0.975,a=0,b=1,mean=input$CTprop_mean,sd=input$CTprop_sd)
     }
-    else if(plotTypeCTProp()=="Skewed"){
+    else if(plotTypeCTprop()=="Skewed"){
       CTpropShape<-(input$CTprop_means*input$CTprop_means)/input$CTprop_var
       CTpropScale<-input$CTprop_var/input$CTprop_means
       lower50<-qgamma(p=0.25*pgamma(1,shape=CTpropShape,scale=CTpropScale),shape=CTpropShape,scale=CTpropScale)
@@ -939,70 +939,79 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$submit,{
+    # tabulate answers
+    # these are all the parameter prefixes for which values could be reported
     categories <- c('R0','Asc','CTprop','CTfoll')
     answers <- c()
-    if(!is.null(input[[paste0('Asc','_shape')]])){
-      thisdist = input[[paste0('Asc','_shape')]]
-      answers = rbind(answers, c('Asc distribution', thisdist))
-      if(thisdist=='Uniform') answers = rbind(answers, rbind(c('Asc min', input$Asc_min),c('Asc max', input$Asc_max)))
-      ## how do you distinguish the min and max that were specified by truncation?
-      # if(thisdist!='Uniform'&()) answers = rbind(answers, rbind(c('Min', Asc_min),c('Min', Asc_max)))
-      if(thisdist=='Normal') answers = rbind(answers, rbind(c('Asc mean', input$Asc_mean),c('Asc SD', input$Asc_sd)))
-      if(thisdist=='Beta') answers = rbind(answers, rbind(c('Asc mean', input$Asc_means),c('Asc SD', input$Asc_betasd)))
-      if(!is.null(input$conf_Asc)) answers = rbind(answers, c('conf_Asc', input$conf_Asc))
-      if(!is.null(input$source_Asc)) answers = rbind(answers, c('source_Asc', input$source_Asc))
+    for(ct in categories){
+      if(!is.null(input[[paste0(ct,'_shape')]])){
+        thisdist = input[[paste0(ct,'_shape')]]
+        answers = rbind(answers, c(paste0(ct,' distribution'), thisdist))
+        if(thisdist=='Uniform') {
+          minlab = paste0(ct,'_min')
+          maxlab = paste0(ct,'_max')
+          answers = rbind(answers, rbind(c(minlab, input[[minlab]]),c(maxlab, input[[maxlab]])))
+        }
+        if(thisdist=='Normal') {
+          meanlab = paste0(ct,'_mean')
+          sclab = paste0(ct,'_sd')
+          answers = rbind(answers, rbind(c(meanlab, input[[meanlab]]),c(sclab, input[[sclab]])))
+          minlab = paste0(ct,'_min_norm')
+          maxlab = paste0(ct,'_max_norm')
+          if(!is.null(input[[minlab]]))
+            answers = rbind(answers, rbind(c(minlab, input[[minlab]]),c(maxlab, input[[maxlab]])))
+        }
+        if(thisdist=='Beta') {
+          meanlab = paste0(ct,'_means')
+          sclab = paste0(ct,'_betasd')
+          answers = rbind(answers, rbind(c(meanlab, input[[meanlab]]),c(sclab, input[[sclab]])))
+        }
+        if(thisdist=='Skewed') {
+          meanlab = paste0(ct,'_means')
+          varlab = paste0(ct,'_var')
+          answers = rbind(answers, rbind(c(meanlab, input[[meanlab]]),c(varlab, input[[varlab]])))
+          minlab = paste0(ct,'_min_skew')
+          maxlab = paste0(ct,'_max_skew')
+          if(!is.null(input[[minlab]]))
+            answers = rbind(answers, rbind(c(minlab, input[[minlab]]),c(maxlab, input[[maxlab]])))
+        }
+        conflab = paste0('conf_',ct)
+        sourcelab = paste0('source_',ct)
+        if(!is.null(input[[conflab]])) answers = rbind(answers, c(conflab, input[[conflab]]))
+        if(!is.null(input[[sourcelab]])) answers = rbind(answers, c(sourcelab, input[[sourcelab]]))
+      }
     }
-    if(!is.null(input$R0_shape)){
-      R0dist = input$R0_shape
-      answers = rbind(answers, c('R0 distribution', R0dist))
-      if(R0dist=='Uniform') answers = rbind(answers, rbind(c('R0 min', input$R0_min),c('R0 max', input$R0_max)))
-      if(R0dist=='Normal') answers = rbind(answers, rbind(c('R0 min', input$R0_min_norm),c('R0 max', input$R0_max_norm)))
-      if(R0dist=='Normal') answers = rbind(answers, rbind(c('R0 mean', input$R0_mean),c('R0 SD', input$R0_sd)))
-      if(R0dist=='Skew') answers = rbind(answers, rbind(c('R0 mean', input$R0_means),c('R0 var', input$R0_var)))
-      if(R0dist=='Skew') answers = rbind(answers, rbind(c('R0 min', input$R0_min_skew),c('R0 max', input$R0_max_skew)))
-      if(!is.null(input$conf_R0)) answers = rbind(answers, c('conf_R0', input$conf_R0))
-      if(!is.null(input$source_R0)) answers = rbind(answers, c('source_R0', input$source_R0))
-    }
-    if(!is.null(input$CTprop_shape)){
-      thisdist = input$CTprop_shape
-      answers = rbind(answers, c('CTprop distribution', thisdist))
-      if(thisdist=='Uniform') answers = rbind(answers, rbind(c('CTprop min', input$CTprop_min),c('CTprop max', input$CTprop_max)))
-      if(thisdist=='Normal') answers = rbind(answers, rbind(c('CTprop mean', input$CTprop_mean),c('CTprop SD', input$CTprop_sd)))
-      if(thisdist=='Skew') answers = rbind(answers, rbind(c('CTprop mean', input$CTprop_means),c('CTprop var', input$CTprop_var)))
-      if(!is.null(input$conf_CTprop)) answers = rbind(answers, c('conf_CTprop', input$conf_CTprop))
-      if(!is.null(input$source_CTprop)) answers = rbind(answers, c('source_CTprop', input$source_CTprop))
-    }
-    if(!is.null(input$CTfoll_shape)){
-      thisdist = input$CTfoll_shape
-      answers = rbind(answers, c('CTfoll distribution', thisdist))
-      if(thisdist=='Uniform') answers = rbind(answers, rbind(c('CTfoll min', input$CTfoll_min),c('CTfoll max', input$CTfoll_max)))
-      if(thisdist=='Normal') answers = rbind(answers, rbind(c('CTfoll mean', input$CTfoll_mean),c('CTfoll SD', input$CTfoll_sd)))
-      if(thisdist=='Skew') answers = rbind(answers, rbind(c('CTfoll mean', input$CTfoll_means),c('CTfoll var', input$CTfoll_var)))
-      if(!is.null(input$conf_CTfoll)) answers = rbind(answers, c('conf_CTfoll', input$conf_CTfoll))
-      if(!is.null(input$source_CTfoll)) answers = rbind(answers, c('source_CTfoll', input$source_CTfoll))
-    }
+    
+    # tabulate correlations
     corqs = c('is_corr_Asc_R0', 'is_corr_CTfoll_Asc', 'is_corr_CTfoll_R0', 'is_corr_CTprop_Asc', 'is_corr_CTprop_R0')
     cors = c('corr_Asc_R0', 'corr_CTfoll_Asc', 'corr_CTfoll_R0', 'corr_CTprop_Asc', 'corr_CTprop_R0')
     for(cc in corqs)
       if(!is.null(input[[cc]])) answers = rbind(answers, c(cc, input[[cc]]))
     for(cc in cors)
       if(!is.null(input[[cc]])) answers = rbind(answers, c(cc, input[[cc]]))
+    
+    # tabulate user info
     expinfo = c()
     expvars = c('ExpCT', 'ExpCT_length', 'ExpCase', 'ExpCase_length', 'ExpEpi', 'ExpEpi_length', 'ExpOutbreaks', 'ExpOutbreaksOther', 'ExpSetting', 'ExpVacc', 'ExpVacc_length', 'ExpWorkplace')
     expvars = as.data.frame(sapply(expvars,function(x)ifelse(is.null(input[[x]]),'',paste0(input[[x]],collapse=', '))))
     answers <- as.data.frame(answers)
-    print(expvars)
+    
+    # give column names; print; save
     colnames(expvars) <- c('Value')
     colnames(answers) <- c('Variable','Value')
-    # answerAsc, answerCTfoll, answerCTprop, answerR0, 
-    # mainpage, nextAsc, nextCTfollow, nextCTprop, nextExp, nextOverview, nextR0, nextVax, 
-    # previousAsc, previousCTfollow, previousCTprop, previousExp, previousR0, previousSubmit, previousVax, 
+    print(expvars)
     print(answers)
     filename = paste0(format(now(), "%Y%m%d_%H%M%S_"), "data_set.xlsx")
     xlsx::write.xlsx(expvars,file = filename,sheetName='User data', append=F,row.names = T)
     xlsx::write.xlsx(answers,file = filename,sheetName='Parameter data', append=T,row.names = F)
+    
     ## maybe create a "thanks" page or restart? i think you need to close and reopen to reset everything for the next user.
     updateNavbarPage(session=session,"mainpage",selected="Overview")
+    
+    # these are some values stored in input not written out
+    # answerAsc, answerCTfoll, answerCTprop, answerR0, 
+    # mainpage, nextAsc, nextCTfollow, nextCTprop, nextExp, nextOverview, nextR0, nextVax, 
+    # previousAsc, previousCTfollow, previousCTprop, previousExp, previousR0, previousSubmit, previousVax, 
   })
 
 }
