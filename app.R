@@ -40,37 +40,37 @@ ui <- page_navbar(
   
   bslib::nav_panel(title="Overview",
       
-    p(tags$h3("Rationale")),
+    shiny::p(tags$h3("Rationale")),
     
-    p("Mathematical modelling studies to inform Ebola virus disease (EVD) outbreak response policy are highly reliant on input parameters, which are 
+    shiny::p("Mathematical modelling studies to inform Ebola virus disease (EVD) outbreak response policy are highly reliant on input parameters, which are 
       often derived from epidemiological data. Whilst there is reasonable empirical evidence underpinning some parameters (see Nash et al, 2024), 
       other parameters often cannot be fully observed or are not routinely reported, and therefore do not appear in published literature. However, 
       many of these parameters, related to both transmission and outbreak response, have important implications for policy decisions."),
     
-    p("This survey aims to fill these gaps in the literature using the subjective judgement of experts with experience working in EVD outbreak response.
+    shiny::p("This survey aims to fill these gaps in the literature using the subjective judgement of experts with experience working in EVD outbreak response.
        We are specifically interested in parameters pertaining to: reproduction number, case ascertainment, contact tracing and vaccination. We would welcome your 
        input on any or all of these parameters; please feel free to skip any parameters about which you don't feel confident making a judgement."),
     
-    p(tags$h3("Explanatory notes")),
+    shiny::p(tags$h3("Explanatory notes")),
     
-    p("The first page of the survey asks for some basic information on your experience with EVD outbreak responses. The remaining pages focus 
+    shiny::p("The first page of the survey asks for some basic information on your experience with EVD outbreak responses. The remaining pages focus 
       on parameter areas of interest. For each parameter, you can select a distribution and use sliders to vary the shape of your judgement. 
       Visualisations and summary statistics are provided to help inform your intuition. There is also a dropdown box that enables you to specify 
       how confident you are in your judgement and a free text field to provide extra context or sources related to your judgement. 
       Please consider the following when making judgements about your confidence:"),
     
-    p(tags$b("Very:"),"I have firsthand experience working on or analysing data related to this parameter and I can cite sources supporting my intuition, even
+    shiny::p(tags$b("Very:"),"I have firsthand experience working on or analysing data related to this parameter and I can cite sources supporting my intuition, even
       though they may not be publicly available."),
     
-    p(tags$b("Somewhat:"),"I have firsthand experience working on or analysing data related to this parameter but sources supporting my intuition are not available",),
+    shiny::p(tags$b("Somewhat:"),"I have firsthand experience working on or analysing data related to this parameter but sources supporting my intuition are not available",),
     
-    p(tags$b("Slightly:"),"I don't have firsthand experience working on or analysing data related to this parameter but I can cite sources supporting my intuition, even
+    shiny::p(tags$b("Slightly:"),"I don't have firsthand experience working on or analysing data related to this parameter but I can cite sources supporting my intuition, even
       though they may not be publicly available."),
     
-    p(tags$b("Not very:"),"I don't have firsthand experience working on or analysing data related to this parameter. I have some intuition about this value
+    shiny::p(tags$b("Not very:"),"I don't have firsthand experience working on or analysing data related to this parameter. I have some intuition about this value
       based on conversations with colleague, but there are no sources available to support this intuition."),
     
-    p("For more information on this survey, please contact: Anne Cori (anne.cori@imperial.ac.uk), Katharina Hauck (k.hauck@imperial.ac.uk) or 
+    shiny::p("For more information on this survey, please contact: Anne Cori (anne.cori@imperial.ac.uk), Katharina Hauck (k.hauck@imperial.ac.uk) or 
       Gemma Nedjati-Gilani (g.nedjati-gilani@imperial.ac.uk)"),
     
   
@@ -80,9 +80,9 @@ ui <- page_navbar(
   #experience
   
   nav_panel(title="Your experience",
-            p(tags$h3("Your experience")),
+            shiny::p(tags$h3("Your experience")),
             
-            p("We'd like to start the survey by asking about your experience during EVD outbreak responses:"),
+            shiny::p("We'd like to start the survey by asking about your experience during EVD outbreak responses:"),
             
             radioButtons(inputId="ExpEpi",label="Do you have experience analysing epidemiological data? E.g. calculating case fatality ratios, hospitalisation rates or reproduction number etc.",choices=c("No","Yes"),width="100%"),
             conditionalPanel(condition="input.ExpEpi=='Yes'",
@@ -118,9 +118,9 @@ ui <- page_navbar(
   
   nav_panel(title="Reproduction number",
             
-            p(tags$h3("Basic reproduction number")),
+            shiny::p(tags$h3("Basic reproduction number")),
             
-            p("The basic reproduction number of a pathogen (R0) is the mean number of infections caused by an infectious individual in an otherwise completely susceptible population.
+            shiny::p("The basic reproduction number of a pathogen (R0) is the mean number of infections caused by an infectious individual in an otherwise completely susceptible population.
             If you feel able to share your intuition for R0, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for R0, please continue to the next section"),
             
             
@@ -129,7 +129,7 @@ ui <- page_navbar(
               
               sidebar=sidebar(title="Reproduction number (R0)",
                               width=300,
-              p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+              shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
 
               selectInput("answerR0","Can you provide your intuition about the distribution of R0 over multiple outbreaks?",
                           c("No","Yes")),
@@ -215,9 +215,9 @@ ui <- page_navbar(
   
   bslib::nav_panel(title="Case ascertainment",
                    
-                   p(tags$h3("Case ascertainment")),
+                   shiny::p(tags$h3("Case ascertainment")),
                    
-                   p("Case ascertainment refers to the proportion of all cases that are identified and added to the case line list (this could be as confirmed, probable or suspect cases). In an ideal outbreak response, case ascertainment would be 1, i.e. all cases would be recorded.
+                   shiny::p("Case ascertainment refers to the proportion of all cases that are identified and added to the case line list (this could be as confirmed, probable or suspect cases). In an ideal outbreak response, case ascertainment would be 1, i.e. all cases would be recorded.
                    In practice, there are many reasons why this is not possible, e.g. due to limited resources or stigma attached to being identified as an EVD case. We are interested in understanding the proportion of cases that are ascertained as it directly impacts the success of the policies and interventions
                    that we model, such as contact tracing and targeted vaccination.
                      If you feel able to share your intuition regarding case ascertainment, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for case ascertainment, please continue to the next section"),
@@ -226,7 +226,7 @@ ui <- page_navbar(
                      layout_sidebar(
                        sidebar=sidebar(title="Case ascertainment",
                                        width=300,
-                                       p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                       shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
                                        
                                        selectInput("answerAsc","Can you provide your intuition about the distribution of case ascertainment?",
                                                    c("No","Yes")),
@@ -308,9 +308,9 @@ ui <- page_navbar(
   
   bslib::nav_panel(title="Contact tracing",
                    
-                   p(tags$h3("Contact tracing")),
+                   shiny::p(tags$h3("Contact tracing")),
                    
-                   p("Once a case has been ascertained, contact tracing teams compile lists of close contacts, who are at high risk of infection, to undergo a 21 day follow-up.
+                   shiny::p("Once a case has been ascertained, contact tracing teams compile lists of close contacts, who are at high risk of infection, to undergo a 21 day follow-up.
                      If they develop symptoms during this time, they are quickly tested, isolated and treated to prevent further chains of transmission. To understand whether contact tracing 
                      is likely to be effective, we are interested in understanding: a) what proportion of contacts are traced, and b) what proportion of contacts complete follow-up. 
                      If you feel able to share your intuition regarding contact tracing, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for contact tracing, please continue to the next section"),
@@ -322,7 +322,7 @@ ui <- page_navbar(
                                        layout_sidebar(
                                          sidebar=sidebar(title=tags$h4("Proportion traced"),
                                                         width=300,
-                                                         p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                                         shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
                                                          
                                                          selectInput("answerCTprop","Can you provide your intuition about the distribution of the proportion of contacts who are traced?",
                                                                      c("No","Yes")),
@@ -403,8 +403,8 @@ ui <- page_navbar(
                                        layout_sidebar(
                                          sidebar=sidebar(title=tags$h4("Proportion followed-up"),
                                                          width=300,
-                                                         p(""),
-                                                         p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                                         shiny::p(""),
+                                                         shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
                                                          
                                                          selectInput("answerCTfoll","Can you provide your intuition about the distribution of the proportion of contacts who complete follow-up?",
                                                                      c("No","Yes")),
@@ -488,24 +488,132 @@ ui <- page_navbar(
   
   bslib::nav_panel(title="Vaccination",
                    
-                   p(tags$h3("Vaccination")),
+                   shiny::p(tags$h3("Vaccination")),
                    
-                   p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
+                   shiny::p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
                      latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in 
-                     vaccine uptake "),
+                     vaccine uptake for these different strategies, as well as the time taken to initiate vaccination following ascertainment of a case."),
                    
                    card(
-                     layout_sidebar(
-                       sidebar=sidebar(title="Vaccination",
-                                       width=400,
-                                       p(""),
-                                       
-                       ),
-                       
-                       layout_column_wrap(1/2,
-                                          actionButton("previousVax","Previous"),
-                                          actionButton("nextVax","Next",class="btn-primary")
-                       )
+                     accordion(id="vacc",
+                               accordion_panel("HCW/FLW vaccination",
+                                               value="Vacc_HCW",
+                                               layout_sidebar(
+                                                 sidebar=sidebar(title="HCW/FLW vaccination",
+                                                                 width=300,
+                                                                 shiny::p(""),
+                                                                 shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                                                 
+                                                                 selectInput("answerVaccHCW","Can you provide your intuition about the distribution of the proportion of HCWs/FLWs who accept vaccination?",
+                                                                             c("No","Yes")),
+                                                                 
+                                                                 conditionalPanel(
+                                                                   condition="input.answerVaccHCW=='Yes'",
+                                                                   selectInput("VaccHCW_shape","What do you think the shape of the distribution of the proportion of HCWs/FLWs who accept vaccination is?",
+                                                                               c("Uniform","Normal","Skewed")),
+                                                                   
+                                                                   conditionalPanel(
+                                                                     condition="input.VaccHCW_shape=='Uniform'",
+                                                                     sliderInput("VaccHCW_min","What do you think the minimum value of the proportion of HCWs/FLWs who accept vaccination is?",min=0,max=1,value=0,step=0.05,round=-2)
+                                                                   ),
+                                                                   
+                                                                   conditionalPanel(
+                                                                     condition="input.VaccHCW_shape=='Uniform'",
+                                                                     sliderInput("VaccHCW_max","What do you think the maximum value of the proportion of HCWs/FLWs who accept vaccination is?",min=0,max=1,value=1,step=0.05,round=-2)
+                                                                   ),
+                                                                   
+                                                                   conditionalPanel(
+                                                                     condition="input.VaccHCW_shape=='Normal'",
+                                                                     sliderInput("VaccHCW_mean","What do you think the mean value of the proportion of HCWs/FLWs who accept vaccination is?",min=0,max=1,value=0.5,step=0.05,round=-2)
+                                                                   ),
+                                                                   
+                                                                   conditionalPanel(
+                                                                     condition="input.VaccHCW_shape=='Normal'",
+                                                                     sliderInput("VaccHCW_sd","What do you think the standard deviation of the proportion of HCWs/FLWs who accept vaccination is?",min=0.1,max=1,value=0.5,step=0.01,round=-2)
+                                                                   ),
+                                                                   
+                                                                   conditionalPanel(
+                                                                     condition="input.VaccHCW_shape=='Skewed'",
+                                                                     sliderInput("VaccHCW_means","What do you think the mean value of the proportion of HCWs/FLWs who accept vaccination is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
+                                                                   ),
+                                                                   
+                                                                   conditionalPanel(
+                                                                     condition="input.VaccHCW_shape=='Skewed'",
+                                                                     sliderInput("VaccHCW_var","What do you think the variance of the proportion of HCWs/FLWs who accept vaccination is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
+                                                                   )
+                                                                 )
+                                                                 
+                                                 ),
+                                                 
+                                                 conditionalPanel(
+                                                   condition="input.answerVaccHCW=='Yes'",
+                                                   plotOutput("plotVaccHCW",width="100%",height='500px'),
+                                                   textOutput("VaccHCWmedian"),
+                                                   textOutput("VaccHCWconf"),
+                                                   
+                                                   selectInput("conf_VaccHCW","How confident are you about the shape of the distribution?",
+                                                               c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
+                                                   
+                                                   selectInput("is_corr_VaccHCW_R0","Do you think there is any correlation between the proportion of HCWs/FLWs who accept vaccination and reproduction number? e.g. if the reproduction number is higher, the proportion who accept is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                                   
+                                                   conditionalPanel(condition="input.is_corr_VaccHCW_R0=='Yes'",
+                                                                    selectInput("corr_VaccHCW_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion who accept vaccination is high and when reproduction number is low, the proportion who accept is low) or negative (i.e. when reproduction number is low, the proportion of contacts who accept is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                                    
+                                                   ),
+                                                   
+                                                   selectInput("is_corr_CTfoll_Asc","Do you think there is any correlation between the proportion of contacts who complete follow-up and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts who complete follow-up is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                                   
+                                                   conditionalPanel(condition="input.is_corr_CTfoll_Asc=='Yes'",
+                                                                    selectInput("corr_CTfoll_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow-up is high and when case ascertainment is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                                    
+                                                   ),
+                                                   
+                                                   textAreaInput("source_CTfoll","Please provide any context or sources that have guided your intuition:",width="80%"
+                                                   )
+                                                 ),
+                                                 
+                                                 
+                                                 layout_column_wrap(1/2,
+                                                                    actionButton("previousVax_HCW","Previous"),
+                                                                    actionButton("nextVax_HCW","Next",class="btn-primary")
+                                                 )
+                                               )
+                                 
+                               ),
+                               accordion_panel("Ring vaccination",
+                                               value="Vacc_Ring",
+                                               layout_sidebar(
+                                                 sidebar=sidebar(title="Ring vaccination",
+                                                                 width=300,
+                                                                 shiny::p(""),
+                                                                 shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                                                 
+                                                 ),
+                                                 
+                                                 layout_column_wrap(1/2,
+                                                                    actionButton("previousVax_Ring","Previous"),
+                                                                    actionButton("nextVax_Ring","Next",class="btn-primary")
+                                                 )
+                                               )
+                                               
+                               ),
+                               accordion_panel("HCW/FLW vaccination",
+                                               value="Vacc_Geo",
+                                               layout_sidebar(
+                                                 sidebar=sidebar(title="Geographically targeted vaccination",
+                                                                 width=300,
+                                                                 shiny::p(""),
+                                                                 shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                                                 
+                                                 ),
+                                                 
+                                                 layout_column_wrap(1/2,
+                                                                    actionButton("previousVax_Geo","Previous"),
+                                                                    actionButton("nextVax_Geo","Next",class="btn-primary")
+                                                 )
+                                               )
+                                               
+                               )
                      )
                    )
                    
@@ -979,7 +1087,7 @@ server <- function(input, output, session) {
     updateNavbarPage(session=session,"mainpage",selected="Vaccination")
   })
   
-  #vaccination
+  ## vaccination #############################################################
   
   observeEvent(input$previousVax,{
     updateNavbarPage(session=session,"mainpage",selected="Contact tracing")
@@ -988,6 +1096,8 @@ server <- function(input, output, session) {
   observeEvent(input$nextVax,{
     updateNavbarPage(session=session,"mainpage",selected="Submit")
   })
+  
+  ## submission #############################################################
   
   observeEvent(input$previousSubmit,{
     updateNavbarPage(session=session,"mainpage",selected="Vaccination")
