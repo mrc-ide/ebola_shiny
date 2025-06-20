@@ -9,7 +9,7 @@
 
 # load libraries
 # distr has a conflict with shiny; both have a function called "p". Below, I have included distr's function p using "distr::p". 
-# To be able to load the library in the normal way, we would need to replace every "p" with "shiny::p"; I think this works. 
+# To be able to load the library in the normal way, we would need to replace every "p" with "shiny::p"; I think this works. <3
 #library(distr)
 library(shiny)
 library(tidyverse)
@@ -100,13 +100,15 @@ ui <- page_navbar(
             conditionalPanel(condition="input.ExpVacc=='Yes'",
                              selectInput("ExpVacc_length","If yes, how many years experience do you have?",c("0-2","3-5","6-9","10+"),width="80%")
             ),
-            selectInput(inputId="ExpSetting",label="What kind of settings do you have most experience in?",choices=c("Rural","Urban","Both","Neither"),width="100%",selected = NULL),
+            selectInput(inputId="ExpSetting",label="What kind of settings do you have most experience in?",choices=c("Rural","Urban","Both","Remote, e.g. at headquarters or with a collaborating centre"),width="100%",selected = NULL),
             
             selectInput(inputId="ExpOutbreaks",label="Which of the following recent outbreaks have you responded to? Please select all that apply",choices=c("West Africa, 2014-2016","Equateur, DRC, 2018", "North Kivu, DRC, 2018-2020", "Guinea, 2022","Other"),multiple=TRUE,width="100%",selected = NULL),
             conditionalPanel(condition="input.ExpOutbreaks.indexOf('Other')>-1",
                              textAreaInput("ExpOutbreaksOther","Please specify here:",width="80%")
             ),
             textInput("ExpWorkplace","Where do you currently work?",width="100%",placeholder="e.g. WHO"),
+            
+            textInput("ExpDept","What division or department do you currently work in?",width="100%",placeholder="e.g. Immunization, Health Economics, Surveillance Systems"),
             
             layout_column_wrap(1/2,
               actionButton("previousExp","Previous"),
@@ -280,7 +282,7 @@ ui <- page_navbar(
                        
                        conditionalPanel(
                          condition="input.answerAsc=='Yes'",
-                         plotOutput("plotAsc",width="100%",height='500px'),
+                         plotOutput("plotAsc",width="100%",height="1000px"),
                          textOutput("Ascmedian"),
                          textOutput("Ascconf"),
                          
