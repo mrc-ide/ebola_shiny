@@ -10,7 +10,8 @@
 # load libraries
 # distr has a conflict with shiny; both have a function called "p". Below, I have included distr's function p using "distr::p". 
 # To be able to load the library in the normal way, we would need to replace every "p" with "shiny::p"; I think this works. <3
-#library(distr)
+library(distr)
+library(xlsx)
 library(shiny)
 library(tidyverse)
 library(bslib)
@@ -138,57 +139,57 @@ ui <- page_navbar(
 
               conditionalPanel(
                 condition="input.answerR0=='Yes'",
-                selectInput("r0_shape","What do you think the shape of the distribution of R0 is?",
+                selectInput("R0_shape","What do you think the shape of the distribution of R0 is?",
                             c("Uniform","Normal","Skewed")),
 
                 conditionalPanel(
-                  condition="input.r0_shape=='Uniform'",
-                  sliderInput("r0_min","What do you think the minimum value of R0 is?",min=0,max=10,value=0,step=0.1,round=-1)
+                  condition="input.R0_shape=='Uniform'",
+                  sliderInput("R0_min","What do you think the minimum value of R0 is?",min=0,max=10,value=0,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
-                  condition="input.r0_shape=='Uniform'",
-                  sliderInput("r0_max","What do you think the maximum value of R0 is?",min=0,max=10,value=10,step=0.1,round=-1)
+                  condition="input.R0_shape=='Uniform'",
+                  sliderInput("R0_max","What do you think the maximum value of R0 is?",min=0,max=10,value=10,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
-                  condition="input.r0_shape=='Normal'",
-                  sliderInput("r0_mean","What do you think the mean value of R0 is?",min=1,max=5,value=2,step=0.1,round=-1)
+                  condition="input.R0_shape=='Normal'",
+                  sliderInput("R0_mean","What do you think the mean value of R0 is?",min=1,max=5,value=2,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
-                  condition="input.r0_shape=='Normal'",
-                  sliderInput("r0_sd","What do you think the standard deviation of R0 is?",min=0.1,max=2,value=0.5,step=0.01,round=-2)
+                  condition="input.R0_shape=='Normal'",
+                  sliderInput("R0_sd","What do you think the standard deviation of R0 is?",min=0.1,max=2,value=0.5,step=0.01,round=-2)
                 ),
                 
                 conditionalPanel(
-                  condition="input.r0_shape=='Normal'",
-                  sliderInput("r0_min_norm","What do you think minimum value of R0 is?",min=0,max=3,value=1,step=0.1,round=-1)
+                  condition="input.R0_shape=='Normal'",
+                  sliderInput("R0_min_norm","What do you think minimum value of R0 is?",min=0,max=3,value=1,step=0.1,round=-1)
                 ),
                 
                 conditionalPanel(
-                  condition="input.r0_shape=='Normal'",
-                  sliderInput("r0_max_norm","What do you think maximum value of R0 is?",min=3,max=10,value=10,step=0.1,round=-1)
+                  condition="input.R0_shape=='Normal'",
+                  sliderInput("R0_max_norm","What do you think maximum value of R0 is?",min=3,max=10,value=10,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
-                  condition="input.r0_shape=='Skewed'",
-                  sliderInput("r0_means","What do you think the mean value of R0 is?",min=1,max=5,value=1.5,step=0.1,round=-1)
+                  condition="input.R0_shape=='Skewed'",
+                  sliderInput("R0_means","What do you think the mean value of R0 is?",min=1,max=5,value=1.5,step=0.1,round=-1)
                 ),
 
                 conditionalPanel(
-                  condition="input.r0_shape=='Skewed'",
-                  sliderInput("r0_var","What do you think the variance of R0 is?",min=0.01,max=2,value=0.5,step=0.01,round=-2)
+                  condition="input.R0_shape=='Skewed'",
+                  sliderInput("R0_var","What do you think the variance of R0 is?",min=0.01,max=2,value=0.5,step=0.01,round=-2)
                 ),
                 
                 conditionalPanel(
-                  condition="input.r0_shape=='Skewed'",
-                  sliderInput("r0_min_skew","What do you think minimum value of R0 is?",min=0,max=3,value=1,step=0.1,round=-1)
+                  condition="input.R0_shape=='Skewed'",
+                  sliderInput("R0_min_skew","What do you think minimum value of R0 is?",min=0,max=3,value=1,step=0.1,round=-1)
                 ),
                 
                 conditionalPanel(
-                  condition="input.r0_shape=='Skewed'",
-                  sliderInput("r0_max_skew","What do you think maximum value of R0 is?",min=3,max=10,value=10,step=0.1,round=-1)
+                  condition="input.R0_shape=='Skewed'",
+                  sliderInput("R0_max_skew","What do you think maximum value of R0 is?",min=3,max=10,value=10,step=0.1,round=-1)
                 ),
               )
             ),
@@ -202,7 +203,7 @@ ui <- page_navbar(
               selectInput("conf_R0","How confident are you about the shape of the distribution?",
                             c("Very","Somewhat","Slightly","Not very"),width="50%", selected = "Not very"),
 
-              textAreaInput("source_R","Please provide any context or sources that have guided your intuition:",width="80%"
+              textAreaInput("source_R0","Please provide any context or sources that have guided your intuition:",width="80%"
               )
             ),
             
@@ -645,6 +646,24 @@ server <- function(input, output, session) {
   text_size = 20
   breaks10 = 0:xmax
   breaksunit = seq(0,1,length=11)
+  get_beta_parameters <- function(betamean, betasd){
+    # parameters alpha and beta
+    # mean = alpha /(alpha + beta)
+    # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
+    # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
+    # beta = alpha *(1 - mean)/mean
+    # always check for -ve parameters, as we get an error otherwise
+    var <- betasd^2
+    if(betamean * (1-betamean) < var)
+      var <- (betamean * (1-betamean))*.99
+    # print(var)
+    Alpha <- (betamean^2 * (1-betamean) - betamean*var) / var
+    Beta <- Alpha * (1 - betamean) / betamean
+    # print(c(Alpha,Beta))
+    c(Alpha, Beta)
+  }
+  v <- reactiveValues(asc_dist = NULL, 
+                      AscSlider=NULL)
   
   observeEvent(input$nextOverview,{
     updateNavbarPage(session=session,"mainpage",selected="Your experience")
@@ -658,41 +677,41 @@ server <- function(input, output, session) {
     updateNavbarPage(session=session,"mainpage",selected="Reproduction number")
   })
   
-  ## reproduction number r0 ########################################################
+  ## reproduction number R0 ########################################################
   
-  plotTypeR0 <- reactive({input$r0_shape
+  plotTypeR0 <- reactive({input$R0_shape
   })
   
-  observeEvent(input$r0_min,{
-    updateSliderInput(session,"r0_max",min=input$r0_min+0.1)
+  observeEvent(input$R0_min,{
+    updateSliderInput(session,"R0_max",min=input$R0_min+0.1)
   })
   
-  observeEvent(input$r0_min_norm,{
-    updateSliderInput(session,"r0_max_norm",min=input$r0_min_norm+0.1)
+  observeEvent(input$R0_min_norm,{
+    updateSliderInput(session,"R0_max_norm",min=input$R0_min_norm+0.1)
   })
   
-  observeEvent(input$r0_min_skew,{
-    updateSliderInput(session,"r0_max_skew",min=input$r0_min_skew+0.1)
+  observeEvent(input$R0_min_skew,{
+    updateSliderInput(session,"R0_max_skew",min=input$R0_min_skew+0.1)
   })
 
   output$plotR0 <- renderPlot({
     if(plotTypeR0()=="Uniform"){
       dat<-data.frame(xpos=seq(xmin,xmax,by=0.01))
-      dat$ypos<-dunif(dat$xpos,min=input$r0_min,max=input$r0_max,log=F)
-      dat$qt  <- cut(punif(dat$xpos,min=input$r0_min,max=input$r0_max,log=F),breaks=qrt,labels=F)
+      dat$ypos<-dunif(dat$xpos,min=input$R0_min,max=input$R0_max,log=F)
+      dat$qt  <- cut(punif(dat$xpos,min=input$R0_min,max=input$R0_max,log=F),breaks=qrt,labels=F)
     }
     else if(plotTypeR0()=="Normal"){
       dat<-data.frame(xpos=seq(xmin,xmax,by=0.01))
-      dat$ypos<-dtruncnorm(x=dat$xpos,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
-      dat$qt  <- cut(ptruncnorm(dat$xpos,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd),breaks=qrt,labels=F)
+      dat$ypos<-dtruncnorm(x=dat$xpos,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
+      dat$qt  <- cut(ptruncnorm(dat$xpos,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd),breaks=qrt,labels=F)
     }
     else if(plotTypeR0()=="Skewed"){
       #then make these into gamma distribution parameters
-      r0scale<-input$r0_var/input$r0_means
-      r0sh<-(input$r0_means*input$r0_means)/input$r0_var
+      R0scale<-input$R0_var/input$R0_means
+      R0sh<-(input$R0_means*input$R0_means)/input$R0_var
       dat<-data.frame(xpos=seq(xmin,xmax,by=0.01))
-      dat$ypos<-dgamma(dat$xpos,shape=r0sh,scale=r0scale,log=F)
-      dat$qt  <- cut(pgamma(dat$xpos,shape=r0sh,scale=r0scale,log=F),breaks=qrt,labels=F)
+      dat$ypos<-dgamma(dat$xpos,shape=R0sh,scale=R0scale,log=F)
+      dat$qt  <- cut(pgamma(dat$xpos,shape=R0sh,scale=R0scale,log=F),breaks=qrt,labels=F)
     }
     
     ggplot(dat,aes(x=xpos,y=ypos))+
@@ -706,22 +725,22 @@ server <- function(input, output, session) {
   
   output$R0conf<-renderText({
     if(plotTypeR0()=="Uniform"){
-      lower50<-qunif(0.25,input$r0_min,input$r0_max)
-      upper50<-qunif(0.75,input$r0_min,input$r0_max)
-      lower95<-qunif(0.025,input$r0_min,input$r0_max)
-      upper95<-qunif(0.975,input$r0_min,input$r0_max)
+      lower50<-qunif(0.25,input$R0_min,input$R0_max)
+      upper50<-qunif(0.75,input$R0_min,input$R0_max)
+      lower95<-qunif(0.025,input$R0_min,input$R0_max)
+      upper95<-qunif(0.975,input$R0_min,input$R0_max)
     }
     else if(plotTypeR0()=="Normal"){
-      lower50<-qtruncnorm(p=0.25,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
-      upper50<-qtruncnorm(p=0.75,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
-      lower95<-qtruncnorm(p=0.025,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
-      upper95<-qtruncnorm(p=0.975,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
+      lower50<-qtruncnorm(p=0.25,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
+      upper50<-qtruncnorm(p=0.75,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
+      lower95<-qtruncnorm(p=0.025,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
+      upper95<-qtruncnorm(p=0.975,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
     }
     else if(plotTypeR0()=="Skewed"){
-      lower50<-qgamma(0.25,scale=input$r0_var/input$r0_means,shape=(input$r0_means*input$r0_means)/input$r0_var)
-      upper50<-qgamma(0.75,scale=input$r0_var/input$r0_means,shape=(input$r0_means*input$r0_means)/input$r0_var)
-      lower95<-qgamma(p=0.025,scale=input$r0_var/input$r0_means,shape=(input$r0_means*input$r0_means)/input$r0_var)
-      upper95<-qgamma(p=0.975,scale=input$r0_var/input$r0_means,shape=(input$r0_means*input$r0_means)/input$r0_var)
+      lower50<-qgamma(0.25,scale=input$R0_var/input$R0_means,shape=(input$R0_means*input$R0_means)/input$R0_var)
+      upper50<-qgamma(0.75,scale=input$R0_var/input$R0_means,shape=(input$R0_means*input$R0_means)/input$R0_var)
+      lower95<-qgamma(p=0.025,scale=input$R0_var/input$R0_means,shape=(input$R0_means*input$R0_means)/input$R0_var)
+      upper95<-qgamma(p=0.975,scale=input$R0_var/input$R0_means,shape=(input$R0_means*input$R0_means)/input$R0_var)
     }
     paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
           confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
@@ -729,13 +748,13 @@ server <- function(input, output, session) {
   
   output$R0median<-renderText({
     if(plotTypeR0()=="Uniform"){
-      median<-qunif(0.5,input$r0_min,input$r0_max)
+      median<-qunif(0.5,input$R0_min,input$R0_max)
     }
     else if(plotTypeR0()=="Normal"){
-      median<-qtruncnorm(p=0.5,a=input$r0_min_norm,b=input$r0_max_norm,mean=input$r0_mean,sd=input$r0_sd)
+      median<-qtruncnorm(p=0.5,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
     }
     else if(plotTypeR0()=="Skewed"){
-      median<-qgamma(p=0.5,scale=input$r0_var/input$r0_means,shape=((input$r0_means*input$r0_means)/input$r0_var))
+      median<-qgamma(p=0.5,scale=input$R0_var/input$R0_means,shape=((input$R0_means*input$R0_means)/input$R0_var))
     }
     paste("Your median value for R0 is:",round(median,digits=2))
   })
@@ -757,16 +776,36 @@ server <- function(input, output, session) {
   plotTypeAsc <- reactive({input$Asc_shape
   })
   
+  observeEvent(input$Asc_means, {
+    # If the beta mean changes, compute the new implied standard deviation
+    Asc_var <- input$Asc_betasd^2
+    # by definition we require
+    # mean*(1 - mean) > variance
+    if(input$Asc_means * (1-input$Asc_means) < Asc_var){
+      Asc_var <- input$Asc_means * (1-input$Asc_means)
+      max_sd = round(sqrt(Asc_var), 3)
+      updateSliderInput(session, "Asc_betasd", value = max_sd)
+    }
+    beta_pars <- get_beta_parameters(input$Asc_means, round(sqrt(Asc_var), 3))
+    AscAlpha <- beta_pars[1]
+    AscBeta <- beta_pars[2]
+    # normalise alpha and beta so that both are at least 1
+    if(min(AscAlpha,AscBeta)<1){
+      minab <- min(AscAlpha,AscBeta)
+      AscAlpha <- AscAlpha/minab
+      AscBeta <- AscBeta/minab
+      implied_sd = round(sqrt(AscAlpha*AscBeta / ((AscAlpha + AscBeta)^2 * (AscAlpha + AscBeta + 1))), 3)
+      updateSliderInput(session, "Asc_betasd", value = implied_sd)
+    }
+  })
+  
   output$plotAsc <- renderPlot({
+    datAsc <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
     if(plotTypeAsc()=="Uniform"){
-      datAsc<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      datAsc$ypos<-dunif(datAsc$xpos,min=input$Asc_min,max=input$Asc_max,log=F)
-      datAsc$qt  <- cut(punif(datAsc$xpos,min=input$Asc_min,max=input$Asc_max,log=F),breaks=qrt,labels=F)
+      asc_dist = distr::Unif(Min=input$Asc_min,Max=input$Asc_max)
     }
     else if(plotTypeAsc()=="Normal"){
-      datAsc<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      datAsc$ypos<-dtruncnorm(x=datAsc$xpos,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
-      datAsc$qt  <- cut(ptruncnorm(datAsc$xpos,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd),breaks=qrt,labels=F)
+      asc_dist = distr::Truncate(distr::Norm(mean=input$Asc_mean,sd=input$Asc_sd),lower=0,upper=1)
     }
     else if(plotTypeAsc()=="Skewed"){
       #then make these into gamma or beta distribution parameters
@@ -775,32 +814,19 @@ server <- function(input, output, session) {
       AscAlpha<-input$Asc_means*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
       AscBeta<-(1-input$Asc_means)*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
       datAsc<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      datAsc$ypos<-dgamma(datAsc$xpos,shape=AscShape,scale=AscScale,log=F)/pgamma(1,shape=AscShape,scale=AscScale)
-      datAsc$qt  <- cut(pgamma(datAsc$xpos,shape=AscShape,scale=AscScale,log=F)/pgamma(1,shape=AscShape,scale=AscScale),breaks=qrt,labels=F)
+      asc_dist = distr::Gammad(shape1 = AscAlpha, shape2 = AscBeta)
     }
     else if(plotTypeAsc()=="Beta"){
       #then make these into beta distribution parameters
-      # parameters alpha and beta
-      # mean = alpha /(alpha + beta)
-      # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
-      # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
-      # beta = alpha *(1 - mean)/mean
-      Asc_var <- input$Asc_betasd^2
-      AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
-      AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
-      # print(c(10, AscAlpha, AscBeta))
-      # normalise alpha and beta so that their min value is 1 and their proportions remain the same
-      if(min(AscAlpha,AscBeta)<1){
-        minab <- min(AscAlpha,AscBeta)
-        AscAlpha <- AscAlpha/minab
-        AscBeta <- AscBeta/minab
-        # print(c(11, AscAlpha, AscBeta, sqrt(AscAlpha*AscBeta / ((AscAlpha + AscBeta)^2 * (AscAlpha + AscBeta + 1)))))
-      }
-      datAsc <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      betadist = distr::Beta(shape1 = AscAlpha, shape2 = AscBeta)
-      datAsc$ypos <- distr::d(betadist)(datAsc$xpos)
-      datAsc$qt  <- cut(distr::p(betadist)(datAsc$xpos),breaks=qrt,labels=F) #cut(pbeta(datAsc$xpos,alpha=AscShape,beta=AscScale,log=F),breaks=qrt,labels=F)
+      beta_pars <- get_beta_parameters(input$Asc_means, input$Asc_betasd)
+      datAsc <- subset(datAsc,xpos*(1-xpos)!=0)
+      # print(c(14, input$Asc_means, input$Asc_betasd, beta_pars))
+      asc_dist = distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2])
+      # if(sum(beta_pars<.99)>0) return(NULL) # cut if parameters have not been updated
     }
+    v$asc_dist = asc_dist
+    datAsc$ypos <- distr::d(asc_dist)(datAsc$xpos)
+    datAsc$qt  <- cut(distr::p(asc_dist)(datAsc$xpos),breaks=qrt,labels=F) #cut(pbeta(datAsc$xpos,alpha=AscShape,beta=AscScale,log=F),breaks=qrt,labels=F)
     
     ggplot(datAsc,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
@@ -810,99 +836,19 @@ server <- function(input, output, session) {
   }
   )
   
-  observeEvent(input$Asc_means, {
-    # If the beta mean changes, compute the new implied standard deviation
-    # parameters alpha and beta
-    # mean = alpha /(alpha + beta)
-    # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
-    # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
-    # beta = alpha *(1 - mean)/mean
-    Asc_var <- input$Asc_betasd^2
-    # by definition we require
-    # mean *(1 - mean) > variance
-    if(input$Asc_means * (1-input$Asc_means) < Asc_var){
-      Asc_var <- input$Asc_means * (1-input$Asc_means)
-      max_sd = sqrt(Asc_var)
-      # print(c(12, max_sd, Asc_var, input$Asc_means))
-      updateSliderInput(
-        session,
-        "Asc_betasd",
-        value = max_sd
-      )
-    }
-    AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
-    AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
-    # normalise alpha and beta so that both are at least 1
-    if(min(AscAlpha,AscBeta)<1){
-      minab <- min(AscAlpha,AscBeta)
-      AscAlpha <- AscAlpha/minab
-      AscBeta <- AscBeta/minab
-      implied_sd = sqrt(AscAlpha*AscBeta / ((AscAlpha + AscBeta)^2 * (AscAlpha + AscBeta + 1)))
-      # print(c(13, implied_sd, Asc_var, input$Asc_means, AscAlpha, AscBeta))
-      updateSliderInput(
-        session,
-        "Asc_betasd",
-        value = implied_sd
-      )
-    }
-  })
-  
   output$Ascconf<-renderText({
-    if(plotTypeAsc()=="Uniform"){
-      lower50<-qunif(0.25,input$Asc_min,input$Asc_max)
-      upper50<-qunif(0.75,input$Asc_min,input$Asc_max)
-      lower95<-qunif(0.025,input$Asc_min,input$Asc_max)
-      upper95<-qunif(0.975,input$Asc_min,input$Asc_max)
-    }
-    else if(plotTypeAsc()=="Normal"){
-      lower50<-qtruncnorm(p=0.25,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
-      upper50<-qtruncnorm(p=0.75,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
-      lower95<-qtruncnorm(p=0.025,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
-      upper95<-qtruncnorm(p=0.975,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
-    }
-    else if(plotTypeAsc()=="Beta"){
-      # mean = alpha /(alpha + beta)
-      # variance = alpha*beta / ((alpha + beta)^2 * (alpha + beta + 1))
-      # alpha = (mean^2 *(1 - mean) - mean*variance)/variance
-      # beta = alpha *(1 - mean)/mean
-      Asc_var <- input$Asc_betasd^2
-      AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
-      AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
-      # AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
-      # AscScale<-input$Asc_var/input$Asc_means
-      betadist = distr::Beta(shape1 = AscAlpha, shape2 = AscBeta)
-      lower50 <- distr::q(betadist)(0.25)
-      upper50 <- distr::q(betadist)(0.75) # qbeta(p=0.75*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-      lower95 <- distr::q(betadist)(0.025) # qbeta(p=0.025*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-      upper95 <- distr::q(betadist)(0.975) # qbeta(p=0.975*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-    }
+    asc_dist = v$asc_dist
+    lower50 <- distr::q(asc_dist)(0.25)
+    upper50 <- distr::q(asc_dist)(0.75) # qbeta(p=0.75*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+    lower95 <- distr::q(asc_dist)(0.025) # qbeta(p=0.025*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+    upper95 <- distr::q(asc_dist)(0.975) # qbeta(p=0.975*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
     paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
           confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
   })
   
   output$Ascmedian<-renderText({
-    if(plotTypeAsc()=="Uniform"){
-      median<-qunif(0.5,input$Asc_min,input$Asc_max)
-    }
-    else if(plotTypeAsc()=="Normal"){
-      median<-qtruncnorm(p=0.5,a=0,b=1,mean=input$Asc_mean,sd=input$Asc_sd)
-    }
-    else if(plotTypeAsc()=="Beta"){
-      # AscAlpha<-input$Asc_means*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      # AscBeta<-(1-input$Asc_means)*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      # AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
-      # AscScale<-input$Asc_var/input$Asc_means
-      # median<-qgamma(p=0.5*pgamma(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-                     # ,shape1=AscAlpha,shape2=AscBeta)
-      Asc_var <- input$Asc_betasd^2
-      AscAlpha <- (input$Asc_means^2 * (1-input$Asc_means) - input$Asc_means*Asc_var) / Asc_var
-      AscBeta <- AscAlpha * (1 - input$Asc_means) / input$Asc_means
-      # AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
-      # AscScale<-input$Asc_var/input$Asc_means
-      betadist = distr::Beta(shape1 = AscAlpha, shape2 = AscBeta)
-      median <- distr::q(betadist)(0.5)
-      
-    }
+    asc_dist = v$asc_dist
+    median <- distr::q(asc_dist)(0.5)
     paste("Your median value for case ascertainment is:",round(median,digits=2))
   })
   
@@ -965,7 +911,7 @@ server <- function(input, output, session) {
       lower95<-qtruncnorm(p=0.025,a=0,b=1,mean=input$CTprop_mean,sd=input$CTprop_sd)
       upper95<-qtruncnorm(p=0.975,a=0,b=1,mean=input$CTprop_mean,sd=input$CTprop_sd)
     }
-    else if(plotTypeCTProp()=="Skewed"){
+    else if(plotTypeCTprop()=="Skewed"){
       CTpropShape<-(input$CTprop_means*input$CTprop_means)/input$CTprop_var
       CTpropScale<-input$CTprop_var/input$CTprop_means
       lower50<-qgamma(p=0.25*pgamma(1,shape=CTpropShape,scale=CTpropScale),shape=CTpropShape,scale=CTpropScale)
@@ -1105,9 +1051,83 @@ server <- function(input, output, session) {
     updateNavbarPage(session=session,"mainpage",selected="Vaccination")
   })
   
-  # observeEvent(input$submit,{
-  #   updateNavbarPage(session=session,"mainpage",selected="Contact tracing")
-  # })
+  observeEvent(input$submit,{
+    # tabulate answers
+    # these are all the parameter prefixes for which values could be reported
+    categories <- c('R0','Asc','CTprop','CTfoll')
+    answers <- c()
+    for(ct in categories){
+      if(!is.null(input[[paste0(ct,'_shape')]])){
+        thisdist = input[[paste0(ct,'_shape')]]
+        answers = rbind(answers, c(paste0(ct,' distribution'), thisdist))
+        if(thisdist=='Uniform') {
+          minlab = paste0(ct,'_min')
+          maxlab = paste0(ct,'_max')
+          answers = rbind(answers, rbind(c(minlab, input[[minlab]]),c(maxlab, input[[maxlab]])))
+        }
+        if(thisdist=='Normal') {
+          meanlab = paste0(ct,'_mean')
+          sclab = paste0(ct,'_sd')
+          answers = rbind(answers, rbind(c(meanlab, input[[meanlab]]),c(sclab, input[[sclab]])))
+          minlab = paste0(ct,'_min_norm')
+          maxlab = paste0(ct,'_max_norm')
+          if(!is.null(input[[minlab]]))
+            answers = rbind(answers, rbind(c(minlab, input[[minlab]]),c(maxlab, input[[maxlab]])))
+        }
+        if(thisdist=='Beta') {
+          meanlab = paste0(ct,'_means')
+          sclab = paste0(ct,'_betasd')
+          answers = rbind(answers, rbind(c(meanlab, input[[meanlab]]),c(sclab, input[[sclab]])))
+        }
+        if(thisdist=='Skewed') {
+          meanlab = paste0(ct,'_means')
+          varlab = paste0(ct,'_var')
+          answers = rbind(answers, rbind(c(meanlab, input[[meanlab]]),c(varlab, input[[varlab]])))
+          minlab = paste0(ct,'_min_skew')
+          maxlab = paste0(ct,'_max_skew')
+          if(!is.null(input[[minlab]]))
+            answers = rbind(answers, rbind(c(minlab, input[[minlab]]),c(maxlab, input[[maxlab]])))
+        }
+        conflab = paste0('conf_',ct)
+        sourcelab = paste0('source_',ct)
+        if(!is.null(input[[conflab]])) answers = rbind(answers, c(conflab, input[[conflab]]))
+        if(!is.null(input[[sourcelab]])) answers = rbind(answers, c(sourcelab, input[[sourcelab]]))
+      }
+    }
+    
+    # tabulate correlations
+    cors = unlist(sapply(2:length(categories),function(x) sapply(1:(x-1), function(y) paste0('corr_',categories[x],'_',categories[y]))))
+    for(sgn in cors){
+      cc <- paste0('is_',sgn)
+      if(!is.null(input[[cc]])) {
+        answers = rbind(answers, c(cc, input[[cc]]))
+        answers = rbind(answers, c(sgn, input[[sgn]]))
+      }
+    }
+    
+    # tabulate user info
+    expinfo = c()
+    expvars = c('ExpCT', 'ExpCT_length', 'ExpCase', 'ExpCase_length', 'ExpEpi', 'ExpEpi_length', 'ExpOutbreaks', 'ExpOutbreaksOther', 'ExpSetting', 'ExpVacc', 'ExpVacc_length', 'ExpWorkplace')
+    expvars = as.data.frame(sapply(expvars,function(x)ifelse(is.null(input[[x]]),'',paste0(input[[x]],collapse=', '))))
+    answers <- as.data.frame(answers)
+    
+    # give column names; print; save
+    colnames(expvars) <- c('Value')
+    colnames(answers) <- c('Variable','Value')
+    print(expvars)
+    print(answers)
+    filename = paste0(format(now(), "%Y%m%d_%H%M%S_"), "data_set.xlsx")
+    xlsx::write.xlsx(expvars,file = filename,sheetName='User data', append=F,row.names = T)
+    xlsx::write.xlsx(answers,file = filename,sheetName='Parameter data', append=T,row.names = F)
+    
+    ## maybe create a "thanks" page or restart? i think you need to close and reopen to reset everything for the next user.
+    updateNavbarPage(session=session,"mainpage",selected="Overview")
+    
+    # these are some values stored in input not written out
+    # answerAsc, answerCTfoll, answerCTprop, answerR0, 
+    # mainpage, nextAsc, nextCTfollow, nextCTprop, nextExp, nextOverview, nextR0, nextVax, 
+    # previousAsc, previousCTfollow, previousCTprop, previousExp, previousR0, previousSubmit, previousVax, 
+  })
 
 }
 
