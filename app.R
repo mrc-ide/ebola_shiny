@@ -178,12 +178,12 @@ ui <- page_navbar(
                 
                 conditionalPanel(
                   condition="input.R0_shape=='Skewed'",
-                  sliderInput("R0_min_skew","What do you think minimum value of R0 is?",min=0,max=3,value=1,step=0.1,round=-1)
+                  sliderInput("R0_min_skew","What do you think minimum value of R0 is?",min=0,max=3,value=0,step=0.1,round=-1)
                 ),
                 
                 conditionalPanel(
                   condition="input.R0_shape=='Skewed'",
-                  sliderInput("R0_max_skew","What do you think maximum value of R0 is?",min=3,max=10,value=10,step=0.1,round=-1)
+                  sliderInput("R0_max_skew","What do you think maximum value of R0 is?",min=0,max=10,value=10,step=0.1,round=-1)
                 ),
               )
             ),
@@ -656,7 +656,8 @@ server <- function(input, output, session) {
     # print(c(Alpha,Beta))
     c(Alpha, Beta)
   }
-  v <- reactiveValues(asc_dist = NULL, 
+  v <- reactiveValues(R0_dist = NULL, 
+                      asc_dist = NULL, 
                       AscSlider=NULL)
   
   observeEvent(input$nextOverview,{
@@ -690,66 +691,43 @@ server <- function(input, output, session) {
 
   output$plotR0 <- renderPlot({
     if(plotTypeR0()=="Uniform"){
-      dat<-data.frame(xpos=seq(xmin,xmax,by=0.01))
-      dat$ypos<-dunif(dat$xpos,min=input$R0_min,max=input$R0_max,log=F)
-      dat$qt  <- cut(punif(dat$xpos,min=input$R0_min,max=input$R0_max,log=F),breaks=qrt,labels=F)
+      R0_dist = distr::Unif(Min=input$R0_min,Max=input$R0_max)
     }
     else if(plotTypeR0()=="Normal"){
-      dat<-data.frame(xpos=seq(xmin,xmax,by=0.01))
-      dat$ypos<-dtruncnorm(x=dat$xpos,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
-      dat$qt  <- cut(ptruncnorm(dat$xpos,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd),breaks=qrt,labels=F)
+      R0_dist = distr::Truncate(distr::Norm(mean=input$R0_mean,sd=input$R0_sd),lower=input$R0_min_norm,upper=input$R0_max_norm)
     }
     else if(plotTypeR0()=="Skewed"){
-      #then make these into gamma distribution parameters
-      R0scale<-input$R0_var/input$R0_means
-      R0sh<-(input$R0_means*input$R0_means)/input$R0_var
-      dat<-data.frame(xpos=seq(xmin,xmax,by=0.01))
-      dat$ypos<-dgamma(dat$xpos,shape=R0sh,scale=R0scale,log=F)
-      dat$qt  <- cut(pgamma(dat$xpos,shape=R0sh,scale=R0scale,log=F),breaks=qrt,labels=F)
+      #then make these into gamma or beta distribution parameters
+      Shape<-(input$R0_means*input$R0_means)/input$R0_var
+      Scale<-input$R0_var/input$R0_means
+      R0_dist = Truncate(Gammad(shape = Shape, scale = Scale),lower=input$R0_min_skew,upper=input$R0_max_skew)
     }
+    dat <- data.frame(xpos=seq(xmin,xmax,by=0.01))
+    v$R0_dist = R0_dist
+    dat$ypos <- distr::d(R0_dist)(dat$xpos)
+    dat$qt  <- cut(distr::p(R0_dist)(dat$xpos),breaks=qrt,labels=F) 
     
     ggplot(dat,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
       labs(x="R0",y="pdf",color="Percentile",title="Probability density of R0")+
       theme_gray(base_size = text_size)+theme(legend.position ="none") + 
       scale_x_continuous(breaks=breaks10)
-    
   }
   )
   
   output$R0conf<-renderText({
-    if(plotTypeR0()=="Uniform"){
-      lower50<-qunif(0.25,input$R0_min,input$R0_max)
-      upper50<-qunif(0.75,input$R0_min,input$R0_max)
-      lower95<-qunif(0.025,input$R0_min,input$R0_max)
-      upper95<-qunif(0.975,input$R0_min,input$R0_max)
-    }
-    else if(plotTypeR0()=="Normal"){
-      lower50<-qtruncnorm(p=0.25,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
-      upper50<-qtruncnorm(p=0.75,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
-      lower95<-qtruncnorm(p=0.025,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
-      upper95<-qtruncnorm(p=0.975,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
-    }
-    else if(plotTypeR0()=="Skewed"){
-      lower50<-qgamma(0.25,scale=input$R0_var/input$R0_means,shape=(input$R0_means*input$R0_means)/input$R0_var)
-      upper50<-qgamma(0.75,scale=input$R0_var/input$R0_means,shape=(input$R0_means*input$R0_means)/input$R0_var)
-      lower95<-qgamma(p=0.025,scale=input$R0_var/input$R0_means,shape=(input$R0_means*input$R0_means)/input$R0_var)
-      upper95<-qgamma(p=0.975,scale=input$R0_var/input$R0_means,shape=(input$R0_means*input$R0_means)/input$R0_var)
-    }
+    R0_dist = v$R0_dist
+    lower50 <- distr::q(R0_dist)(0.25)
+    upper50 <- distr::q(R0_dist)(0.75) 
+    lower95 <- distr::q(R0_dist)(0.025) 
+    upper95 <- distr::q(R0_dist)(0.975) 
     paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
           confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
   })
   
   output$R0median<-renderText({
-    if(plotTypeR0()=="Uniform"){
-      median<-qunif(0.5,input$R0_min,input$R0_max)
-    }
-    else if(plotTypeR0()=="Normal"){
-      median<-qtruncnorm(p=0.5,a=input$R0_min_norm,b=input$R0_max_norm,mean=input$R0_mean,sd=input$R0_sd)
-    }
-    else if(plotTypeR0()=="Skewed"){
-      median<-qgamma(p=0.5,scale=input$R0_var/input$R0_means,shape=((input$R0_means*input$R0_means)/input$R0_var))
-    }
+    R0_dist = v$R0_dist
+    median <- distr::q(R0_dist)(0.5)
     paste("Your median value for R0 is:",round(median,digits=2))
   })
   
