@@ -19,14 +19,8 @@ library(ggplot2)
 # library(devtools)
 # install_github("olafmersmann/truncnorm")
 library(truncnorm)
-# library("googlesheets4")
 # library("DT")
 
-# # get token to access
-# shiny_token <- gs4_auth()
-# saveRDS(shiny_token,"shiny_app_token.rds")
-
-# set up data in google drive
 #Data <- gs4_create("Ebola_data")
 
 # Define UI for application that draws a histogram
@@ -87,7 +81,7 @@ ui <- page_navbar(
             
             radioButtons(inputId="ExpEpi",label="Do you have experience analysing epidemiological data? E.g. calculating case fatality ratios, hospitalisation rates or reproduction number etc.",choices=c("No","Yes"),width="100%"),
             conditionalPanel(condition="input.ExpEpi=='Yes'",
-                             selectInput("ExpEpi_length","If yes, how many years experience do you have?",c("0-2","3-5","6-9","10+"),width="80%")
+                             selectInput("ExpEpi_length","If yes, how many years experience do you have?",c("0-2","3-5","6-9","10+"),width="80%",selected=NULL)
                              ),
             radioButtons(inputId="ExpCase",label="Do you have experience with case investigation and ascertainment? E.g. conducting Viral Haemorrhagic Fever (VHF) questionnaires, assessing case alerts etc.",choices=c("No","Yes"),width="100%"),
             conditionalPanel(condition="input.ExpCase=='Yes'",
@@ -221,7 +215,7 @@ ui <- page_navbar(
                    shiny::p(tags$h3("Case ascertainment")),
                    
                    shiny::p("Case ascertainment refers to the proportion of all cases that are identified and added to the case line list (this could be as confirmed, probable or suspect cases). In an ideal outbreak response, case ascertainment would be 1, i.e. all cases would be recorded.
-                   In practice, there are many reasons why this is not possible, e.g. due to limited resources or stigma attached to being identified as an EVD case. We are interested in understanding the proportion of cases that are ascertained as it directly impacts the success of the policies and interventions
+                   In practice, this is not possible due to limited resources or stigma attached to being identified as an EVD case. We are interested in the proportion of cases that are ascertained as it impacts the success of the policies and interventions
                    that we model, such as contact tracing and targeted vaccination.
                      If you feel able to share your intuition regarding case ascertainment, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for case ascertainment, please continue to the next section"),
                    
@@ -283,7 +277,7 @@ ui <- page_navbar(
                        
                        conditionalPanel(
                          condition="input.answerAsc=='Yes'",
-                         plotOutput("plotAsc",width="100%",height="1000px"),
+                         plotOutput("plotAsc",width="100%",height="100%"),
                          textOutput("Ascmedian"),
                          textOutput("Ascconf"),
                          
@@ -1107,7 +1101,7 @@ server <- function(input, output, session) {
     
     # tabulate user info
     expinfo = c()
-    expvars = c('ExpCT', 'ExpCT_length', 'ExpCase', 'ExpCase_length', 'ExpEpi', 'ExpEpi_length', 'ExpOutbreaks', 'ExpOutbreaksOther', 'ExpSetting', 'ExpVacc', 'ExpVacc_length', 'ExpWorkplace')
+    expvars = c('ExpCT', 'ExpCT_length', 'ExpCase', 'ExpCase_length', 'ExpEpi', 'ExpEpi_length', 'ExpOutbreaks', 'ExpOutbreaksOther', 'ExpSetting', 'ExpVacc', 'ExpVacc_length', 'ExpWorkplace','ExpDept')
     expvars = as.data.frame(sapply(expvars,function(x)ifelse(is.null(input[[x]]),'',paste0(input[[x]],collapse=', '))))
     answers <- as.data.frame(answers)
     
