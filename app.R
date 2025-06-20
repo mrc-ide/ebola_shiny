@@ -983,12 +983,14 @@ server <- function(input, output, session) {
     }
     
     # tabulate correlations
-    corqs = c('is_corr_Asc_R0', 'is_corr_CTfoll_Asc', 'is_corr_CTfoll_R0', 'is_corr_CTprop_Asc', 'is_corr_CTprop_R0')
-    cors = c('corr_Asc_R0', 'corr_CTfoll_Asc', 'corr_CTfoll_R0', 'corr_CTprop_Asc', 'corr_CTprop_R0')
-    for(cc in corqs)
-      if(!is.null(input[[cc]])) answers = rbind(answers, c(cc, input[[cc]]))
-    for(cc in cors)
-      if(!is.null(input[[cc]])) answers = rbind(answers, c(cc, input[[cc]]))
+    cors = unlist(sapply(2:length(categories),function(x) sapply(1:(x-1), function(y) paste0('corr_',categories[x],'_',categories[y]))))
+    for(sgn in cors){
+      cc <- paste0('is_',sgn)
+      if(!is.null(input[[cc]])) {
+        answers = rbind(answers, c(cc, input[[cc]]))
+        answers = rbind(answers, c(sgn, input[[sgn]]))
+      }
+    }
     
     # tabulate user info
     expinfo = c()
