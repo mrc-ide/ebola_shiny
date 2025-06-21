@@ -243,17 +243,17 @@ ui <- page_navbar(
                                   
                                   conditionalPanel(
                                     condition="input.DT_shape=='Uniform'",
-                                    sliderInput("DT_max","What do you think the maximum plausible doubling time is?",min=10,max=50,value=50,step=1,round=0)
+                                    sliderInput("DT_max","What do you think the maximum plausible doubling time is?",min=10,max=40,value=40,step=1,round=0)
                                   ),
                                   
                                   conditionalPanel(
                                     condition="input.DT_shape=='Normal'",
-                                    sliderInput("DT_mean","What do you think the mean doubling time is?",min=10,max=50,value=30,step=1,round=-0)
+                                    sliderInput("DT_mean","What do you think the mean doubling time is?",min=10,max=40,value=20,step=1,round=-0)
                                   ),
                                   
                                   conditionalPanel(
                                     condition="input.DT_shape=='Normal'",
-                                    sliderInput("DT_sd","What do you think the standard deviation the double time is?",min=1,max=10,value=5,step=0.5,round=-1)
+                                    sliderInput("DT_sd","What do you think the standard deviation the double time is?",min=1,max=20,value=5,step=0.5,round=-1)
                                   ),
                                   
                                   conditionalPanel(
@@ -263,17 +263,17 @@ ui <- page_navbar(
                                   
                                   conditionalPanel(
                                     condition="input.DT_shape=='Normal'",
-                                    sliderInput("DT_max_norm","What do you think maximum plausible doubling time is?",min=10,max=50,value=50,step=1,round=0)
-                                  ),
-                                  
-                                  conditionalPanel(
-                                    condition="input.R0_shape=='Skewed'",
-                                    sliderInput("DT_means","What do you think the mean doubling time is?",min=10,max=50,value=30,step=1,round=0)
+                                    sliderInput("DT_max_norm","What do you think maximum plausible doubling time is?",min=10,max=40,value=40,step=1,round=0)
                                   ),
                                   
                                   conditionalPanel(
                                     condition="input.DT_shape=='Skewed'",
-                                    sliderInput("DT_var","What do you think the variance of the doubling time is?",min=1,max=10,value=4,step=0.5,round=-1)
+                                    sliderInput("DT_means","What do you think the mean doubling time is?",min=10,max=40,value=20,step=1,round=0)
+                                  ),
+                                  
+                                  conditionalPanel(
+                                    condition="input.DT_shape=='Skewed'",
+                                    sliderInput("DT_var","What do you think the variance of the doubling time is?",min=1,max=400,value=100,step=0.5,round=-1)
                                   ),
                                   
                                   conditionalPanel(
@@ -283,7 +283,7 @@ ui <- page_navbar(
                                   
                                   conditionalPanel(
                                     condition="input.DT_shape=='Skewed'",
-                                    sliderInput("DT_max_skew","What do you think maximum plausible doubling time is?",min=10,max=50,value=50,step=1,round=0)
+                                    sliderInput("DT_max_skew","What do you think maximum plausible doubling time is?",min=10,max=40,value=40,step=1,round=0)
                                   ),
                                 )
                 ),
@@ -742,7 +742,7 @@ server <- function(input, output, session) {
   xmax<-10
   xmaxUnit<-1
   xminDT<-10
-  xmaxDT<-50
+  xmaxDT<-40
   qrt<-c(0,0.025,0.25,0.5,0.75,0.975,1)
   text_size = 20
   breaks10 = 0:xmax
@@ -866,68 +866,48 @@ server <- function(input, output, session) {
   
   output$plotDT <- renderPlot({
     if(plotTypeDT()=="Uniform"){
-      dat<-data.frame(xpos=seq(xminDT,xmaxDT,by=0.01))
-      dat$ypos<-dunif(dat$xpos,min=input$DT_min,max=input$DT_max,log=F)
-      dat$qt  <- cut(punif(dat$xpos,min=input$DT_min,max=input$DT_max,log=F),breaks=qrt,labels=F)
+      DT_dist<-distr::Unif(Min=input$DT_min,Max=input$DT_max)
     }
     else if(plotTypeDT()=="Normal"){
-      dat<-data.frame(xpos=seq(xminDT,xmaxDT,by=0.01))
-      dat$ypos<-dtruncnorm(x=dat$xpos,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd)
-      dat$qt  <- cut(ptruncnorm(dat$xpos,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd),breaks=qrt,labels=F)
-    }
+      DT_dist<-distr::Truncate(distr::Norm(mean=input$DT_mean,sd=input$DT_sd),lower=input$DT_min_norm,upper=input$DT_max_norm)
+      }
     else if(plotTypeDT()=="Skewed"){
       #then make these into gamma distribution parameters
-      DTscale<-input$DT_var/input$DT_means
-      DTsh<-(input$DT_means*input$DT_means)/input$DT_var
-      dat<-data.frame(xpos=seq(xminDT,xmaxDT,by=0.01))
-      dat$ypos<-dgamma(dat$xpos,shape=DTsh,scale=DTscale,log=F)
-      dat$qt  <- cut(pgamma(dat$xpos,shape=DTsh,scale=DTscale,log=F),breaks=qrt,labels=F)
+      Shape<-(input$DT_means*input$DT_means)/input$DT_var
+      Scale<-input$DT_var/input$DT_means
+      DT_dist = Truncate(Gammad(shape = Shape, scale = Scale),lower=input$DT_min_skew,upper=input$DT_max_skew)
     }
+    
+    dat <- data.frame(xpos=seq(xminDT,xmaxDT,by=0.01))
+    v$DT_dist = DT_dist
+    dat$ypos <- distr::d(DT_dist)(dat$xpos)
+    dat$qt  <- cut(distr::p(DT_dist)(dat$xpos),breaks=qrt,labels=F) 
     
     ggplot(dat,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
       labs(x="Doubling time (days)",y="pdf",color="Percentile",title="Probability density of doubling time (days)")+
       theme_gray(base_size = text_size)+theme(legend.position ="none") + 
       scale_x_continuous(breaks=breaksDT)
-    
+
   }
   )
   
   output$DTconf<-renderText({
-    if(plotTypeDT()=="Uniform"){
-      lower50<-qunif(0.25,input$DT_min,input$DT_max)
-      upper50<-qunif(0.75,input$DT_min,input$DT_max)
-      lower95<-qunif(0.025,input$DT_min,input$DT_max)
-      upper95<-qunif(0.975,input$DT_min,input$DT_max)
-    }
-    else if(plotTypeDT()=="Normal"){
-      lower50<-qtruncnorm(p=0.25,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd)
-      upper50<-qtruncnorm(p=0.75,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd)
-      lower95<-qtruncnorm(p=0.025,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd)
-      upper95<-qtruncnorm(p=0.975,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd)
-    }
-    else if(plotTypeDT()=="Skewed"){
-      lower50<-qgamma(0.25,scale=input$DT_var/input$DT_means,shape=(input$DT_means*input$DT_means)/input$DT_var)
-      upper50<-qgamma(0.75,scale=input$DT_var/input$DT_means,shape=(input$DT_means*input$DT_means)/input$DT_var)
-      lower95<-qgamma(p=0.025,scale=input$DT_var/input$DT_means,shape=(input$DT_means*input$DT_means)/input$DT_var)
-      upper95<-qgamma(p=0.975,scale=input$DT_var/input$DT_means,shape=(input$DT_means*input$DT_means)/input$DT_var)
-    }
-    paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
-          confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2),"days")
+    DT_dist = v$DT_dist
+    lower50 <- distr::q(DT_dist)(0.25)
+    upper50 <- distr::q(DT_dist)(0.75) 
+    lower95 <- distr::q(DT_dist)(0.025) 
+    upper95 <- distr::q(DT_dist)(0.975)
+    paste("Your 50% confidence interval is:",round(lower50,digits=1),"-",round(upper50,digits=1), "days and your 95%
+          confidence interval is:",round(lower95,digits=1),"-",round(upper95,digits=1),"days")
   })
   
   output$DTmedian<-renderText({
-    if(plotTypeDT()=="Uniform"){
-      median<-qunif(0.5,input$DT_min,input$DT_max)
-    }
-    else if(plotTypeDT()=="Normal"){
-      median<-qtruncnorm(p=0.5,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd)
-    }
-    else if(plotTypeDT()=="Skewed"){
-      median<-qgamma(p=0.5,scale=input$DT_var/input$DT_means,shape=((input$DT_means*input$DT_means)/input$DT_var))
-    }
-    paste("Your median value for DT is:",round(median,digits=2),"days")
+    DT_dist = v$DT_dist
+    median <- distr::q(DT_dist)(0.5)
+    paste("Your median value for doubling time is:",round(median,digits=1),"days")
   })
+  
   
   observeEvent(input$previousDT,{
     updateNavbarPage(session=session,"mainpage",selected="Reproduction number")
