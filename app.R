@@ -118,10 +118,11 @@ ui <- page_navbar(
             shiny::p(tags$h3("Basic reproduction number")),
             
             shiny::p("The basic reproduction number of a pathogen (R0) is the mean number of infections caused by an infectious individual in an otherwise completely susceptible population.
-            If you feel able to share your intuition for R0, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for R0, please continue to the next section"),
+            If you feel able to share your intuition for R0, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for R0 or
+                     would prefer to provide intuition for the early growth of EVD epidemics in terms of the doubling time, please continue to the next section"),
             
             
-            card(
+            # card(
             layout_sidebar(
               
               sidebar=sidebar(title="Reproduction number (R0)",
@@ -206,7 +207,106 @@ ui <- page_navbar(
               actionButton("nextR0","Next",class="btn-primary")
             )
           )
-        )
+        # )
+            
+  ),
+  
+  #doubling time
+  
+  nav_panel(title="Doubling time",
+            
+            shiny::p(tags$h3("Doubling time")),
+            
+            shiny::p("The doubling time is the time it takes for incidence to double and it is an alternative way to characterise early epidemic growth.
+                     f you feel able to share your intuition for R0, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for R0 or
+                     would prefer to provide intuition for the early growth of EVD epidemics in terms of the doubling time, please continue to the next section"),
+            
+            # card(
+              layout_sidebar(
+                
+                sidebar=sidebar(title="Doubling time",
+                                width=300,
+                                shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                
+                                selectInput("answerDT","Can you provide your intuition about the distribution of doubling time of EVD cases in the early, exponential growth phase over multiple outbreaks?",
+                                            c("No","Yes")),
+                                
+                                conditionalPanel(
+                                  condition="input.answerDT=='Yes'",
+                                  selectInput("DT_shape","What do you think the shape of the doubling time distribution is?",
+                                              c("Uniform","Normal","Skewed")),
+                                  
+                                  conditionalPanel(
+                                    condition="input.DT_shape=='Uniform'",
+                                    sliderInput("DT_min","What do you think the minimum plausible doubling time is is?",min=10,max=30,value=10,step=1,round=0)
+                                  ),
+                                  
+                                  conditionalPanel(
+                                    condition="input.DT_shape=='Uniform'",
+                                    sliderInput("DT_max","What do you think the maximum plausible doubling time is?",min=10,max=50,value=50,step=1,round=0)
+                                  ),
+                                  
+                                  conditionalPanel(
+                                    condition="input.DT_shape=='Normal'",
+                                    sliderInput("DT_mean","What do you think the mean doubling time is?",min=10,max=50,value=30,step=1,round=-0)
+                                  ),
+                                  
+                                  conditionalPanel(
+                                    condition="input.DT_shape=='Normal'",
+                                    sliderInput("DT_sd","What do you think the standard deviation the double time is?",min=1,max=10,value=5,step=0.5,round=-1)
+                                  ),
+                                  
+                                  conditionalPanel(
+                                    condition="input.DT_shape=='Normal'",
+                                    sliderInput("DT_min_norm","What do you think minimum doubling time is?",min=10,max=30,value=10,step=1,round=0)
+                                  ),
+                                  
+                                  conditionalPanel(
+                                    condition="input.DT_shape=='Normal'",
+                                    sliderInput("DT_max_norm","What do you think maximum plausible doubling time is?",min=10,max=50,value=50,step=1,round=0)
+                                  ),
+                                  
+                                  conditionalPanel(
+                                    condition="input.R0_shape=='Skewed'",
+                                    sliderInput("DT_means","What do you think the mean doubling time is?",min=10,max=50,value=30,step=1,round=0)
+                                  ),
+                                  
+                                  conditionalPanel(
+                                    condition="input.DT_shape=='Skewed'",
+                                    sliderInput("DT_var","What do you think the variance of the doubling time is?",min=1,max=10,value=4,step=0.5,round=-1)
+                                  ),
+                                  
+                                  conditionalPanel(
+                                    condition="input.DT_shape=='Skewed'",
+                                    sliderInput("DT_min_skew","What do you think minimum plausible doubling time is?",min=10,max=30,value=10,step=1,round=0)
+                                  ),
+                                  
+                                  conditionalPanel(
+                                    condition="input.DT_shape=='Skewed'",
+                                    sliderInput("DT_max_skew","What do you think maximum plausible doubling time is?",min=10,max=50,value=50,step=1,round=0)
+                                  ),
+                                )
+                ),
+                
+                conditionalPanel(
+                  condition="input.answerDT=='Yes'",
+                  plotOutput("plotDT",width="100%",height='500px'),
+                  textOutput("DTmedian"),
+                  textOutput("DTconf"),
+                  
+                  selectInput("conf_DT","How confident are you about the shape of the distribution?",
+                              c("Very","Somewhat","Slightly","Not very"),width="50%", selected = "Not very"),
+                  
+                  textAreaInput("source_DT","Please provide any context or sources that have guided your intuition:",width="80%"
+                  )
+                ),
+                
+                layout_column_wrap(1/2,
+                                   actionButton("previousDT","Previous"),
+                                   actionButton("nextDT","Next",class="btn-primary")
+                )
+              )
+            # )
             
   ),
   
@@ -219,87 +319,92 @@ ui <- page_navbar(
                    that we model, such as contact tracing and targeted vaccination.
                      If you feel able to share your intuition regarding case ascertainment, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for case ascertainment, please continue to the next section"),
                    
-                   card(
-                     layout_sidebar(
-                       sidebar=sidebar(title="Case ascertainment",
-                                       width=300,
-                                       shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
-                                       
-                                       selectInput("answerAsc","Can you provide your intuition about the distribution of case ascertainment?",
-                                                   c("No","Yes")),
-                                       
-                                       conditionalPanel(
-                                         condition="input.answerAsc=='Yes'",
-                                         selectInput("Asc_shape","What do you think the shape of the distribution of case ascertainment is?",
-                                                     c("Uniform","Normal","Beta")),
-                                         
-                                         conditionalPanel(
-                                           condition="input.Asc_shape=='Uniform'",
-                                           sliderInput("Asc_min","What do you think the minimum value of case ascertainment is?",min=0,max=1,value=0,step=0.05,round=-2)
-                                         ),
-                                         
-                                         conditionalPanel(
-                                           condition="input.Asc_shape=='Uniform'",
-                                           sliderInput("Asc_max","What do you think the maximum value of case ascertainment is?",min=0,max=1,value=1,step=0.05,round=-2)
-                                         ),
-                                         
-                                         conditionalPanel(
-                                           condition="input.Asc_shape=='Normal'",
-                                           sliderInput("Asc_mean","What do you think the mean value of case ascertainment is?",min=0,max=1,value=0.5,step=0.05,round=-2)
-                                         ),
-                                         
-                                         conditionalPanel(
-                                           condition="input.Asc_shape=='Normal'",
-                                           sliderInput("Asc_sd","What do you think the standard deviation of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.01,round=-2)
-                                         ),
-                                         
-                                         # conditionalPanel(
-                                         #   condition="input.Asc_shape=='Skewed'",
-                                         #   sliderInput("Asc_means","What do you think the mean value of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
-                                         # ),
-                                         # 
-                                         # conditionalPanel(
-                                         #   condition="input.Asc_shape=='Skewed'",
-                                         #   sliderInput("Asc_var","What do you think the variance of case ascertainment is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
-                                         # ),
-                                         
-                                         conditionalPanel(
-                                           condition="input.Asc_shape=='Beta'",
-                                           sliderInput("Asc_means","What do you think the mean value of case ascertainment is?",min=0.01,max=0.99,value=0.5,step=0.05,round=-2)
-                                         ),
-                                         
-                                         conditionalPanel(
-                                           condition="input.Asc_shape=='Beta'",
-                                           sliderInput("Asc_betasd","What do you think the standard deviation of case ascertainment is?",min=0.01,max=round(sqrt(1/12),2),value=sqrt(1/12),step=0.001,round=-3)
-                                         )
-                                       )
-                       ),
-                       
-                       conditionalPanel(
-                         condition="input.answerAsc=='Yes'",
-                         plotOutput("plotAsc",width="100%",height="100%"),
-                         textOutput("Ascmedian"),
-                         textOutput("Ascconf"),
-                         
-                         selectInput("conf_Asc","How confident are you about the shape of the distribution?",
-                                     c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
-                         
-                         selectInput("is_corr_Asc_R0","Do you think there is any correlation between case ascertainment and reproduction number? e.g. if the reproduction number is higher, case ascertainment is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
-                         
-                         conditionalPanel(condition="input.is_corr_Asc_R0=='Yes'",
-                                          selectInput("corr_Asc_R0","Do you think the correlation is positive (i.e. when reproduction number is high, case ascertainment is high and when reproduction number is low, case ascertainment is low) or negative (i.e. when reproduction number is low, case ascertainment is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                   # card(
+                     accordion(id="CaseAsc",
+                       accordion_panel(title="Case ascertainment", value="CaseAsc",
+                         layout_sidebar(
+                           sidebar=sidebar(title="Case ascertainment",
+                                           width=300,
+                                           shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                           
+                                           selectInput("answerAsc","Can you provide your intuition about the distribution of case ascertainment?",
+                                                       c("No","Yes")),
+                                           
+                                           conditionalPanel(
+                                             condition="input.answerAsc=='Yes'",
+                                             selectInput("Asc_shape","What do you think the shape of the distribution of case ascertainment is?",
+                                                         c("Uniform","Normal","Beta")),
+                                             
+                                             conditionalPanel(
+                                               condition="input.Asc_shape=='Uniform'",
+                                               sliderInput("Asc_min","What do you think the minimum value of case ascertainment is?",min=0,max=1,value=0,step=0.05,round=-2)
+                                             ),
+                                             
+                                             conditionalPanel(
+                                               condition="input.Asc_shape=='Uniform'",
+                                               sliderInput("Asc_max","What do you think the maximum value of case ascertainment is?",min=0,max=1,value=1,step=0.05,round=-2)
+                                             ),
+                                             
+                                             conditionalPanel(
+                                               condition="input.Asc_shape=='Normal'",
+                                               sliderInput("Asc_mean","What do you think the mean value of case ascertainment is?",min=0,max=1,value=0.5,step=0.05,round=-2)
+                                             ),
+                                             
+                                             conditionalPanel(
+                                               condition="input.Asc_shape=='Normal'",
+                                               sliderInput("Asc_sd","What do you think the standard deviation of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.01,round=-2)
+                                             ),
+                                             
+                                             # conditionalPanel(
+                                             #   condition="input.Asc_shape=='Skewed'",
+                                             #   sliderInput("Asc_means","What do you think the mean value of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
+                                             # ),
+                                             # 
+                                             # conditionalPanel(
+                                             #   condition="input.Asc_shape=='Skewed'",
+                                             #   sliderInput("Asc_var","What do you think the variance of case ascertainment is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
+                                             # ),
+                                             
+                                             conditionalPanel(
+                                               condition="input.Asc_shape=='Beta'",
+                                               sliderInput("Asc_means","What do you think the mean value of case ascertainment is?",min=0.01,max=0.99,value=0.5,step=0.05,round=-2)
+                                             ),
+                                             
+                                             conditionalPanel(
+                                               condition="input.Asc_shape=='Beta'",
+                                               sliderInput("Asc_betasd","What do you think the standard deviation of case ascertainment is?",min=0.01,max=round(sqrt(1/12),2),value=sqrt(1/12),step=0.001,round=-3)
+                                             )
+                                           )
+                           ),
                            
-                         ),
-                         
-                         textAreaInput("source_Asc","Please provide any context or sources that have guided your intuition:",width="80%"
+                           conditionalPanel(
+                             condition="input.answerAsc=='Yes'",
+                             plotOutput("plotAsc",width="100%"),
+                             textOutput("Ascmedian"),
+                             textOutput("Ascconf"),
+                             
+                             selectInput("conf_Asc","How confident are you about the shape of the distribution?",
+                                         c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
+                             
+                             selectInput("is_corr_Asc_R0","Do you think there is any correlation between case ascertainment and reproduction number? e.g. if the reproduction number is higher, case ascertainment is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                             
+                             conditionalPanel(condition="input.is_corr_Asc_R0=='Yes'",
+                                              selectInput("corr_Asc_R0","Do you think the correlation is positive (i.e. when reproduction number is high, case ascertainment is high and when reproduction number is low, case ascertainment is low) or negative (i.e. when reproduction number is low, case ascertainment is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                              
+                             ),
+                             
+                             textAreaInput("source_Asc","Please provide any context or sources that have guided your intuition:",width="80%"
+                             )
+                           ),
+                           layout_column_wrap(1/2,
+                                              actionButton("previousAsc","Previous"),
+                                              actionButton("nextAsc","Next",class="btn-primary")
+                           )
                          )
-                       ),
-                       layout_column_wrap(1/2,
-                                          actionButton("previousAsc","Previous"),
-                                          actionButton("nextAsc","Next",class="btn-primary")
                        )
                      )
-                   )
+                     
+                   # )
                    
   ),
   
@@ -312,7 +417,7 @@ ui <- page_navbar(
                      is likely to be effective, we are interested in understanding: a) what proportion of contacts are traced, and b) what proportion of contacts complete follow-up. 
                      If you feel able to share your intuition regarding contact tracing, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for contact tracing, please continue to the next section"),
                    
-                   card(
+                   # card(
                      accordion(id="CT",
                        accordion_panel("Proportion of contacts traced",
                                        value="CTprop",
@@ -480,7 +585,7 @@ ui <- page_navbar(
                        )
                      )
                      
-                   ),
+                   # ),
   ),
   
   bslib::nav_panel(title="Vaccination",
@@ -491,7 +596,7 @@ ui <- page_navbar(
                      latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in 
                      vaccine uptake for these different strategies, as well as the time taken to initiate vaccination following ascertainment of a case."),
                    
-                   card(
+                   # card(
                      accordion(id="vacc",
                                accordion_panel("HCW/FLW vaccination",
                                                value="Vacc_HCW",
@@ -612,7 +717,7 @@ ui <- page_navbar(
                                                
                                )
                      )
-                   )
+                   # )
                    
   ),
   
@@ -636,10 +741,13 @@ server <- function(input, output, session) {
   xmin<-0
   xmax<-10
   xmaxUnit<-1
+  xminDT<-10
+  xmaxDT<-50
   qrt<-c(0,0.025,0.25,0.5,0.75,0.975,1)
   text_size = 20
   breaks10 = 0:xmax
   breaksunit = seq(0,1,length=11)
+  breaksDT=seq(xminDT,xmaxDT,by=2)
   get_beta_parameters <- function(betamean, betasd){
     # parameters alpha and beta
     # mean = alpha /(alpha + beta)
@@ -736,6 +844,96 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$nextR0,{
+    updateNavbarPage(session=session,"mainpage",selected="Doubling time")
+  })
+  
+  ## doubling time ########################################################
+  
+  plotTypeDT <- reactive({input$DT_shape
+  })
+  
+  observeEvent(input$DT_min,{
+    updateSliderInput(session,"DT_max",min=input$DT_min+0.1)
+  })
+  
+  observeEvent(input$DT_min_norm,{
+    updateSliderInput(session,"DT_max_norm",min=input$DT_min_norm+0.1)
+  })
+  
+  observeEvent(input$DT_min_skew,{
+    updateSliderInput(session,"DT_max_skew",min=input$DT_min_skew+0.1)
+  })
+  
+  output$plotDT <- renderPlot({
+    if(plotTypeDT()=="Uniform"){
+      dat<-data.frame(xpos=seq(xminDT,xmaxDT,by=0.01))
+      dat$ypos<-dunif(dat$xpos,min=input$DT_min,max=input$DT_max,log=F)
+      dat$qt  <- cut(punif(dat$xpos,min=input$DT_min,max=input$DT_max,log=F),breaks=qrt,labels=F)
+    }
+    else if(plotTypeDT()=="Normal"){
+      dat<-data.frame(xpos=seq(xminDT,xmaxDT,by=0.01))
+      dat$ypos<-dtruncnorm(x=dat$xpos,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd)
+      dat$qt  <- cut(ptruncnorm(dat$xpos,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd),breaks=qrt,labels=F)
+    }
+    else if(plotTypeDT()=="Skewed"){
+      #then make these into gamma distribution parameters
+      DTscale<-input$DT_var/input$DT_means
+      DTsh<-(input$DT_means*input$DT_means)/input$DT_var
+      dat<-data.frame(xpos=seq(xminDT,xmaxDT,by=0.01))
+      dat$ypos<-dgamma(dat$xpos,shape=DTsh,scale=DTscale,log=F)
+      dat$qt  <- cut(pgamma(dat$xpos,shape=DTsh,scale=DTscale,log=F),breaks=qrt,labels=F)
+    }
+    
+    ggplot(dat,aes(x=xpos,y=ypos))+
+      geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
+      labs(x="Doubling time (days)",y="pdf",color="Percentile",title="Probability density of doubling time (days)")+
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksDT)
+    
+  }
+  )
+  
+  output$DTconf<-renderText({
+    if(plotTypeDT()=="Uniform"){
+      lower50<-qunif(0.25,input$DT_min,input$DT_max)
+      upper50<-qunif(0.75,input$DT_min,input$DT_max)
+      lower95<-qunif(0.025,input$DT_min,input$DT_max)
+      upper95<-qunif(0.975,input$DT_min,input$DT_max)
+    }
+    else if(plotTypeDT()=="Normal"){
+      lower50<-qtruncnorm(p=0.25,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd)
+      upper50<-qtruncnorm(p=0.75,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd)
+      lower95<-qtruncnorm(p=0.025,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd)
+      upper95<-qtruncnorm(p=0.975,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd)
+    }
+    else if(plotTypeDT()=="Skewed"){
+      lower50<-qgamma(0.25,scale=input$DT_var/input$DT_means,shape=(input$DT_means*input$DT_means)/input$DT_var)
+      upper50<-qgamma(0.75,scale=input$DT_var/input$DT_means,shape=(input$DT_means*input$DT_means)/input$DT_var)
+      lower95<-qgamma(p=0.025,scale=input$DT_var/input$DT_means,shape=(input$DT_means*input$DT_means)/input$DT_var)
+      upper95<-qgamma(p=0.975,scale=input$DT_var/input$DT_means,shape=(input$DT_means*input$DT_means)/input$DT_var)
+    }
+    paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
+          confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2),"days")
+  })
+  
+  output$DTmedian<-renderText({
+    if(plotTypeDT()=="Uniform"){
+      median<-qunif(0.5,input$DT_min,input$DT_max)
+    }
+    else if(plotTypeDT()=="Normal"){
+      median<-qtruncnorm(p=0.5,a=input$DT_min_norm,b=input$DT_max_norm,mean=input$DT_mean,sd=input$DT_sd)
+    }
+    else if(plotTypeDT()=="Skewed"){
+      median<-qgamma(p=0.5,scale=input$DT_var/input$DT_means,shape=((input$DT_means*input$DT_means)/input$DT_var))
+    }
+    paste("Your median value for DT is:",round(median,digits=2),"days")
+  })
+  
+  observeEvent(input$previousDT,{
+    updateNavbarPage(session=session,"mainpage",selected="Reproduction number")
+  })
+  
+  observeEvent(input$nextDT,{
     updateNavbarPage(session=session,"mainpage",selected="Case ascertainment")
   })
   
@@ -825,7 +1023,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$previousAsc,{
-    updateNavbarPage(session=session,"mainpage",selected="Reproduction number")
+    updateNavbarPage(session=session,"mainpage",selected="Doubling time")
   })
   
   observeEvent(input$nextAsc,{
@@ -1026,7 +1224,7 @@ server <- function(input, output, session) {
   observeEvent(input$submit,{
     # tabulate answers
     # these are all the parameter prefixes for which values could be reported
-    categories <- c('R0','Asc','CTprop','CTfoll')
+    categories <- c('R0','DT','Asc','CTprop','CTfoll')
     answers <- c()
     for(ct in categories){
       if(!is.null(input[[paste0(ct,'_shape')]])){
