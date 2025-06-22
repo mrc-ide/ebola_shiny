@@ -74,7 +74,8 @@ ui <- page_navbar(
   
   #experience
   
-  nav_panel(title="Your experience",
+  nav_panel(title="1",
+            
             shiny::p(tags$h3("Your experience")),
             
             shiny::p("We'd like to start the survey by asking about your experience during EVD outbreak responses:"),
@@ -113,7 +114,7 @@ ui <- page_navbar(
   
   #reproduction number
   
-  nav_panel(title="Reproduction number",
+  nav_panel(title="2",
             
             shiny::p(tags$h3("Basic reproduction number")),
             
@@ -213,7 +214,7 @@ ui <- page_navbar(
   
   #doubling time
   
-  nav_panel(title="Doubling time",
+  nav_panel(title="3",
             
             shiny::p(tags$h3("Doubling time")),
             
@@ -310,7 +311,7 @@ ui <- page_navbar(
             
   ),
   
-  bslib::nav_panel(title="Case ascertainment",
+  bslib::nav_panel(title="4",
                    
                    shiny::p(tags$h3("Case ascertainment")),
                    
@@ -408,7 +409,7 @@ ui <- page_navbar(
                    
   ),
   
-  bslib::nav_panel(title="Contact tracing",
+  bslib::nav_panel(title="5",
                    
                    shiny::p(tags$h3("Contact tracing")),
                    
@@ -588,23 +589,21 @@ ui <- page_navbar(
                    # ),
   ),
   
-  bslib::nav_panel(title="Vaccination",
+  bslib::nav_panel(title="6",
                    
-                   shiny::p(tags$h3("Vaccination")),
+                   shiny::p(tags$h3("Healthcare and frontline worker vaccination")),
                    
-                   shiny::p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
-                     latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in 
-                     vaccine uptake for these different strategies, as well as the time taken to initiate vaccination following ascertainment of a case."),
+                   shiny::p("Healthcare and frontline workers are a"),
                    
                    # card(
-                     accordion(id="vacc",
-                               accordion_panel("HCW/FLW vaccination",
-                                               value="Vacc_HCW",
+                     accordion(id="HCWvacc",
+                               accordion_panel("Preventative HCW/FLW vaccination",
+                                               value="HCWvacc_prevent",
                                                layout_sidebar(
-                                                 sidebar=sidebar(title="HCW/FLW vaccination",
+                                                 sidebar=sidebar(title="Preventative vaccination",
                                                                  width=300,
                                                                  shiny::p(""),
-                                                                 shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                                                 shiny::p("Based on your knowledge and experience of recent preventative vaccination campaigns targetting HCWs and FLWs:"),
                                                                  
                                                                  selectInput("answerVaccHCW","Can you provide your intuition about the distribution of the proportion of HCWs/FLWs who accept vaccination?",
                                                                              c("No","Yes")),
@@ -676,16 +675,16 @@ ui <- page_navbar(
                                                  
                                                  
                                                  layout_column_wrap(1/2,
-                                                                    actionButton("previousVax_HCW","Previous"),
-                                                                    actionButton("nextVax_HCW","Next",class="btn-primary")
+                                                                    actionButton("previousHCWVax_prevent","Previous"),
+                                                                    actionButton("nextHCWVax_prevent","Next",class="btn-primary")
                                                  )
                                                )
                                  
                                ),
-                               accordion_panel("Ring vaccination",
-                                               value="Vacc_Ring",
+                               accordion_panel("Reactive vaccination",
+                                               value="HCWvacc_React",
                                                layout_sidebar(
-                                                 sidebar=sidebar(title="Ring vaccination",
+                                                 sidebar=sidebar(title="Outbreak vaccination",
                                                                  width=300,
                                                                  shiny::p(""),
                                                                  shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
@@ -693,14 +692,14 @@ ui <- page_navbar(
                                                  ),
                                                  
                                                  layout_column_wrap(1/2,
-                                                                    actionButton("previousVax_Ring","Previous"),
-                                                                    actionButton("nextVax_Ring","Next",class="btn-primary")
+                                                                    actionButton("previousHCWVax_Outbreak","Previous"),
+                                                                    actionButton("nextHCWVax_Outbreak","Next",class="btn-primary")
                                                  )
                                                )
                                                
                                ),
-                               accordion_panel("HCW/FLW vaccination",
-                                               value="Vacc_Geo",
+                               accordion_panel("",
+                                               value="HCWvacc_Time",
                                                layout_sidebar(
                                                  sidebar=sidebar(title="Geographically targeted vaccination",
                                                                  width=300,
@@ -718,6 +717,281 @@ ui <- page_navbar(
                                )
                      )
                    # )
+                   
+  ),
+  
+  bslib::nav_panel(title="7",
+                   
+                   shiny::p(tags$h3("Ring vaccination")),
+                   
+                   shiny::p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
+                     latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in 
+                     vaccine uptake for these different strategies, as well as the time taken to initiate vaccination following ascertainment of a case."),
+                   
+                   # card(
+                   accordion(id="vacc",
+                             accordion_panel("HCW/FLW vaccination",
+                                             value="Vacc_HCW",
+                                             layout_sidebar(
+                                               sidebar=sidebar(title="HCW/FLW vaccination",
+                                                               width=300,
+                                                               shiny::p(""),
+                                                               shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                                               
+                                                               selectInput("answerVaccHCW","Can you provide your intuition about the distribution of the proportion of HCWs/FLWs who accept vaccination?",
+                                                                           c("No","Yes")),
+                                                               
+                                                               conditionalPanel(
+                                                                 condition="input.answerVaccHCW=='Yes'",
+                                                                 selectInput("VaccHCW_shape","What do you think the shape of the distribution of the proportion of HCWs/FLWs who accept vaccination is?",
+                                                                             c("Uniform","Normal","Skewed")),
+                                                                 
+                                                                 conditionalPanel(
+                                                                   condition="input.VaccHCW_shape=='Uniform'",
+                                                                   sliderInput("VaccHCW_min","What do you think the minimum value of the proportion of HCWs/FLWs who accept vaccination is?",min=0,max=1,value=0,step=0.05,round=-2)
+                                                                 ),
+                                                                 
+                                                                 conditionalPanel(
+                                                                   condition="input.VaccHCW_shape=='Uniform'",
+                                                                   sliderInput("VaccHCW_max","What do you think the maximum value of the proportion of HCWs/FLWs who accept vaccination is?",min=0,max=1,value=1,step=0.05,round=-2)
+                                                                 ),
+                                                                 
+                                                                 conditionalPanel(
+                                                                   condition="input.VaccHCW_shape=='Normal'",
+                                                                   sliderInput("VaccHCW_mean","What do you think the mean value of the proportion of HCWs/FLWs who accept vaccination is?",min=0,max=1,value=0.5,step=0.05,round=-2)
+                                                                 ),
+                                                                 
+                                                                 conditionalPanel(
+                                                                   condition="input.VaccHCW_shape=='Normal'",
+                                                                   sliderInput("VaccHCW_sd","What do you think the standard deviation of the proportion of HCWs/FLWs who accept vaccination is?",min=0.1,max=1,value=0.5,step=0.01,round=-2)
+                                                                 ),
+                                                                 
+                                                                 conditionalPanel(
+                                                                   condition="input.VaccHCW_shape=='Skewed'",
+                                                                   sliderInput("VaccHCW_means","What do you think the mean value of the proportion of HCWs/FLWs who accept vaccination is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
+                                                                 ),
+                                                                 
+                                                                 conditionalPanel(
+                                                                   condition="input.VaccHCW_shape=='Skewed'",
+                                                                   sliderInput("VaccHCW_var","What do you think the variance of the proportion of HCWs/FLWs who accept vaccination is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
+                                                                 )
+                                                               )
+                                                               
+                                               ),
+                                               
+                                               conditionalPanel(
+                                                 condition="input.answerVaccHCW=='Yes'",
+                                                 plotOutput("plotVaccHCW",width="100%",height='500px'),
+                                                 textOutput("VaccHCWmedian"),
+                                                 textOutput("VaccHCWconf"),
+                                                 
+                                                 selectInput("conf_VaccHCW","How confident are you about the shape of the distribution?",
+                                                             c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
+                                                 
+                                                 selectInput("is_corr_VaccHCW_R0","Do you think there is any correlation between the proportion of HCWs/FLWs who accept vaccination and reproduction number? e.g. if the reproduction number is higher, the proportion who accept is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                                 
+                                                 conditionalPanel(condition="input.is_corr_VaccHCW_R0=='Yes'",
+                                                                  selectInput("corr_VaccHCW_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion who accept vaccination is high and when reproduction number is low, the proportion who accept is low) or negative (i.e. when reproduction number is low, the proportion of contacts who accept is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                                  
+                                                 ),
+                                                 
+                                                 selectInput("is_corr_VaccHCW_Asc","Do you think there is any correlation between the proportion of contacts who complete follow-up and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts who complete follow-up is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                                 
+                                                 conditionalPanel(condition="input.is_corr_CTfoll_Asc=='Yes'",
+                                                                  selectInput("corr_CTfoll_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow-up is high and when case ascertainment is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                                  
+                                                 ),
+                                                 
+                                                 textAreaInput("source_CTfoll","Please provide any context or sources that have guided your intuition:",width="80%"
+                                                 )
+                                               ),
+                                               
+                                               
+                                               layout_column_wrap(1/2,
+                                                                  actionButton("previousVax_HCW","Previous"),
+                                                                  actionButton("nextVax_HCW","Next",class="btn-primary")
+                                               )
+                                             )
+                                             
+                             ),
+                             accordion_panel("Ring vaccination",
+                                             value="Vacc_Ring",
+                                             layout_sidebar(
+                                               sidebar=sidebar(title="Ring vaccination",
+                                                               width=300,
+                                                               shiny::p(""),
+                                                               shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                                               
+                                               ),
+                                               
+                                               layout_column_wrap(1/2,
+                                                                  actionButton("previousVax_Ring","Previous"),
+                                                                  actionButton("nextVax_Ring","Next",class="btn-primary")
+                                               )
+                                             )
+                                             
+                             ),
+                             accordion_panel("HCW/FLW vaccination",
+                                             value="Vacc_Geo",
+                                             layout_sidebar(
+                                               sidebar=sidebar(title="Geographically targeted vaccination",
+                                                               width=300,
+                                                               shiny::p(""),
+                                                               shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                                               
+                                               ),
+                                               
+                                               layout_column_wrap(1/2,
+                                                                  actionButton("previousVax_Geo","Previous"),
+                                                                  actionButton("nextVax_Geo","Next",class="btn-primary")
+                                               )
+                                             )
+                                             
+                             )
+                   )
+                   # )
+                   
+  ),
+  
+  bslib::nav_panel(title="8",
+                   
+                   shiny::p(tags$h3("Geographically targeted vaccination")),
+                   
+                   shiny::p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
+                     latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in 
+                     vaccine uptake for these different strategies, as well as the time taken to initiate vaccination following ascertainment of a case."),
+                   
+                   # card(
+                   accordion(id="Geovacc_acc",
+                             accordion_panel("Geographically targeted vaccination",
+                                             value="Vacc_HCW",
+                                             layout_sidebar(
+                                               sidebar=sidebar(title="Vaccine acceptance",
+                                                               width=300,
+                                                               shiny::p(""),
+                                                               shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                                               
+                                                               selectInput("answerVaccHCW","Can you provide your intuition about the proportion of people who accept geographically targeted vaccination?",
+                                                                           c("No","Yes")),
+                                                               
+                                                               conditionalPanel(
+                                                                 condition="input.answerVaccHCW=='Yes'",
+                                                                 selectInput("VaccHCW_shape","What do you think the shape of the distribution of the proportion of HCWs/FLWs who accept vaccination is?",
+                                                                             c("Uniform","Normal","Skewed")),
+                                                                 
+                                                                 conditionalPanel(
+                                                                   condition="input.VaccHCW_shape=='Uniform'",
+                                                                   sliderInput("VaccHCW_min","What do you think the minimum value of the proportion of HCWs/FLWs who accept vaccination is?",min=0,max=1,value=0,step=0.05,round=-2)
+                                                                 ),
+                                                                 
+                                                                 conditionalPanel(
+                                                                   condition="input.VaccHCW_shape=='Uniform'",
+                                                                   sliderInput("VaccHCW_max","What do you think the maximum value of the proportion of HCWs/FLWs who accept vaccination is?",min=0,max=1,value=1,step=0.05,round=-2)
+                                                                 ),
+                                                                 
+                                                                 conditionalPanel(
+                                                                   condition="input.VaccHCW_shape=='Normal'",
+                                                                   sliderInput("VaccHCW_mean","What do you think the mean value of the proportion of HCWs/FLWs who accept vaccination is?",min=0,max=1,value=0.5,step=0.05,round=-2)
+                                                                 ),
+                                                                 
+                                                                 conditionalPanel(
+                                                                   condition="input.VaccHCW_shape=='Normal'",
+                                                                   sliderInput("VaccHCW_sd","What do you think the standard deviation of the proportion of HCWs/FLWs who accept vaccination is?",min=0.1,max=1,value=0.5,step=0.01,round=-2)
+                                                                 ),
+                                                                 
+                                                                 conditionalPanel(
+                                                                   condition="input.VaccHCW_shape=='Skewed'",
+                                                                   sliderInput("VaccHCW_means","What do you think the mean value of the proportion of HCWs/FLWs who accept vaccination is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
+                                                                 ),
+                                                                 
+                                                                 conditionalPanel(
+                                                                   condition="input.VaccHCW_shape=='Skewed'",
+                                                                   sliderInput("VaccHCW_var","What do you think the variance of the proportion of HCWs/FLWs who accept vaccination is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
+                                                                 )
+                                                               )
+                                                               
+                                               ),
+                                               
+                                               conditionalPanel(
+                                                 condition="input.answerVaccHCW=='Yes'",
+                                                 plotOutput("plotVaccHCW",width="100%",height='500px'),
+                                                 textOutput("VaccHCWmedian"),
+                                                 textOutput("VaccHCWconf"),
+                                                 
+                                                 selectInput("conf_VaccHCW","How confident are you about the shape of the distribution?",
+                                                             c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
+                                                 
+                                                 selectInput("is_corr_VaccHCW_R0","Do you think there is any correlation between the proportion of HCWs/FLWs who accept vaccination and reproduction number? e.g. if the reproduction number is higher, the proportion who accept is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                                 
+                                                 conditionalPanel(condition="input.is_corr_VaccHCW_R0=='Yes'",
+                                                                  selectInput("corr_VaccHCW_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion who accept vaccination is high and when reproduction number is low, the proportion who accept is low) or negative (i.e. when reproduction number is low, the proportion of contacts who accept is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                                  
+                                                 ),
+                                                 
+                                                 selectInput("is_corr_VaccHCW_Asc","Do you think there is any correlation between the proportion of contacts who complete follow-up and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts who complete follow-up is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                                                 
+                                                 conditionalPanel(condition="input.is_corr_CTfoll_Asc=='Yes'",
+                                                                  selectInput("corr_CTfoll_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow-up is high and when case ascertainment is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
+                                                                  
+                                                 ),
+                                                 
+                                                 textAreaInput("source_CTfoll","Please provide any context or sources that have guided your intuition:",width="80%"
+                                                 )
+                                               ),
+                                               
+                                               
+                                               layout_column_wrap(1/2,
+                                                                  actionButton("previousVax_HCW","Previous"),
+                                                                  actionButton("nextVax_HCW","Next",class="btn-primary")
+                                               )
+                                             )
+                                             
+                             ),
+                             accordion_panel("Ring vaccination",
+                                             value="Vacc_Ring",
+                                             layout_sidebar(
+                                               sidebar=sidebar(title="Ring vaccination",
+                                                               width=300,
+                                                               shiny::p(""),
+                                                               shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                                               
+                                               ),
+                                               
+                                               layout_column_wrap(1/2,
+                                                                  actionButton("previousVax_Ring","Previous"),
+                                                                  actionButton("nextVax_Ring","Next",class="btn-primary")
+                                               )
+                                             )
+                                             
+                             ),
+                             accordion_panel("HCW/FLW vaccination",
+                                             value="Vacc_Geo",
+                                             layout_sidebar(
+                                               sidebar=sidebar(title="Geographically targeted vaccination",
+                                                               width=300,
+                                                               shiny::p(""),
+                                                               shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                                                               
+                                               ),
+                                               
+                                               layout_column_wrap(1/2,
+                                                                  actionButton("previousVax_Geo","Previous"),
+                                                                  actionButton("nextVax_Geo","Next",class="btn-primary")
+                                               )
+                                             )
+                                             
+                             )
+                   )
+                   # )
+                   
+  ),
+  
+  bslib::nav_panel(title="9",
+                   layout_column_wrap(1/2,
+                                      actionButton("previousStockpile","Previous"),
+                                      actionButton("nextStockpile","Next",class="btn-primary")
+                   )
+                   
                    
   ),
   
@@ -769,15 +1043,16 @@ server <- function(input, output, session) {
                       AscSlider=NULL)
   
   observeEvent(input$nextOverview,{
-    updateNavbarPage(session=session,"mainpage",selected="Your experience")
+    updateNavbarPage(session=session,"mainpage",selected="1")
   })
+  
   
   observeEvent(input$previousExp,{
     updateNavbarPage(session=session,"mainpage",selected="Overview")
   })
   
   observeEvent(input$nextExp,{
-    updateNavbarPage(session=session,"mainpage",selected="Reproduction number")
+    updateNavbarPage(session=session,"mainpage",selected="2")
   })
   
   ## reproduction number R0 ########################################################
@@ -840,11 +1115,11 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$previousR0,{
-    updateNavbarPage(session=session,"mainpage",selected="Your experience")
+    updateNavbarPage(session=session,"mainpage",selected="1")
   })
   
   observeEvent(input$nextR0,{
-    updateNavbarPage(session=session,"mainpage",selected="Doubling time")
+    updateNavbarPage(session=session,"mainpage",selected="3")
   })
   
   ## doubling time ########################################################
@@ -910,11 +1185,11 @@ server <- function(input, output, session) {
   
   
   observeEvent(input$previousDT,{
-    updateNavbarPage(session=session,"mainpage",selected="Reproduction number")
+    updateNavbarPage(session=session,"mainpage",selected="2")
   })
   
   observeEvent(input$nextDT,{
-    updateNavbarPage(session=session,"mainpage",selected="Case ascertainment")
+    updateNavbarPage(session=session,"mainpage",selected="4")
   })
   
   ## case ascertainment ###################################################################################
@@ -1003,11 +1278,11 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$previousAsc,{
-    updateNavbarPage(session=session,"mainpage",selected="Doubling time")
+    updateNavbarPage(session=session,"mainpage",selected="3")
   })
   
   observeEvent(input$nextAsc,{
-    updateNavbarPage(session=session,"mainpage",selected="Contact tracing")
+    updateNavbarPage(session=session,"mainpage",selected="5")
   })
   
   ## proportion of contacts traced ##############################################################
@@ -1089,7 +1364,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$previousCTprop,{
-    updateNavbarPage(session=session,"mainpage",selected="Case ascertainment")
+    updateNavbarPage(session=session,"mainpage",selected="4")
   })
   
   observeEvent(input$nextCTprop,{
@@ -1182,23 +1457,53 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$nextCTfollow,{
-    updateNavbarPage(session=session,"mainpage",selected="Vaccination")
+    updateNavbarPage(session=session,"mainpage",selected="6")
   })
   
-  ## vaccination #############################################################
+  ## HCW vaccination #############################################################
   
-  observeEvent(input$previousVax,{
-    updateNavbarPage(session=session,"mainpage",selected="Contact tracing")
+  observeEvent(input$previousHCWVax,{
+    updateNavbarPage(session=session,"mainpage",selected="5")
   })
   
-  observeEvent(input$nextVax,{
+  observeEvent(input$nextHCWVax,{
+    updateNavbarPage(session=session,"mainpage",selected="7")
+  })
+  
+  ## Ring vaccination #############################################################
+  
+  observeEvent(input$previousRingVax,{
+    updateNavbarPage(session=session,"mainpage",selected="6")
+  })
+  
+  observeEvent(input$nextRingVax,{
+    updateNavbarPage(session=session,"mainpage",selected="8")
+  })
+  
+  ## Geographic vaccination #############################################################
+  
+  observeEvent(input$previousGeoVax,{
+    updateNavbarPage(session=session,"mainpage",selected="7")
+  })
+  
+  observeEvent(input$nextGeoVax,{
+    updateNavbarPage(session=session,"mainpage",selected="9")
+  })
+  
+  ## Stockpile views #############################################################
+  
+  observeEvent(input$previousStockpile,{
+    updateNavbarPage(session=session,"mainpage",selected="8")
+  })
+  
+  observeEvent(input$nextStockpile,{
     updateNavbarPage(session=session,"mainpage",selected="Submit")
   })
   
   ## submission #############################################################
   
   observeEvent(input$previousSubmit,{
-    updateNavbarPage(session=session,"mainpage",selected="Vaccination")
+    updateNavbarPage(session=session,"mainpage",selected="9")
   })
   
   observeEvent(input$submit,{
