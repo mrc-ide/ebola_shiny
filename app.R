@@ -1332,19 +1332,40 @@ ui <- page_navbar(
   ),
   
   bslib::nav_panel(title="9",
+                   
+                   shiny::p(tags$h3("Your views about EVD outbreaks and the role of the stockpile")),
+                   
+                   shiny::p("On the final page of the survey, we'd like you to give your views regarding the size of potential worst-case EVD outbreaks as well as
+                            the purpose of the stockpile"),
+                   
+                   textAreaInput( 
+                     "worst_case",
+                     "In your opinion, what is the worst-case outbreak that we should be preparing for? How likely do
+                     you think the worst-case outbreak is? Are current response activities sufficient to respond to 
+                     such an outbreak, and if not, what other resources or interventions would be needed?",
+                     width = "80%"
+                    ),
+                   
+                   textAreaInput(
+                     "stockpile",
+                     "In your opinion, what do you think the role of the Ervebo vaccine stockpile should be? Should it be 
+                     sufficient for the worst-case scenario? Should it be sufficient for 95% of future outbreaks? Should
+                     it be sufficient for the whole outbreak length, or just the length of time it takes to ramp up vaccine production?",
+                     width = "80%"
+                   ),
+                   
+                   
                    layout_column_wrap(1/2,
                                       actionButton("previousStockpile","Previous"),
-                                      actionButton("nextStockpile","Next",class="btn-primary")
+                                      actionButton("submit","Submit",class="btn-primary")
                    )
                    
                    
   ),
   
-  bslib::nav_panel(title="Submit",
-                   layout_column_wrap(1/2,
-                                     actionButton("previousSubmit","Previous"),
-                                     actionButton("submit","Submit",class="btn-success")
-                   )
+  bslib::nav_panel(title="End",
+                   shiny::p("Many thanks for your input!")
+                   
                    
                    
   ),
@@ -2005,7 +2026,7 @@ server <- function(input, output, session) {
     xlsx::write.xlsx(answers,file = filename,sheetName='Parameter data', append=T,row.names = F)
     
     ## maybe create a "thanks" page or restart? i think you need to close and reopen to reset everything for the next user.
-    updateNavbarPage(session=session,"mainpage",selected="Overview")
+    updateNavbarPage(session=session,"mainpage",selected="End")
     
     # these are some values stored in input not written out
     # answerAsc, answerCTfoll, answerCTprop, answerR0, 
