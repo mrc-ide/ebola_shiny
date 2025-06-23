@@ -57,7 +57,7 @@ ui <- page_navbar(
     shiny::p(tags$b("Very:"),"I have firsthand experience working on or analysing data related to this parameter and I can cite sources supporting my intuition, even
       though they may not be publicly available."),
     
-    shiny::p(tags$b("Somewhat:"),"I have firsthand experience working on or analysing data related to this parameter but sources supporting my intuition are not available",),
+    shiny::p(tags$b("Somewhat:"),"I have firsthand experience working on or analysing data related to this parameter but sources supporting my intuition are not available"),
     
     shiny::p(tags$b("Slightly:"),"I don't have firsthand experience working on or analysing data related to this parameter but I can cite sources supporting my intuition, even
       though they may not be publicly available."),
@@ -74,7 +74,8 @@ ui <- page_navbar(
   
   #experience
   
-  nav_panel(title="Your experience",
+  nav_panel(title="1",
+            
             shiny::p(tags$h3("Your experience")),
             
             shiny::p("We'd like to start the survey by asking about your experience during EVD outbreak responses:"),
@@ -113,7 +114,7 @@ ui <- page_navbar(
   
   #reproduction number
   
-  nav_panel(title="Reproduction number",
+  nav_panel(title="2",
             
             shiny::p(tags$h3("Basic reproduction number")),
             
@@ -185,7 +186,7 @@ ui <- page_navbar(
                 conditionalPanel(
                   condition="input.R0_shape=='Skewed'",
                   sliderInput("R0_max_skew","What do you think maximum value of R0 is?",min=0,max=10,value=10,step=0.1,round=-1)
-                ),
+                )
               )
             ),
 
@@ -213,7 +214,7 @@ ui <- page_navbar(
   
   #doubling time
   
-  nav_panel(title="Doubling time",
+  nav_panel(title="3",
             
             shiny::p(tags$h3("Doubling time")),
             
@@ -284,7 +285,7 @@ ui <- page_navbar(
                                   conditionalPanel(
                                     condition="input.DT_shape=='Skewed'",
                                     sliderInput("DT_max_skew","What do you think maximum plausible doubling time is?",min=10,max=40,value=40,step=1,round=0)
-                                  ),
+                                  )
                                 )
                 ),
                 
@@ -310,7 +311,7 @@ ui <- page_navbar(
             
   ),
   
-  bslib::nav_panel(title="Case ascertainment",
+  bslib::nav_panel(title="4",
                    
                    shiny::p(tags$h3("Case ascertainment")),
                    
@@ -408,324 +409,963 @@ ui <- page_navbar(
                    
   ),
   
-  bslib::nav_panel(title="Contact tracing",
+  bslib::nav_panel(
+    title = "5",
+    
+    shiny::p(tags$h3("Contact tracing")),
+    
+    shiny::p(
+      "Once a case has been ascertained, contact tracing teams compile lists of close contacts, who are at high risk of infection, to undergo a 21 day follow-up.
+                     If they develop symptoms during this time, they are quickly tested, isolated and treated to prevent further chains of transmission. To understand whether contact tracing
+                     is likely to be effective, we are interested in understanding: a) what proportion of contacts are traced, and b) what proportion of contacts complete follow-up.
+                     If you feel able to share your intuition regarding contact tracing, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for contact tracing, please continue to the next section"
+    ),
+    
+    
+    accordion(
+      id = "CT",
+      accordion_panel(
+        "Proportion of contacts traced",
+        value = "CTprop",
+        layout_sidebar(
+          sidebar = sidebar(
+            title = tags$h4("Proportion traced"),
+            width = 300,
+            shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+            
+            selectInput(
+              "answerCTprop",
+              "Can you provide your intuition about the distribution of the proportion of contacts who are traced?",
+              c("No", "Yes")
+            ),
+            
+            conditionalPanel(
+              condition = "input.answerCTprop=='Yes'",
+              selectInput(
+                "CTprop_shape",
+                "What do you think the shape of the distribution of the proportion of contacts who are traced is?",
+                c("Uniform", "Normal", "Skewed")
+              ),
+              
+              conditionalPanel(
+                condition = "input.CTprop_shape=='Uniform'",
+                sliderInput(
+                  "CTprop_min",
+                  "What do you think the minimum value of the proportion of contacts who are traced is?",
+                  min = 0,
+                  max = 1,
+                  value = 0,
+                  step = 0.05,
+                  round = -2
+                )
+              ),
+              
+              conditionalPanel(
+                condition = "input.CTprop_shape=='Uniform'",
+                sliderInput(
+                  "CTprop_max",
+                  "What do you think the maximum value of the proportion of contacts who are traced is?",
+                  min = 0,
+                  max = 1,
+                  value = 1,
+                  step = 0.05,
+                  round = -2
+                )
+              ),
+              
+              conditionalPanel(
+                condition = "input.CTprop_shape=='Normal'",
+                sliderInput(
+                  "CTprop_mean",
+                  "What do you think the mean value of the proportion of contacts who are traced is?",
+                  min = 0,
+                  max = 1,
+                  value = 0.5,
+                  step = 0.05,
+                  round = -2
+                )
+              ),
+              
+              conditionalPanel(
+                condition = "input.CTprop_shape=='Normal'",
+                sliderInput(
+                  "CTprop_sd",
+                  "What do you think the standard deviation of the proportion of contacts who are traced is?",
+                  min = 0.1,
+                  max = 1,
+                  value = 0.5,
+                  step = 0.01,
+                  round = -2
+                )
+              ),
+              
+              conditionalPanel(
+                condition = "input.CTprop_shape=='Skewed'",
+                sliderInput(
+                  "CTprop_means",
+                  "What do you think the mean value of the proportion of contacts who are traced is?",
+                  min = 0.1,
+                  max = 1,
+                  value = 0.5,
+                  step = 0.05,
+                  round = -2
+                )
+              ),
+              
+              conditionalPanel(
+                condition = "input.CTprop_shape=='Skewed'",
+                sliderInput(
+                  "CTprop_var",
+                  "What do you think the variance of the proportion of contacts who are traced is?",
+                  min = 0.01,
+                  max = 0.25,
+                  value = 0.1,
+                  step = 0.001,
+                  round = -3
+                )
+              )
+            )
+            
+          ),
+          
+          conditionalPanel(
+            condition = "input.answerCTprop=='Yes'",
+            plotOutput("plotCTprop", width =
+                         "100%", height = '500px'),
+            textOutput("CTpropmedian"),
+            textOutput("CTpropconf"),
+            
+            selectInput(
+              "conf_CTprop",
+              "How confident are you about the shape of the distribution?",
+              c("Very", "Somewhat", "Slightly", "Not very"),
+              width = "80%",
+              selected = "Not very"
+            ),
+            
+            selectInput(
+              "is_corr_CTprop_R0",
+              "Do you think there is any correlation between the proportion of contacts traced and the reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",
+              c("Not sure", "Yes", "No"),
+              selected = NULL,
+              width = "80%"
+            ),
+            
+            conditionalPanel(
+              condition = "input.is_corr_CTprop_R0=='Yes'",
+              selectInput(
+                "corr_CTprop_R0",
+                "Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts traced is high and when reproduction number is low, the proportion of contacts traced is low) or negative (i.e. when reproduction number is low, the proportion of contacts traced is high and vice versa)?",
+                c("Positive", "Negative"),
+                selected = NULL,
+                width = "80%"
+              )
+              
+            ),
+            
+            selectInput(
+              "is_corr_CTprop_Asc",
+              "Do you think there is any correlation between the proportion of contacts traced and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts traced is also higher.",
+              c("Not sure", "Yes", "No"),
+              selected = NULL,
+              width = "80%"
+            ),
+            
+            conditionalPanel(
+              condition = "input.is_corr_CTprop_Asc=='Yes'",
+              selectInput(
+                "corr_CTprop_Asc",
+                "Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts traced is high and when case ascertainment is low, the proportion of contacts traced is low) or negative (i.e. when case ascertainment is low, the proportion of contacts traced is high and vice versa)?",
+                c("Positive", "Negative"),
+                selected = NULL,
+                width = "80%"
+              )
+              
+            ),
+            
+            textAreaInput(
+              "source_CTprop",
+              "Please provide any context or sources that have guided your intuition:",
+              width = "80%"
+            )
+          ),
+          
+          layout_column_wrap(
+            1 / 2,
+            actionButton("previousCTprop", "Previous"),
+            actionButton("nextCTprop", "Next", class =
+                           "btn-primary")
+          )
+        )
+      ),
+      accordion_panel(
+        "Proportion of contacts who complete follow-up",
+        value = "CTfollow",
+        layout_sidebar(
+          sidebar = sidebar(
+            title = tags$h4("Proportion followed-up"),
+            width = 300,
+            shiny::p(""),
+            shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+            
+            selectInput(
+              "answerCTfoll",
+              "Can you provide your intuition about the distribution of the proportion of contacts who complete follow-up?",
+              c("No", "Yes")
+            ),
+            
+            conditionalPanel(
+              condition = "input.answerCTfoll=='Yes'",
+              selectInput(
+                "CTfoll_shape",
+                "What do you think the shape of the distribution of the proportion of contacts who complete follow-up is?",
+                c("Uniform", "Normal", "Skewed")
+              ),
+              
+              conditionalPanel(
+                condition = "input.CTfoll_shape=='Uniform'",
+                sliderInput(
+                  "CTfoll_min",
+                  "What do you think the minimum value of the proportion of contacts who complete follow-up is?",
+                  min = 0,
+                  max = 1,
+                  value = 0,
+                  step = 0.05,
+                  round = -2
+                )
+              ),
+              
+              conditionalPanel(
+                condition = "input.CTfoll_shape=='Uniform'",
+                sliderInput(
+                  "CTfoll_max",
+                  "What do you think the maximum value of the proportion of contacts who complete follow-up is?",
+                  min = 0,
+                  max = 1,
+                  value = 1,
+                  step = 0.05,
+                  round = -2
+                )
+              ),
+              
+              conditionalPanel(
+                condition = "input.CTfoll_shape=='Normal'",
+                sliderInput(
+                  "CTfoll_mean",
+                  "What do you think the mean value of the proportion of contacts who complete follow-up is?",
+                  min = 0,
+                  max = 1,
+                  value = 0.5,
+                  step = 0.05,
+                  round = -2
+                )
+              ),
+              
+              conditionalPanel(
+                condition = "input.CTfoll_shape=='Normal'",
+                sliderInput(
+                  "CTfoll_sd",
+                  "What do you think the standard deviation of the proportion of contacts who complete follow-up is?",
+                  min = 0.1,
+                  max = 1,
+                  value = 0.5,
+                  step = 0.01,
+                  round = -2
+                )
+              ),
+              
+              conditionalPanel(
+                condition = "input.CTfoll_shape=='Skewed'",
+                sliderInput(
+                  "CTfoll_means",
+                  "What do you think the mean value of the proportion of contacts who complete follow-up is?",
+                  min = 0.1,
+                  max = 1,
+                  value = 0.5,
+                  step = 0.05,
+                  round = -2
+                )
+              ),
+              
+              conditionalPanel(
+                condition = "input.CTfoll_shape=='Skewed'",
+                sliderInput(
+                  "CTfoll_var",
+                  "What do you think the variance of the proportion of contacts who complete follow-up is?",
+                  min = 0.01,
+                  max = 0.25,
+                  value = 0.1,
+                  step = 0.001,
+                  round = -3
+                )
+              )
+            )
+            
+          ),
+          
+          conditionalPanel(
+            condition = "input.answerCTfoll=='Yes'",
+            plotOutput("plotCTfoll", width =
+                         "100%", height = '500px'),
+            textOutput("CTfollmedian"),
+            textOutput("CTfollconf"),
+            
+            selectInput(
+              "conf_CTfoll",
+              "How confident are you about the shape of the distribution?",
+              c("Very", "Somewhat", "Slightly", "Not very"),
+              width = "80%",
+              selected = "Not very"
+            ),
+            
+            selectInput(
+              "is_corr_CTfoll_R0",
+              "Do you think there is any correlation between the proportion of contacts who complete follow-up and reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",
+              c("Not sure", "Yes", "No"),
+              selected = NULL,
+              width = "80%"
+            ),
+            
+            conditionalPanel(
+              condition = "input.is_corr_CTfoll_R0=='Yes'",
+              selectInput(
+                "corr_CTfoll_R0",
+                "Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts who complete follow-up is high and when reproduction number is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when reproduction number is low, the proportion of contacts who complete follow-up is high and vice versa)?",
+                c("Positive", "Negative"),
+                selected = NULL,
+                width = "80%"
+              )
+              
+            ),
+            
+            selectInput(
+              "is_corr_CTfoll_Asc",
+              "Do you think there is any correlation between the proportion of contacts who complete follow-up and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts who complete follow-up is also higher.",
+              c("Not sure", "Yes", "No"),
+              selected = NULL,
+              width = "80%"
+            ),
+            
+            conditionalPanel(
+              condition = "input.is_corr_CTfoll_Asc=='Yes'",
+              selectInput(
+                "corr_CTfoll_Asc",
+                "Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow-up is high and when case ascertainment is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow-up is high and vice versa)?",
+                c("Positive", "Negative"),
+                selected = NULL,
+                width = "80%"
+              )
+              
+            ),
+            
+            textAreaInput(
+              "source_CTfoll",
+              "Please provide any context or sources that have guided your intuition:",
+              width = "80%"
+            )
+          ),
+          
+          layout_column_wrap(
+            1 / 2,
+            actionButton("previousCTfollow", "Previous"),
+            actionButton("nextCTfollow", "Next", class =
+                           "btn-primary")
+          )
+        )
+      )
+    )
+  ), 
+  
+  bslib::nav_panel(title="6",
                    
-                   shiny::p(tags$h3("Contact tracing")),
-                   
-                   shiny::p("Once a case has been ascertained, contact tracing teams compile lists of close contacts, who are at high risk of infection, to undergo a 21 day follow-up.
-                     If they develop symptoms during this time, they are quickly tested, isolated and treated to prevent further chains of transmission. To understand whether contact tracing 
-                     is likely to be effective, we are interested in understanding: a) what proportion of contacts are traced, and b) what proportion of contacts complete follow-up. 
-                     If you feel able to share your intuition regarding contact tracing, please use the options in the sidebar to calibrate your judgement. If you don't feel able to provide your intuition for contact tracing, please continue to the next section"),
-                   
-                   # card(
-                     accordion(id="CT",
-                       accordion_panel("Proportion of contacts traced",
-                                       value="CTprop",
-                                       layout_sidebar(
-                                         sidebar=sidebar(title=tags$h4("Proportion traced"),
-                                                        width=300,
-                                                         shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
-                                                         
-                                                         selectInput("answerCTprop","Can you provide your intuition about the distribution of the proportion of contacts who are traced?",
-                                                                     c("No","Yes")),
-                                                         
-                                                         conditionalPanel(
-                                                           condition="input.answerCTprop=='Yes'",
-                                                           selectInput("CTprop_shape","What do you think the shape of the distribution of the proportion of contacts who are traced is?",
-                                                                       c("Uniform","Normal","Skewed")),
-                                                           
-                                                           conditionalPanel(
-                                                             condition="input.CTprop_shape=='Uniform'",
-                                                             sliderInput("CTprop_min","What do you think the minimum value of the proportion of contacts who are traced is?",min=0,max=1,value=0,step=0.05,round=-2)
-                                                           ),
-                                                           
-                                                           conditionalPanel(
-                                                             condition="input.CTprop_shape=='Uniform'",
-                                                             sliderInput("CTprop_max","What do you think the maximum value of the proportion of contacts who are traced is?",min=0,max=1,value=1,step=0.05,round=-2)
-                                                           ),
-                                                           
-                                                           conditionalPanel(
-                                                             condition="input.CTprop_shape=='Normal'",
-                                                             sliderInput("CTprop_mean","What do you think the mean value of the proportion of contacts who are traced is?",min=0,max=1,value=0.5,step=0.05,round=-2)
-                                                           ),
-                                                           
-                                                           conditionalPanel(
-                                                             condition="input.CTprop_shape=='Normal'",
-                                                             sliderInput("CTprop_sd","What do you think the standard deviation of the proportion of contacts who are traced is?",min=0.1,max=1,value=0.5,step=0.01,round=-2)
-                                                           ),
-                                                           
-                                                           conditionalPanel(
-                                                             condition="input.CTprop_shape=='Skewed'",
-                                                             sliderInput("CTprop_means","What do you think the mean value of the proportion of contacts who are traced is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
-                                                           ),
-                                                           
-                                                           conditionalPanel(
-                                                             condition="input.CTprop_shape=='Skewed'",
-                                                             sliderInput("CTprop_var","What do you think the variance of the proportion of contacts who are traced is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
-                                                           )
-                                                         )
-                                                         
-                                         ),
-                                         
-                                         conditionalPanel(
-                                           condition="input.answerCTprop=='Yes'",
-                                           plotOutput("plotCTprop",width="100%",height='500px'),
-                                           textOutput("CTpropmedian"),
-                                           textOutput("CTpropconf"),
-                                           
-                                           selectInput("conf_CTprop","How confident are you about the shape of the distribution?",
-                                                       c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
-                                           
-                                           selectInput("is_corr_CTprop_R0","Do you think there is any correlation between the proportion of contacts traced and the reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
-                                           
-                                           conditionalPanel(condition="input.is_corr_CTprop_R0=='Yes'",
-                                                            selectInput("corr_CTprop_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts traced is high and when reproduction number is low, the proportion of contacts traced is low) or negative (i.e. when reproduction number is low, the proportion of contacts traced is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
-                                                            
-                                           ),
-                                           
-                                           selectInput("is_corr_CTprop_Asc","Do you think there is any correlation between the proportion of contacts traced and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
-                                           
-                                           conditionalPanel(condition="input.is_corr_CTprop_Asc=='Yes'",
-                                                            selectInput("corr_CTprop_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts traced is high and when case ascertainment is low, the proportion of contacts traced is low) or negative (i.e. when case ascertainment is low, the proportion of contacts traced is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
-                                                            
-                                           ),
-                                           
-                                           textAreaInput("source_CTprop","Please provide any context or sources that have guided your intuition:",width="80%"
-                                           )
-                                         ),
-                                         
-                                         layout_column_wrap(1/2,
-                                                            actionButton("previousCTprop","Previous"),
-                                                            actionButton("nextCTprop","Next",class="btn-primary")
-                                         )
-                                       )
-                       ),
-                       accordion_panel("Proportion of contacts who complete follow-up",
-                                       value="CTfollow",
-                                       layout_sidebar(
-                                         sidebar=sidebar(title=tags$h4("Proportion followed-up"),
-                                                         width=300,
-                                                         shiny::p(""),
-                                                         shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
-                                                         
-                                                         selectInput("answerCTfoll","Can you provide your intuition about the distribution of the proportion of contacts who complete follow-up?",
-                                                                     c("No","Yes")),
-                                                         
-                                                         conditionalPanel(
-                                                           condition="input.answerCTfoll=='Yes'",
-                                                           selectInput("CTfoll_shape","What do you think the shape of the distribution of the proportion of contacts who complete follow-up is?",
-                                                                       c("Uniform","Normal","Skewed")),
-                                                           
-                                                           conditionalPanel(
-                                                             condition="input.CTfoll_shape=='Uniform'",
-                                                             sliderInput("CTfoll_min","What do you think the minimum value of the proportion of contacts who complete follow-up is?",min=0,max=1,value=0,step=0.05,round=-2)
-                                                           ),
-                                                           
-                                                           conditionalPanel(
-                                                             condition="input.CTfoll_shape=='Uniform'",
-                                                             sliderInput("CTfoll_max","What do you think the maximum value of the proportion of contacts who complete follow-up is?",min=0,max=1,value=1,step=0.05,round=-2)
-                                                           ),
-                                                           
-                                                           conditionalPanel(
-                                                             condition="input.CTfoll_shape=='Normal'",
-                                                             sliderInput("CTfoll_mean","What do you think the mean value of the proportion of contacts who complete follow-up is?",min=0,max=1,value=0.5,step=0.05,round=-2)
-                                                           ),
-                                                           
-                                                           conditionalPanel(
-                                                             condition="input.CTfoll_shape=='Normal'",
-                                                             sliderInput("CTfoll_sd","What do you think the standard deviation of the proportion of contacts who complete follow-up is?",min=0.1,max=1,value=0.5,step=0.01,round=-2)
-                                                           ),
-                                                           
-                                                           conditionalPanel(
-                                                             condition="input.CTfoll_shape=='Skewed'",
-                                                             sliderInput("CTfoll_means","What do you think the mean value of the proportion of contacts who complete follow-up is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
-                                                           ),
-                                                           
-                                                           conditionalPanel(
-                                                             condition="input.CTfoll_shape=='Skewed'",
-                                                             sliderInput("CTfoll_var","What do you think the variance of the proportion of contacts who complete follow-up is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
-                                                           )
-                                                         )
-                                                         
-                                         ),
-                                         
-                                         conditionalPanel(
-                                           condition="input.answerCTfoll=='Yes'",
-                                           plotOutput("plotCTfoll",width="100%",height='500px'),
-                                           textOutput("CTfollmedian"),
-                                           textOutput("CTfollconf"),
-                                           
-                                           selectInput("conf_CTfoll","How confident are you about the shape of the distribution?",
-                                                       c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
-                                           
-                                           selectInput("is_corr_CTfoll_R0","Do you think there is any correlation between the proportion of contacts who complete follow-up and reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
-                                           
-                                           conditionalPanel(condition="input.is_corr_CTfoll_R0=='Yes'",
-                                                            selectInput("corr_CTfoll_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts who complete follow-up is high and when reproduction number is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when reproduction number is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
-                                                            
-                                           ),
-                                           
-                                           selectInput("is_corr_CTfoll_Asc","Do you think there is any correlation between the proportion of contacts who complete follow-up and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts who complete follow-up is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
-                                           
-                                           conditionalPanel(condition="input.is_corr_CTfoll_Asc=='Yes'",
-                                                            selectInput("corr_CTfoll_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow-up is high and when case ascertainment is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
-                                                            
-                                           ),
-                                           
-                                           textAreaInput("source_CTfoll","Please provide any context or sources that have guided your intuition:",width="80%"
-                                           )
-                                         ),
-                                         
-                                         layout_column_wrap(1/2,
-                                                            actionButton("previousCTfollow","Previous"),
-                                                            actionButton("nextCTfollow","Next",class="btn-primary")
-                                         )
-                                         
-                                       )
+                   shiny::p(tags$h3("Healthcare and frontline worker vaccination")), shiny::p("Healthcare and frontline workers are a"), accordion(
+                     id = "HCW",
+                     accordion_panel(
+                       "Preventative vaccination",
+                       value = "HCWvacc_prevent",
+                       layout_sidebar(
+                         sidebar = sidebar(
+                           title = tags$h4("Proportion of HCWs and FLWs who accept preventative vaccination"),
+                           width = 300,
+                           shiny::p("Based on your knowledge and experience of recent preventative vaccination campaigns against EVD:"),
+                           
+                           selectInput(
+                             "answerHCWvacc_prevent",
+                             "Can you provide your intuition about the distribution of the proportion of HCWs/FLWs who accept preventative vaccination?",
+                             c("No", "Yes")
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.answerHCWvacc_prevent=='Yes'",
+                             selectInput(
+                               "HCWvacc_prevent_shape",
+                               "What do you think the shape of the distribution of the proportion of HCWs/FLWs who accept vaccination is?",
+                               c("Uniform", "Normal", "Skewed")
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTprop_shape=='Uniform'",
+                               sliderInput(
+                                 "CTprop_min",
+                                 "What do you think the minimum value of the proportion of contacts who are traced is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 0,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTprop_shape=='Uniform'",
+                               sliderInput(
+                                 "CTprop_max",
+                                 "What do you think the maximum value of the proportion of contacts who are traced is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 1,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTprop_shape=='Normal'",
+                               sliderInput(
+                                 "CTprop_mean",
+                                 "What do you think the mean value of the proportion of contacts who are traced is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTprop_shape=='Normal'",
+                               sliderInput(
+                                 "CTprop_sd",
+                                 "What do you think the standard deviation of the proportion of contacts who are traced is?",
+                                 min = 0.1,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.01,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTprop_shape=='Skewed'",
+                               sliderInput(
+                                 "CTprop_means",
+                                 "What do you think the mean value of the proportion of contacts who are traced is?",
+                                 min = 0.1,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTprop_shape=='Skewed'",
+                               sliderInput(
+                                 "CTprop_var",
+                                 "What do you think the variance of the proportion of contacts who are traced is?",
+                                 min = 0.01,
+                                 max = 0.25,
+                                 value = 0.1,
+                                 step = 0.001,
+                                 round = -3
+                               )
+                             )
+                           )
+                           
+                         ),
+                         
+                         conditionalPanel(
+                           condition = "input.answerCTprop=='Yes'",
+                           plotOutput("plotCTprop", width =
+                                        "100%", height = '500px'),
+                           textOutput("CTpropmedian"),
+                           textOutput("CTpropconf"),
+                           
+                           selectInput(
+                             "conf_CTprop",
+                             "How confident are you about the shape of the distribution?",
+                             c("Very", "Somewhat", "Slightly", "Not very"),
+                             width = "80%",
+                             selected = "Not very"
+                           ),
+                           
+                           selectInput(
+                             "is_corr_CTprop_R0",
+                             "Do you think there is any correlation between the proportion of contacts traced and the reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_CTprop_R0=='Yes'",
+                             selectInput(
+                               "corr_CTprop_R0",
+                               "Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts traced is high and when reproduction number is low, the proportion of contacts traced is low) or negative (i.e. when reproduction number is low, the proportion of contacts traced is high and vice versa)?",
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           selectInput(
+                             "is_corr_CTprop_Asc",
+                             "Do you think there is any correlation between the proportion of contacts traced and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts traced is also higher.",
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_CTprop_Asc=='Yes'",
+                             selectInput(
+                               "corr_CTprop_Asc",
+                               "Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts traced is high and when case ascertainment is low, the proportion of contacts traced is low) or negative (i.e. when case ascertainment is low, the proportion of contacts traced is high and vice versa)?",
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           textAreaInput(
+                             "source_CTprop",
+                             "Please provide any context or sources that have guided your intuition:",
+                             width = "80%"
+                           )
+                         ),
+                         
+                         layout_column_wrap(
+                           1 / 2,
+                           actionButton("previousCTprop", "Previous"),
+                           actionButton("nextCTprop", "Next", class =
+                                          "btn-primary")
+                         )
+                       )
+                     ),
+                     accordion_panel(
+                       "Proportion of contacts who complete follow-up",
+                       value = "CTfollow",
+                       layout_sidebar(
+                         sidebar = sidebar(
+                           title = tags$h4("Proportion followed-up"),
+                           width = 300,
+                           shiny::p(""),
+                           shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                           
+                           selectInput(
+                             "answerCTfoll",
+                             "Can you provide your intuition about the distribution of the proportion of contacts who complete follow-up?",
+                             c("No", "Yes")
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.answerCTfoll=='Yes'",
+                             selectInput(
+                               "CTfoll_shape",
+                               "What do you think the shape of the distribution of the proportion of contacts who complete follow-up is?",
+                               c("Uniform", "Normal", "Skewed")
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTfoll_shape=='Uniform'",
+                               sliderInput(
+                                 "CTfoll_min",
+                                 "What do you think the minimum value of the proportion of contacts who complete follow-up is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 0,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTfoll_shape=='Uniform'",
+                               sliderInput(
+                                 "CTfoll_max",
+                                 "What do you think the maximum value of the proportion of contacts who complete follow-up is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 1,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTfoll_shape=='Normal'",
+                               sliderInput(
+                                 "CTfoll_mean",
+                                 "What do you think the mean value of the proportion of contacts who complete follow-up is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTfoll_shape=='Normal'",
+                               sliderInput(
+                                 "CTfoll_sd",
+                                 "What do you think the standard deviation of the proportion of contacts who complete follow-up is?",
+                                 min = 0.1,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.01,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTfoll_shape=='Skewed'",
+                               sliderInput(
+                                 "CTfoll_means",
+                                 "What do you think the mean value of the proportion of contacts who complete follow-up is?",
+                                 min = 0.1,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTfoll_shape=='Skewed'",
+                               sliderInput(
+                                 "CTfoll_var",
+                                 "What do you think the variance of the proportion of contacts who complete follow-up is?",
+                                 min = 0.01,
+                                 max = 0.25,
+                                 value = 0.1,
+                                 step = 0.001,
+                                 round = -3
+                               )
+                             )
+                           )
+                           
+                         ),
+                         
+                         conditionalPanel(
+                           condition = "input.answerCTfoll=='Yes'",
+                           plotOutput("plotCTfoll", width =
+                                        "100%", height = '500px'),
+                           textOutput("CTfollmedian"),
+                           textOutput("CTfollconf"),
+                           
+                           selectInput(
+                             "conf_CTfoll",
+                             "How confident are you about the shape of the distribution?",
+                             c("Very", "Somewhat", "Slightly", "Not very"),
+                             width = "80%",
+                             selected = "Not very"
+                           ),
+                           
+                           selectInput(
+                             "is_corr_CTfoll_R0",
+                             "Do you think there is any correlation between the proportion of contacts who complete follow-up and reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_CTfoll_R0=='Yes'",
+                             selectInput(
+                               "corr_CTfoll_R0",
+                               "Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts who complete follow-up is high and when reproduction number is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when reproduction number is low, the proportion of contacts who complete follow-up is high and vice versa)?",
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           selectInput(
+                             "is_corr_CTfoll_Asc",
+                             "Do you think there is any correlation between the proportion of contacts who complete follow-up and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts who complete follow-up is also higher.",
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_CTfoll_Asc=='Yes'",
+                             selectInput(
+                               "corr_CTfoll_Asc",
+                               "Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow-up is high and when case ascertainment is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow-up is high and vice versa)?",
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           textAreaInput(
+                             "source_CTfoll",
+                             "Please provide any context or sources that have guided your intuition:",
+                             width = "80%"
+                           )
+                         ),
+                         
+                         layout_column_wrap(
+                           1 / 2,
+                           actionButton("previousCTfollow", "Previous"),
+                           actionButton("nextCTfollow", "Next", class =
+                                          "btn-primary")
+                         )
+                       )
+                     ),
+                     accordion_panel(
+                       "Proportion of contacts who complete follow-up",
+                       value = "CTfollow",
+                       layout_sidebar(
+                         sidebar = sidebar(
+                           title = tags$h4("Proportion followed-up"),
+                           width = 300,
+                           shiny::p(""),
+                           shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                           
+                           selectInput(
+                             "answerCTfoll",
+                             "Can you provide your intuition about the distribution of the proportion of contacts who complete follow-up?",
+                             c("No", "Yes")
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.answerCTfoll=='Yes'",
+                             selectInput(
+                               "CTfoll_shape",
+                               "What do you think the shape of the distribution of the proportion of contacts who complete follow-up is?",
+                               c("Uniform", "Normal", "Skewed")
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTfoll_shape=='Uniform'",
+                               sliderInput(
+                                 "CTfoll_min",
+                                 "What do you think the minimum value of the proportion of contacts who complete follow-up is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 0,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTfoll_shape=='Uniform'",
+                               sliderInput(
+                                 "CTfoll_max",
+                                 "What do you think the maximum value of the proportion of contacts who complete follow-up is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 1,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTfoll_shape=='Normal'",
+                               sliderInput(
+                                 "CTfoll_mean",
+                                 "What do you think the mean value of the proportion of contacts who complete follow-up is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.CTfoll_shape=='Normal'",
+                               sliderInput(
+                                 "CTfoll_sd",
+                                 "What do you think the standard deviation of the proportion of contacts who complete follow-up is?",
+                                 min = 0.1,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.01,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.HCWvacc_prevent_shape=='Skewed'",
+                               sliderInput(
+                                 "CTfoll_means",
+                                 "What do you think the mean value of the proportion of contacts who complete follow-up is?",
+                                 min = 0.1,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.HCWvacc_prevent_shape=='Skewed'",
+                               sliderInput(
+                                 "HCWvacc_prevent_var",
+                                 "What do you think the variance of the proportion of HCWs/FLWs who accept vaccination is?",
+                                 min = 0.01,
+                                 max = 0.25,
+                                 value = 0.1,
+                                 step = 0.001,
+                                 round = -3
+                               )
+                             )
+                           )
+                           
+                         ),
+                         
+                         conditionalPanel(
+                           condition = "input.answerHCWvacc_prevent=='Yes'",
+                           plotOutput("plotHCWvacc_prevent", width =
+                                        "100%", height = '500px'),
+                           textOutput("HCWvacc_prevent_median"),
+                           textOutput("HCWvacc_prevent_conf"),
+                           
+                           selectInput(
+                             "conf_HCWvacc_prevent",
+                             "How confident are you about the shape of the distribution?",
+                             c("Very", "Somewhat", "Slightly", "Not very"),
+                             width = "80%",
+                             selected = "Not very"
+                           ),
+                           
+                           selectInput(
+                             "is_corr_HCWvacc_prevent_R0",
+                             "Do you think there is any correlation between the proportion of HCWs/FLWs who accept vaccination and reproduction number? e.g. if the reproduction number is higher, the proportion of HCWs/FLWs who accept vaccination is also higher.",
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_HCWvacc_prevent_R0=='Yes'",
+                             selectInput(
+                               "corr_HCWvacc_prevent_R0",
+                               "Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of HCWs/FLWs who accept vaccination is high and when reproduction number is low, the proportion of HCWs/FLWs who accept vaccination is low) or negative (i.e. when reproduction number is low, the proportion of HCWs/FLWs who accept vaccination is high and vice versa)?",
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           selectInput(
+                             "is_corr_HCWvacc_prevent_Asc",
+                             "Do you think there is any correlation between the proportion HCWs/FLWs who accept vaccination and case ascertainment? e.g. if case ascertainment is higher, the proportion of HCWs/FLWs who accept vaccination is also higher.",
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_HCWvacc_prevent_Asc=='Yes'",
+                             selectInput(
+                               "corr_HCWvacc_prevent_Asc",
+                               "Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of HCWs/FLWs who is accept vaccination is high and when case ascertainment is low, the proportion of HCWs/FLWs who accept vaccination is low) or negative (i.e. when case ascertainment is low, the proportion of HCWs/FLWs who accept vaccination is high and vice versa)?",
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           textAreaInput(
+                             "source_HCWvacc_prevent",
+                             "Please provide any context or sources that have guided your intuition:",
+                             width = "80%"
+                           )
+                         ),
+                         
+                         layout_column_wrap(
+                           1 / 2,
+                           actionButton("previousHCWvacc_prevent", "Previous"),
+                           actionButton("nextHCWvacc_prevent", "Next", class =
+                                          "btn-primary")
+                         )
                        )
                      )
-                     
-                   # ),
-  ),
-  
-  bslib::nav_panel(title="Vaccination",
+                   )
                    
-                   shiny::p(tags$h3("Vaccination")),
+                   
+  ), 
+  
+  bslib::nav_panel(title="7",
+                   
+                   shiny::p(tags$h3("Ring vaccination")),
                    
                    shiny::p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
                      latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in 
                      vaccine uptake for these different strategies, as well as the time taken to initiate vaccination following ascertainment of a case."),
                    
-                   # card(
-                     accordion(id="vacc",
-                               accordion_panel("HCW/FLW vaccination",
-                                               value="Vacc_HCW",
-                                               layout_sidebar(
-                                                 sidebar=sidebar(title="HCW/FLW vaccination",
-                                                                 width=300,
-                                                                 shiny::p(""),
-                                                                 shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
-                                                                 
-                                                                 selectInput("answerVaccHCW","Can you provide your intuition about the distribution of the proportion of HCWs/FLWs who accept vaccination?",
-                                                                             c("No","Yes")),
-                                                                 
-                                                                 conditionalPanel(
-                                                                   condition="input.answerVaccHCW=='Yes'",
-                                                                   selectInput("VaccHCW_shape","What do you think the shape of the distribution of the proportion of HCWs/FLWs who accept vaccination is?",
-                                                                               c("Uniform","Normal","Skewed")),
-                                                                   
-                                                                   conditionalPanel(
-                                                                     condition="input.VaccHCW_shape=='Uniform'",
-                                                                     sliderInput("VaccHCW_min","What do you think the minimum value of the proportion of HCWs/FLWs who accept vaccination is?",min=0,max=1,value=0,step=0.05,round=-2)
-                                                                   ),
-                                                                   
-                                                                   conditionalPanel(
-                                                                     condition="input.VaccHCW_shape=='Uniform'",
-                                                                     sliderInput("VaccHCW_max","What do you think the maximum value of the proportion of HCWs/FLWs who accept vaccination is?",min=0,max=1,value=1,step=0.05,round=-2)
-                                                                   ),
-                                                                   
-                                                                   conditionalPanel(
-                                                                     condition="input.VaccHCW_shape=='Normal'",
-                                                                     sliderInput("VaccHCW_mean","What do you think the mean value of the proportion of HCWs/FLWs who accept vaccination is?",min=0,max=1,value=0.5,step=0.05,round=-2)
-                                                                   ),
-                                                                   
-                                                                   conditionalPanel(
-                                                                     condition="input.VaccHCW_shape=='Normal'",
-                                                                     sliderInput("VaccHCW_sd","What do you think the standard deviation of the proportion of HCWs/FLWs who accept vaccination is?",min=0.1,max=1,value=0.5,step=0.01,round=-2)
-                                                                   ),
-                                                                   
-                                                                   conditionalPanel(
-                                                                     condition="input.VaccHCW_shape=='Skewed'",
-                                                                     sliderInput("VaccHCW_means","What do you think the mean value of the proportion of HCWs/FLWs who accept vaccination is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
-                                                                   ),
-                                                                   
-                                                                   conditionalPanel(
-                                                                     condition="input.VaccHCW_shape=='Skewed'",
-                                                                     sliderInput("VaccHCW_var","What do you think the variance of the proportion of HCWs/FLWs who accept vaccination is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
-                                                                   )
-                                                                 )
-                                                                 
-                                                 ),
-                                                 
-                                                 conditionalPanel(
-                                                   condition="input.answerVaccHCW=='Yes'",
-                                                   plotOutput("plotVaccHCW",width="100%",height='500px'),
-                                                   textOutput("VaccHCWmedian"),
-                                                   textOutput("VaccHCWconf"),
-                                                   
-                                                   selectInput("conf_VaccHCW","How confident are you about the shape of the distribution?",
-                                                               c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
-                                                   
-                                                   selectInput("is_corr_VaccHCW_R0","Do you think there is any correlation between the proportion of HCWs/FLWs who accept vaccination and reproduction number? e.g. if the reproduction number is higher, the proportion who accept is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
-                                                   
-                                                   conditionalPanel(condition="input.is_corr_VaccHCW_R0=='Yes'",
-                                                                    selectInput("corr_VaccHCW_R0","Do you think the correlation is positive (i.e. when reproduction number is high, the proportion who accept vaccination is high and when reproduction number is low, the proportion who accept is low) or negative (i.e. when reproduction number is low, the proportion of contacts who accept is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
-                                                                    
-                                                   ),
-                                                   
-                                                   selectInput("is_corr_VaccHCW_Asc","Do you think there is any correlation between the proportion of contacts who complete follow-up and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts who complete follow-up is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
-                                                   
-                                                   conditionalPanel(condition="input.is_corr_CTfoll_Asc=='Yes'",
-                                                                    selectInput("corr_CTfoll_Asc","Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow-up is high and when case ascertainment is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow-up is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
-                                                                    
-                                                   ),
-                                                   
-                                                   textAreaInput("source_CTfoll","Please provide any context or sources that have guided your intuition:",width="80%"
-                                                   )
-                                                 ),
-                                                 
-                                                 
-                                                 layout_column_wrap(1/2,
-                                                                    actionButton("previousVax_HCW","Previous"),
-                                                                    actionButton("nextVax_HCW","Next",class="btn-primary")
-                                                 )
-                                               )
-                                 
-                               ),
-                               accordion_panel("Ring vaccination",
-                                               value="Vacc_Ring",
-                                               layout_sidebar(
-                                                 sidebar=sidebar(title="Ring vaccination",
-                                                                 width=300,
-                                                                 shiny::p(""),
-                                                                 shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
-                                                                 
-                                                 ),
-                                                 
-                                                 layout_column_wrap(1/2,
-                                                                    actionButton("previousVax_Ring","Previous"),
-                                                                    actionButton("nextVax_Ring","Next",class="btn-primary")
-                                                 )
-                                               )
-                                               
-                               ),
-                               accordion_panel("HCW/FLW vaccination",
-                                               value="Vacc_Geo",
-                                               layout_sidebar(
-                                                 sidebar=sidebar(title="Geographically targeted vaccination",
-                                                                 width=300,
-                                                                 shiny::p(""),
-                                                                 shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
-                                                                 
-                                                 ),
-                                                 
-                                                 layout_column_wrap(1/2,
-                                                                    actionButton("previousVax_Geo","Previous"),
-                                                                    actionButton("nextVax_Geo","Next",class="btn-primary")
-                                                 )
-                                               )
-                                               
-                               )
-                     )
-                   # )
                    
   ),
   
-  bslib::nav_panel(title="Submit",
+  bslib::nav_panel(title="8",
+                   
+                   shiny::p(tags$h3("Geographically targeted vaccination")),
+                   
+                   shiny::p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
+                     latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in 
+                     vaccine uptake for these different strategies, as well as the time taken to initiate vaccination following ascertainment of a case."),
+                   
+                   
+  ),
+  
+  bslib::nav_panel(title="9",
+                   
+                   shiny::p(tags$h3("Your views about EVD outbreaks and the role of the stockpile")),
+                   
+                   shiny::p("On the final page of the survey, we'd like you to give your views regarding the size of potential worst-case EVD outbreaks as well as
+                            the purpose of the stockpile"),
+                   
+                   textAreaInput( 
+                     "worst_case",
+                     "In your opinion, what is the worst-case outbreak that we should be preparing for? How likely do
+                     you think the worst-case outbreak is? Are current response activities sufficient to respond to 
+                     such an outbreak, and if not, what other resources or interventions would be needed?",
+                     width = "80%"
+                    ),
+                   
+                   textAreaInput(
+                     "stockpile",
+                     "In your opinion, what do you think the role of the Ervebo vaccine stockpile should be? Should it be 
+                     sufficient for the worst-case scenario? Should it be sufficient for 95% of future outbreaks? Should
+                     it be sufficient for the whole outbreak length, or just the length of time it takes to ramp up vaccine production?",
+                     width = "80%"
+                   ),
+                   
+                   
                    layout_column_wrap(1/2,
-                                     actionButton("previousSubmit","Previous"),
-                                     actionButton("submit","Submit",class="btn-success")
+                                      actionButton("previousStockpile","Previous"),
+                                      actionButton("submit","Submit",class="btn-primary")
                    )
+                   
+                   
+  ),
+  
+  bslib::nav_panel(title="End",
+                   shiny::p("Many thanks for your input!")
+                   
                    
                    
   ),
@@ -769,15 +1409,16 @@ server <- function(input, output, session) {
                       AscSlider=NULL)
   
   observeEvent(input$nextOverview,{
-    updateNavbarPage(session=session,"mainpage",selected="Your experience")
+    updateNavbarPage(session=session,"mainpage",selected="1")
   })
+  
   
   observeEvent(input$previousExp,{
     updateNavbarPage(session=session,"mainpage",selected="Overview")
   })
   
   observeEvent(input$nextExp,{
-    updateNavbarPage(session=session,"mainpage",selected="Reproduction number")
+    updateNavbarPage(session=session,"mainpage",selected="2")
   })
   
   ## reproduction number R0 ########################################################
@@ -840,11 +1481,11 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$previousR0,{
-    updateNavbarPage(session=session,"mainpage",selected="Your experience")
+    updateNavbarPage(session=session,"mainpage",selected="1")
   })
   
   observeEvent(input$nextR0,{
-    updateNavbarPage(session=session,"mainpage",selected="Doubling time")
+    updateNavbarPage(session=session,"mainpage",selected="3")
   })
   
   ## doubling time ########################################################
@@ -910,11 +1551,11 @@ server <- function(input, output, session) {
   
   
   observeEvent(input$previousDT,{
-    updateNavbarPage(session=session,"mainpage",selected="Reproduction number")
+    updateNavbarPage(session=session,"mainpage",selected="2")
   })
   
   observeEvent(input$nextDT,{
-    updateNavbarPage(session=session,"mainpage",selected="Case ascertainment")
+    updateNavbarPage(session=session,"mainpage",selected="4")
   })
   
   ## case ascertainment ###################################################################################
@@ -1003,11 +1644,11 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$previousAsc,{
-    updateNavbarPage(session=session,"mainpage",selected="Doubling time")
+    updateNavbarPage(session=session,"mainpage",selected="3")
   })
   
   observeEvent(input$nextAsc,{
-    updateNavbarPage(session=session,"mainpage",selected="Contact tracing")
+    updateNavbarPage(session=session,"mainpage",selected="5")
   })
   
   ## proportion of contacts traced ##############################################################
@@ -1089,7 +1730,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$previousCTprop,{
-    updateNavbarPage(session=session,"mainpage",selected="Case ascertainment")
+    updateNavbarPage(session=session,"mainpage",selected="4")
   })
   
   observeEvent(input$nextCTprop,{
@@ -1182,23 +1823,137 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$nextCTfollow,{
-    updateNavbarPage(session=session,"mainpage",selected="Vaccination")
+    updateNavbarPage(session=session,"mainpage",selected="6")
   })
   
-  ## vaccination #############################################################
-  
-  observeEvent(input$previousVax,{
-    updateNavbarPage(session=session,"mainpage",selected="Contact tracing")
+  ## HCW vaccination #############################################################
+  observeEvent(input$Asc_min,{
+    updateSliderInput(session,"Asc_max",min=input$Asc_min+0.1)
   })
   
-  observeEvent(input$nextVax,{
+  plotTypeAsc <- reactive({input$Asc_shape
+  })
+  
+  observeEvent(input$Asc_means, {
+    # If the beta mean changes, compute the new implied standard deviation
+    Asc_var <- input$Asc_betasd^2
+    # by definition we require
+    # mean*(1 - mean) > variance
+    if(input$Asc_means * (1-input$Asc_means) < Asc_var){
+      Asc_var <- input$Asc_means * (1-input$Asc_means)
+      max_sd = round(sqrt(Asc_var), 3)
+      updateSliderInput(session, "Asc_betasd", value = max_sd)
+    }
+    beta_pars <- get_beta_parameters(input$Asc_means, round(sqrt(Asc_var), 3))
+    AscAlpha <- beta_pars[1]
+    AscBeta <- beta_pars[2]
+    # normalise alpha and beta so that both are at least 1
+    if(min(AscAlpha,AscBeta)<1){
+      minab <- min(AscAlpha,AscBeta)
+      AscAlpha <- AscAlpha/minab
+      AscBeta <- AscBeta/minab
+      implied_sd = round(sqrt(AscAlpha*AscBeta / ((AscAlpha + AscBeta)^2 * (AscAlpha + AscBeta + 1))), 3)
+      updateSliderInput(session, "Asc_betasd", value = implied_sd)
+    }
+  })
+  
+  output$plotAsc <- renderPlot({
+    datAsc <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+    if(plotTypeAsc()=="Uniform"){
+      asc_dist = distr::Unif(Min=input$Asc_min,Max=input$Asc_max)
+    }
+    else if(plotTypeAsc()=="Normal"){
+      asc_dist = distr::Truncate(distr::Norm(mean=input$Asc_mean,sd=input$Asc_sd),lower=0,upper=1)
+    }
+    else if(plotTypeAsc()=="Skewed"){
+      #then make these into gamma or beta distribution parameters
+      AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
+      AscScale<-input$Asc_var/input$Asc_means
+      AscAlpha<-input$Asc_means*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
+      AscBeta<-(1-input$Asc_means)*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
+      datAsc<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+      asc_dist = distr::Gammad(shape1 = AscAlpha, shape2 = AscBeta)
+    }
+    else if(plotTypeAsc()=="Beta"){
+      #then make these into beta distribution parameters
+      beta_pars <- get_beta_parameters(input$Asc_means, input$Asc_betasd)
+      datAsc <- subset(datAsc,xpos*(1-xpos)!=0)
+      # print(c(14, input$Asc_means, input$Asc_betasd, beta_pars))
+      asc_dist = distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2])
+      # if(sum(beta_pars<.99)>0) return(NULL) # cut if parameters have not been updated
+    }
+    v$asc_dist = asc_dist
+    datAsc$ypos <- distr::d(asc_dist)(datAsc$xpos)
+    datAsc$qt  <- cut(distr::p(asc_dist)(datAsc$xpos),breaks=qrt,labels=F) #cut(pbeta(datAsc$xpos,alpha=AscShape,beta=AscScale,log=F),breaks=qrt,labels=F)
+    
+    ggplot(datAsc,aes(x=xpos,y=ypos))+
+      geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
+      labs(x="Proportion of cases ascertained",y="pdf",color="Percentile",title="Probability density of case ascertainment proportion")+
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksunit)
+  }
+  )
+  
+  output$HCWvacc_prevent_conf<-renderText({
+    HCWvacc_prevent_dist = v$asc_dist
+    lower50 <- distr::q(HCWvacc_prevent_dist)(0.25)
+    upper50 <- distr::q(HCWvacc_prevent_dist)(0.75) # qbeta(p=0.75*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+    lower95 <- distr::q(HCWvacc_prevent_dist)(0.025) # qbeta(p=0.025*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+    upper95 <- distr::q(HCWvacc_prevent_dist)(0.975) # qbeta(p=0.975*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+    paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
+          confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
+  })
+  
+  output$HCWvacc_prevent_median<-renderText({
+    HCWvacc_prevent_dist = v$HCWvacc_prevent_dist
+    median <- distr::q(HCWvacc_prevent_dist)(0.5)
+    paste("Your median value for case ascertainment is:",round(median,digits=2))
+  })
+  
+  
+  observeEvent(input$previousHCWVax,{
+    updateNavbarPage(session=session,"mainpage",selected="5")
+  })
+  
+  observeEvent(input$nextHCWVax,{
+    accordion_panel_close(session=session,id="CT",values = "CTprop")
+    accordion_panel_open(session=session,id="CT",values="CTfollow")
+  })
+  
+  ## Ring vaccination #############################################################
+  
+  observeEvent(input$previousRingVax,{
+    updateNavbarPage(session=session,"mainpage",selected="6")
+  })
+  
+  observeEvent(input$nextRingVax,{
+    updateNavbarPage(session=session,"mainpage",selected="8")
+  })
+  
+  ## Geographic vaccination #############################################################
+  
+  observeEvent(input$previousGeoVax,{
+    updateNavbarPage(session=session,"mainpage",selected="7")
+  })
+  
+  observeEvent(input$nextGeoVax,{
+    updateNavbarPage(session=session,"mainpage",selected="9")
+  })
+  
+  ## Stockpile views #############################################################
+  
+  observeEvent(input$previousStockpile,{
+    updateNavbarPage(session=session,"mainpage",selected="8")
+  })
+  
+  observeEvent(input$nextStockpile,{
     updateNavbarPage(session=session,"mainpage",selected="Submit")
   })
   
   ## submission #############################################################
   
   observeEvent(input$previousSubmit,{
-    updateNavbarPage(session=session,"mainpage",selected="Vaccination")
+    updateNavbarPage(session=session,"mainpage",selected="9")
   })
   
   observeEvent(input$submit,{
@@ -1271,7 +2026,7 @@ server <- function(input, output, session) {
     xlsx::write.xlsx(answers,file = filename,sheetName='Parameter data', append=T,row.names = F)
     
     ## maybe create a "thanks" page or restart? i think you need to close and reopen to reset everything for the next user.
-    updateNavbarPage(session=session,"mainpage",selected="Overview")
+    updateNavbarPage(session=session,"mainpage",selected="End")
     
     # these are some values stored in input not written out
     # answerAsc, answerCTfoll, answerCTprop, answerR0, 
