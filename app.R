@@ -2105,6 +2105,7 @@ server <- function(input, output, session) {
   plotTypeHCWvacc_prevent <- reactive({input$HCWvacc_prevent_shape
   })
   
+  
   observeEvent(input$HCWvacc_prevent_means, {
     # If the beta mean changes, compute the new implied standard deviation
     HCWvacc_prevent_var <- input$HCWvacc_prevent_betasd^2
