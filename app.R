@@ -936,9 +936,9 @@ ui <- page_navbar(
 
                                condition = "input.HCWvacc_prevent_shape=='Beta'",
                                sliderInput(
-                                 "HCWvacc_prevent_var",
+                                 "HCWvacc_prevent_betasd",
 
-                                 "What do you think the variance of the proportion of HCWs/FLWs who accept vaccination is?",
+                                 "What do you think the standard deviation of the proportion of HCWs/FLWs who accept vaccination is?",
 
                                  min = 0.01,
                                  max = 0.25,
@@ -2103,6 +2103,7 @@ server <- function(input, output, session) {
   
   plotTypeHCWvacc_prevent <- reactive({input$HCWvacc_prevent_shape
   })
+  
   
   observeEvent(input$HCWvacc_prevent_means, {
     # If the beta mean changes, compute the new implied standard deviation
