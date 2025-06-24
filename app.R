@@ -778,8 +778,9 @@ ui <- page_navbar(
   
   bslib::nav_panel(title="6",
                    
-                   shiny::p(tags$h3("Healthcare and frontline worker vaccination")), shiny::p("Healthcare and frontline workers are a"), accordion(
-                     id = "HCW",
+                   shiny::p(tags$h3("Healthcare and frontline worker vaccination")), shiny::p("Healthcare and frontline workers are a"), 
+                   accordion(
+                     id = "HCWvacc",
                      accordion_panel(
                        "Preventative vaccination",
                        value = "HCWvacc_prevent",
@@ -807,7 +808,7 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_prevent_shape=='Uniform'",
                                sliderInput(
                                  "HCWvacc_prevent_min",
-                                 "What do you think the minimum value of HCWvacc_prevent is?",
+                                 "What do you think the minimum value of the proportion of HCWs and FLWs who accept preventative vaccination is?",
                                  min = 0,
                                  max = 1,
                                  value = 0,
@@ -820,7 +821,7 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_prevent_shape=='Uniform'",
                                sliderInput(
                                  "HCWvacc_prevent_max",
-                                 "What do you think the maximum value of HCWvacc_prevent is?",
+                                 "What do you think the maximum value of the proportion of HCWs and FLWs who accept preventative vaccination is?",
                                  min = 0,
                                  max = 1,
                                  value = 1,
@@ -833,7 +834,7 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_prevent_shape=='Normal'",
                                sliderInput(
                                  "HCWvacc_prevent_mean",
-                                 "What do you think the mean value of HCWvacc_prevent is?",
+                                 "What do you think the mean value of the proportion of HCWs and FLWs who accept preventative vaccination is?",
                                  min = 0,
                                  max = 1,
                                  value = 0.5,
@@ -846,7 +847,7 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_prevent_shape=='Normal'",
                                sliderInput(
                                  "HCWvacc_prevent_sd",
-                                 "What do you think the standard deviation of HCWvacc_prevent is?",
+                                 "What do you think the standard deviation of the proportion of HCWs and FLWs who accept preventative vaccination is?",
                                  min = 0.1,
                                  max = 1,
                                  value = 0.5,
@@ -859,7 +860,7 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_prevent_shape=='Skewed'",
                                sliderInput(
                                  "HCWvacc_prevent_means",
-                                 "What do you think the mean value of HCWvacc_prevent is?",
+                                 "What do you think the mean value of the proportion of HCWs and FLWs who accept preventative vaccination is?",
                                  min = 0.1,
                                  max = 1,
                                  value = 0.5,
@@ -872,7 +873,7 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_prevent_shape=='Skewed'",
                                sliderInput(
                                  "HCWvacc_prevent_var",
-                                 "What do you think the variance of HCWvacc_prevent is?",
+                                 "What do you think the variance of the proportion of HCWs and FLWs who accept preventative vaccination is?",
                                  min = 0.01,
                                  max = 0.25,
                                  value = 0.1,
@@ -886,13 +887,13 @@ ui <- page_navbar(
                          
                          conditionalPanel(
                            condition = "input.answerHCWvacc_prevent=='Yes'",
-                           plotOutput("plotCTprop2", width =
+                           plotOutput("plotHCWvacc_prevent", width =
                                         "100%", height = '500px'),
-                           textOutput("CTpropmedian2"),
-                           textOutput("CTpropconf2"),
+                           textOutput("HCWvacc_preventmedian"),
+                           textOutput("HCWvacc_preventconf"),
                            
                            selectInput(
-                             "conf_CTprop",
+                             "conf_HCWvacc_prevent",
                              "How confident are you about the shape of the distribution?",
                              c("Very", "Somewhat", "Slightly", "Not very"),
                              width = "80%",
@@ -900,18 +901,18 @@ ui <- page_navbar(
                            ),
                            
                            selectInput(
-                             "is_corr_CTprop_R0",
-                             "Do you think there is any correlation between the proportion of contacts traced and the reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",
+                             "is_corr_HCWvacc_prevent_R0",
+                             "Do you think there is any correlation between the proportion of HCWs and FLWs who accept preventative vaccination and the reproduction number? e.g. if the reproduction number is higher, the proportion of HCWs and FLWs who accept preventative vaccination is also higher.",
                              c("Not sure", "Yes", "No"),
                              selected = NULL,
                              width = "80%"
                            ),
                            
                            conditionalPanel(
-                             condition = "input.is_corr_CTprop_R0=='Yes'",
+                             condition = "input.is_corr_HCWvacc_prevent_R0=='Yes'",
                              selectInput(
-                               "corr_CTprop_R0",
-                               "Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts traced is high and when reproduction number is low, the proportion of contacts traced is low) or negative (i.e. when reproduction number is low, the proportion of contacts traced is high and vice versa)?",
+                               "corr_HCWvacc_prevent_R0",
+                               "Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of HCWs and FLWs who accept preventative vaccination is high and when reproduction number is low, the proportion of HCWs and FLWs who accept preventative vaccination is low) or negative (i.e. when reproduction number is low, the proportion of HCWs and FLWs who accept preventative vaccination is high and vice versa)?",
                                c("Positive", "Negative"),
                                selected = NULL,
                                width = "80%"
@@ -920,18 +921,18 @@ ui <- page_navbar(
                            ),
                            
                            selectInput(
-                             "is_corr_CTprop_Asc",
-                             "Do you think there is any correlation between the proportion of contacts traced and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts traced is also higher.",
+                             "is_corr_HCWvacc_prevent_Asc",
+                             "Do you think there is any correlation between the proportion of HCWs and FLWs who accept preventative vaccination and case ascertainment? e.g. if case ascertainment is higher, the proportion of HCWs and FLWs who accept preventative vaccination is also higher.",
                              c("Not sure", "Yes", "No"),
                              selected = NULL,
                              width = "80%"
                            ),
                            
                            conditionalPanel(
-                             condition = "input.is_corr_CTprop_Asc=='Yes'",
+                             condition = "input.is_corr_HCWvacc_prevent_Asc=='Yes'",
                              selectInput(
-                               "corr_CTprop_Asc",
-                               "Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts traced is high and when case ascertainment is low, the proportion of contacts traced is low) or negative (i.e. when case ascertainment is low, the proportion of contacts traced is high and vice versa)?",
+                               "corr_HCWvacc_prevent_Asc",
+                               "Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of HCWs and FLWs who accept preventative vaccination is high and when case ascertainment is low, the proportion of HCWs and FLWs who accept preventative vaccination is low) or negative (i.e. when case ascertainment is low, the proportion of HCWs and FLWs who accept preventative vaccination is high and vice versa)?",
                                c("Positive", "Negative"),
                                selected = NULL,
                                width = "80%"
@@ -940,7 +941,7 @@ ui <- page_navbar(
                            ),
                            
                            textAreaInput(
-                             "source_CTprop",
+                             "source_HCWvacc_prevent",
                              "Please provide any context or sources that have guided your intuition:",
                              width = "80%"
                            )
@@ -948,15 +949,15 @@ ui <- page_navbar(
                          
                          layout_column_wrap(
                            1 / 2,
-                           actionButton("previousCTprop", "Previous"),
-                           actionButton("nextCTprop", "Next", class =
+                           actionButton("previousHCWvacc_prevent", "Previous"),
+                           actionButton("nextHCWvacc_prevent", "Next", class =
                                           "btn-primary")
                          )
                        )
                      ),
                      accordion_panel(
                        "Proportion of contacts who complete follow-up",
-                       value = "CTfollow",
+                       value = "HCWvacc_react",
                        layout_sidebar(
                          sidebar = sidebar(
                            title = tags$h4("Proportion followed-up"),
@@ -965,23 +966,23 @@ ui <- page_navbar(
                            shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
                            
                            selectInput(
-                             "answerCTfoll",
+                             "answerHCWvacc_react",
                              "Can you provide your intuition about the distribution of the proportion of contacts who complete follow-up?",
                              c("No", "Yes")
                            ),
                            
                            conditionalPanel(
-                             condition = "input.answerCTfoll=='Yes'",
+                             condition = "input.answerHCWvacc_react=='Yes'",
                              selectInput(
-                               "CTfoll_shape",
+                               "HCWvacc_react_shape",
                                "What do you think the shape of the distribution of the proportion of contacts who complete follow-up is?",
                                c("Uniform", "Normal", "Skewed")
                              ),
                              
                              conditionalPanel(
-                               condition = "input.CTfoll_shape=='Uniform'",
+                               condition = "input.HCWvacc_react_shape=='Uniform'",
                                sliderInput(
-                                 "CTfoll_min",
+                                 "HCWvacc_react_min",
                                  "What do you think the minimum value of the proportion of contacts who complete follow-up is?",
                                  min = 0,
                                  max = 1,
@@ -992,9 +993,9 @@ ui <- page_navbar(
                              ),
                              
                              conditionalPanel(
-                               condition = "input.CTfoll_shape=='Uniform'",
+                               condition = "input.HCWvacc_react_shape=='Uniform'",
                                sliderInput(
-                                 "CTfoll_max",
+                                 "HCWvacc_react_max",
                                  "What do you think the maximum value of the proportion of contacts who complete follow-up is?",
                                  min = 0,
                                  max = 1,
@@ -1005,9 +1006,9 @@ ui <- page_navbar(
                              ),
                              
                              conditionalPanel(
-                               condition = "input.CTfoll_shape=='Normal'",
+                               condition = "input.HCWvacc_react_shape=='Normal'",
                                sliderInput(
-                                 "CTfoll_mean",
+                                 "HCWvacc_react_mean",
                                  "What do you think the mean value of the proportion of contacts who complete follow-up is?",
                                  min = 0,
                                  max = 1,
@@ -1018,9 +1019,9 @@ ui <- page_navbar(
                              ),
                              
                              conditionalPanel(
-                               condition = "input.CTfoll_shape=='Normal'",
+                               condition = "input.HCWvacc_react_shape=='Normal'",
                                sliderInput(
-                                 "CTfoll_sd",
+                                 "HCWvacc_react_sd",
                                  "What do you think the standard deviation of the proportion of contacts who complete follow-up is?",
                                  min = 0.1,
                                  max = 1,
@@ -1031,9 +1032,9 @@ ui <- page_navbar(
                              ),
                              
                              conditionalPanel(
-                               condition = "input.CTfoll_shape=='Skewed'",
+                               condition = "input.HCWvacc_react_shape=='Skewed'",
                                sliderInput(
-                                 "CTfoll_means",
+                                 "HCWvacc_react_means",
                                  "What do you think the mean value of the proportion of contacts who complete follow-up is?",
                                  min = 0.1,
                                  max = 1,
@@ -1044,9 +1045,9 @@ ui <- page_navbar(
                              ),
                              
                              conditionalPanel(
-                               condition = "input.CTfoll_shape=='Skewed'",
+                               condition = "input.HCWvacc_react_shape=='Skewed'",
                                sliderInput(
-                                 "CTfoll_var",
+                                 "HCWvacc_react_var",
                                  "What do you think the variance of the proportion of contacts who complete follow-up is?",
                                  min = 0.01,
                                  max = 0.25,
@@ -1060,14 +1061,14 @@ ui <- page_navbar(
                          ),
                          
                          conditionalPanel(
-                           condition = "input.answerCTfoll=='Yes'",
-                           plotOutput("plotCTfoll2", width =
+                           condition = "input.answerHCWvacc_react=='Yes'",
+                           plotOutput("plotHCWvacc_react", width =
                                         "100%", height = '500px'),
-                           textOutput("CTfollmedian2"),
-                           textOutput("CTfollconf2"),
+                           textOutput("HCWvacc_reactmedian"),
+                           textOutput("HCWvacc_reactconf"),
                            
                            selectInput(
-                             "conf_CTfoll",
+                             "conf_HCWvacc_react",
                              "How confident are you about the shape of the distribution?",
                              c("Very", "Somewhat", "Slightly", "Not very"),
                              width = "80%",
@@ -1075,7 +1076,7 @@ ui <- page_navbar(
                            ),
                            
                            selectInput(
-                             "is_corr_CTfoll_R0",
+                             "is_corr_HCWvacc_react_R0",
                              "Do you think there is any correlation between the proportion of contacts who complete follow-up and reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",
                              c("Not sure", "Yes", "No"),
                              selected = NULL,
@@ -1083,9 +1084,9 @@ ui <- page_navbar(
                            ),
                            
                            conditionalPanel(
-                             condition = "input.is_corr_CTfoll_R0=='Yes'",
+                             condition = "input.is_corr_HCWvacc_react_R0=='Yes'",
                              selectInput(
-                               "corr_CTfoll_R0",
+                               "corr_HCWvacc_react_R0",
                                "Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts who complete follow-up is high and when reproduction number is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when reproduction number is low, the proportion of contacts who complete follow-up is high and vice versa)?",
                                c("Positive", "Negative"),
                                selected = NULL,
@@ -1095,7 +1096,7 @@ ui <- page_navbar(
                            ),
                            
                            selectInput(
-                             "is_corr_CTfoll_Asc",
+                             "is_corr_HCWvacc_react_Asc",
                              "Do you think there is any correlation between the proportion of contacts who complete follow-up and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts who complete follow-up is also higher.",
                              c("Not sure", "Yes", "No"),
                              selected = NULL,
@@ -1103,9 +1104,9 @@ ui <- page_navbar(
                            ),
                            
                            conditionalPanel(
-                             condition = "input.is_corr_CTfoll_Asc=='Yes'",
+                             condition = "input.is_corr_HCWvacc_react_Asc=='Yes'",
                              selectInput(
-                               "corr_CTfoll_Asc",
+                               "corr_HCWvacc_react_Asc",
                                "Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow-up is high and when case ascertainment is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow-up is high and vice versa)?",
                                c("Positive", "Negative"),
                                selected = NULL,
@@ -1115,7 +1116,7 @@ ui <- page_navbar(
                            ),
                            
                            textAreaInput(
-                             "source_CTfoll",
+                             "source_HCWvacc_react",
                              "Please provide any context or sources that have guided your intuition:",
                              width = "80%"
                            )
@@ -1123,15 +1124,15 @@ ui <- page_navbar(
                          
                          layout_column_wrap(
                            1 / 2,
-                           actionButton("previousCTfollow", "Previous"),
-                           actionButton("nextCTfollow", "Next", class =
+                           actionButton("previousHCWvacc_react", "Previous"),
+                           actionButton("nextHCWvacc_react", "Next", class =
                                           "btn-primary")
                          )
                        )
                      ),
                      accordion_panel(
                        "Proportion of contacts who complete follow-up",
-                       value = "CTfollow",
+                       value = "HCWvacc_delay",
                        layout_sidebar(
                          sidebar = sidebar(
                            title = tags$h4("Proportion followed-up"),
@@ -1140,23 +1141,23 @@ ui <- page_navbar(
                            shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
                            
                            selectInput(
-                             "answerCTfoll",
+                             "answerHCWvacc_delay",
                              "Can you provide your intuition about the distribution of the proportion of contacts who complete follow-up?",
                              c("No", "Yes")
                            ),
                            
                            conditionalPanel(
-                             condition = "input.answerCTfoll=='Yes'",
+                             condition = "input.answerHCWvacc_delay=='Yes'",
                              selectInput(
-                               "CTfoll_shape",
+                               "HCWvacc_delay_shape",
                                "What do you think the shape of the distribution of the proportion of contacts who complete follow-up is?",
                                c("Uniform", "Normal", "Skewed")
                              ),
                              
                              conditionalPanel(
-                               condition = "input.CTfoll_shape=='Uniform'",
+                               condition = "input.HCWvacc_delay_shape=='Uniform'",
                                sliderInput(
-                                 "CTfoll_min",
+                                 "HCWvacc_delay_min",
                                  "What do you think the minimum value of the proportion of contacts who complete follow-up is?",
                                  min = 0,
                                  max = 1,
@@ -1167,9 +1168,9 @@ ui <- page_navbar(
                              ),
                              
                              conditionalPanel(
-                               condition = "input.CTfoll_shape=='Uniform'",
+                               condition = "input.HCWvacc_delay_shape=='Uniform'",
                                sliderInput(
-                                 "CTfoll_max",
+                                 "HCWvacc_delay_max",
                                  "What do you think the maximum value of the proportion of contacts who complete follow-up is?",
                                  min = 0,
                                  max = 1,
@@ -1180,9 +1181,9 @@ ui <- page_navbar(
                              ),
                              
                              conditionalPanel(
-                               condition = "input.CTfoll_shape=='Normal'",
+                               condition = "input.HCWvacc_delay_shape=='Normal'",
                                sliderInput(
-                                 "CTfoll_mean",
+                                 "HCWvacc_delay_mean",
                                  "What do you think the mean value of the proportion of contacts who complete follow-up is?",
                                  min = 0,
                                  max = 1,
@@ -1193,9 +1194,9 @@ ui <- page_navbar(
                              ),
                              
                              conditionalPanel(
-                               condition = "input.CTfoll_shape=='Normal'",
+                               condition = "input.HCWvacc_delay_shape=='Normal'",
                                sliderInput(
-                                 "CTfoll_sd",
+                                 "HCWvacc_delay_sd",
                                  "What do you think the standard deviation of the proportion of contacts who complete follow-up is?",
                                  min = 0.1,
                                  max = 1,
@@ -1208,7 +1209,7 @@ ui <- page_navbar(
                              conditionalPanel(
                                condition = "input.HCWvacc_prevent_shape=='Skewed'",
                                sliderInput(
-                                 "CTfoll_means",
+                                 "HCWvacc_delay_means",
                                  "What do you think the mean value of the proportion of contacts who complete follow-up is?",
                                  min = 0.1,
                                  max = 1,
@@ -1827,79 +1828,79 @@ server <- function(input, output, session) {
   })
   
   ## HCW vaccination #############################################################
-  observeEvent(input$Asc_min,{
-    updateSliderInput(session,"Asc_max",min=input$Asc_min+0.1)
+  observeEvent(input$HCWvacc_prevent_min,{
+    updateSliderInput(session,"HCWvacc_prevent_max",min=input$HCWvacc_prevent_min+0.1)
   })
   
-  plotTypeAsc <- reactive({input$Asc_shape
+  plotTypeHCWvacc_prevent <- reactive({input$HCWvacc_prevent_shape
   })
   
-  observeEvent(input$Asc_means, {
+  observeEvent(input$HCWvacc_prevent_means, {
     # If the beta mean changes, compute the new implied standard deviation
-    Asc_var <- input$Asc_betasd^2
+    HCWvacc_prevent_var <- input$HCWvacc_prevent_betasd^2
     # by definition we require
     # mean*(1 - mean) > variance
-    if(input$Asc_means * (1-input$Asc_means) < Asc_var){
-      Asc_var <- input$Asc_means * (1-input$Asc_means)
-      max_sd = round(sqrt(Asc_var), 3)
-      updateSliderInput(session, "Asc_betasd", value = max_sd)
+    if(input$HCWvacc_prevent_means * (1-input$HCWvacc_prevent_means) < HCWvacc_prevent_var){
+      HCWvacc_prevent_var <- input$HCWvacc_prevent_means * (1-input$HCWvacc_prevent_means)
+      max_sd = round(sqrt(HCWvacc_prevent_var), 3)
+      updateSliderInput(session, "HCWvacc_prevent_betasd", value = max_sd)
     }
-    beta_pars <- get_beta_parameters(input$Asc_means, round(sqrt(Asc_var), 3))
-    AscAlpha <- beta_pars[1]
-    AscBeta <- beta_pars[2]
+    beta_pars <- get_beta_parameters(input$HCWvacc_prevent_means, round(sqrt(HCWvacc_prevent_var), 3))
+    HCWvacc_preventAlpha <- beta_pars[1]
+    HCWvacc_preventBeta <- beta_pars[2]
     # normalise alpha and beta so that both are at least 1
-    if(min(AscAlpha,AscBeta)<1){
-      minab <- min(AscAlpha,AscBeta)
-      AscAlpha <- AscAlpha/minab
-      AscBeta <- AscBeta/minab
-      implied_sd = round(sqrt(AscAlpha*AscBeta / ((AscAlpha + AscBeta)^2 * (AscAlpha + AscBeta + 1))), 3)
-      updateSliderInput(session, "Asc_betasd", value = implied_sd)
+    if(min(HCWvacc_preventAlpha,HCWvacc_preventBeta)<1){
+      minab <- min(HCWvacc_preventAlpha,HCWvacc_preventBeta)
+      HCWvacc_preventAlpha <- HCWvacc_preventAlpha/minab
+      HCWvacc_preventBeta <- HCWvacc_preventBeta/minab
+      implied_sd = round(sqrt(HCWvacc_preventAlpha*HCWvacc_preventBeta / ((HCWvacc_preventAlpha + HCWvacc_preventBeta)^2 * (HCWvacc_preventAlpha + HCWvacc_preventBeta + 1))), 3)
+      updateSliderInput(session, "HCWvacc_prevent_betasd", value = implied_sd)
     }
   })
   
-  output$plotAsc <- renderPlot({
-    datAsc <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-    if(plotTypeAsc()=="Uniform"){
-      asc_dist = distr::Unif(Min=input$Asc_min,Max=input$Asc_max)
+  output$plotHCWvacc_prevent <- renderPlot({
+    datHCWvacc_prevent <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+    if(plotTypeHCWvacc_prevent()=="Uniform"){
+      HCWvacc_prevent_dist = distr::Unif(Min=input$HCWvacc_prevent_min,Max=input$HCWvacc_prevent_max)
     }
-    else if(plotTypeAsc()=="Normal"){
-      asc_dist = distr::Truncate(distr::Norm(mean=input$Asc_mean,sd=input$Asc_sd),lower=0,upper=1)
+    else if(plotTypeHCWvacc_prevent()=="Normal"){
+      HCWvacc_prevent_dist = distr::Truncate(distr::Norm(mean=input$HCWvacc_prevent_mean,sd=input$HCWvacc_prevent_sd),lower=0,upper=1)
     }
-    else if(plotTypeAsc()=="Skewed"){
+    else if(plotTypeHCWvacc_prevent()=="Skewed"){
       #then make these into gamma or beta distribution parameters
-      AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
-      AscScale<-input$Asc_var/input$Asc_means
-      AscAlpha<-input$Asc_means*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      AscBeta<-(1-input$Asc_means)*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      datAsc<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      asc_dist = distr::Gammad(shape1 = AscAlpha, shape2 = AscBeta)
+      HCWvacc_preventShape<-(input$HCWvacc_prevent_means*input$HCWvacc_prevent_means)/input$HCWvacc_prevent_var
+      HCWvacc_preventScale<-input$HCWvacc_prevent_var/input$HCWvacc_prevent_means
+      HCWvacc_preventAlpha<-input$HCWvacc_prevent_means*(((input$HCWvacc_prevent_means*(1-input$HCWvacc_prevent_means))/input$HCWvacc_prevent_var)-1)
+      HCWvacc_preventBeta<-(1-input$HCWvacc_prevent_means)*(((input$HCWvacc_prevent_means*(1-input$HCWvacc_prevent_means))/input$HCWvacc_prevent_var)-1)
+      datHCWvacc_prevent<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+      HCWvacc_prevent_dist = distr::Gammad(shape1 = HCWvacc_preventAlpha, shape2 = HCWvacc_preventBeta)
     }
-    else if(plotTypeAsc()=="Beta"){
+    else if(plotTypeHCWvacc_prevent()=="Beta"){
       #then make these into beta distribution parameters
-      beta_pars <- get_beta_parameters(input$Asc_means, input$Asc_betasd)
-      datAsc <- subset(datAsc,xpos*(1-xpos)!=0)
-      # print(c(14, input$Asc_means, input$Asc_betasd, beta_pars))
-      asc_dist = distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2])
+      beta_pars <- get_beta_parameters(input$HCWvacc_prevent_means, input$HCWvacc_prevent_betasd)
+      datHCWvacc_prevent <- subset(datHCWvacc_prevent,xpos*(1-xpos)!=0)
+      # print(c(14, input$HCWvacc_prevent_means, input$HCWvacc_prevent_betasd, beta_pars))
+      HCWvacc_prevent_dist = distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2])
       # if(sum(beta_pars<.99)>0) return(NULL) # cut if parameters have not been updated
     }
-    v$asc_dist = asc_dist
-    datAsc$ypos <- distr::d(asc_dist)(datAsc$xpos)
-    datAsc$qt  <- cut(distr::p(asc_dist)(datAsc$xpos),breaks=qrt,labels=F) #cut(pbeta(datAsc$xpos,alpha=AscShape,beta=AscScale,log=F),breaks=qrt,labels=F)
+    v$HCWvacc_prevent_dist = HCWvacc_prevent_dist
+    datHCWvacc_prevent$ypos <- distr::d(HCWvacc_prevent_dist)(datHCWvacc_prevent$xpos)
+    datHCWvacc_prevent$qt  <- cut(distr::p(HCWvacc_prevent_dist)(datHCWvacc_prevent$xpos),breaks=qrt,labels=F) #cut(pbeta(datHCWvacc_prevent$xpos,alpha=HCWvacc_preventShape,beta=HCWvacc_preventScale,log=F),breaks=qrt,labels=F)
     
-    ggplot(datAsc,aes(x=xpos,y=ypos))+
+    ggplot(datHCWvacc_prevent,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
-      labs(x="Proportion of cases ascertained",y="pdf",color="Percentile",title="Probability density of case ascertainment proportion")+
+      labs(x="Proportion of HCWs/FLWs accepting vaccination",y="pdf",color="Percentile",title="Probability density of proportion of HCWs/FLWs accepting vaccination")+
       theme_gray(base_size = text_size)+theme(legend.position ="none") + 
       scale_x_continuous(breaks=breaksunit)
   }
   )
   
   output$HCWvacc_prevent_conf<-renderText({
-    HCWvacc_prevent_dist = v$asc_dist
+    HCWvacc_prevent_dist = v$HCWvacc_prevent_dist
     lower50 <- distr::q(HCWvacc_prevent_dist)(0.25)
-    upper50 <- distr::q(HCWvacc_prevent_dist)(0.75) # qbeta(p=0.75*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-    lower95 <- distr::q(HCWvacc_prevent_dist)(0.025) # qbeta(p=0.025*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-    upper95 <- distr::q(HCWvacc_prevent_dist)(0.975) # qbeta(p=0.975*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+    upper50 <- distr::q(HCWvacc_prevent_dist)(0.75) # qbeta(p=0.75*pbeta(1,shape=HCWvacc_preventShape,scale=HCWvacc_preventScale),shape=HCWvacc_preventShape,scale=HCWvacc_preventScale)
+    lower95 <- distr::q(HCWvacc_prevent_dist)(0.025) # qbeta(p=0.025*pbeta(1,shape=HCWvacc_preventShape,scale=HCWvacc_preventScale),shape=HCWvacc_preventShape,scale=HCWvacc_preventScale)
+    upper95 <- distr::q(HCWvacc_prevent_dist)(0.975) # qbeta(p=0.975*pbeta(1,shape=HCWvacc_preventShape,scale=HCWvacc_preventScale),shape=HCWvacc_preventShape,scale=HCWvacc_preventScale)
     paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
           confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
   })
@@ -1907,17 +1908,17 @@ server <- function(input, output, session) {
   output$HCWvacc_prevent_median<-renderText({
     HCWvacc_prevent_dist = v$HCWvacc_prevent_dist
     median <- distr::q(HCWvacc_prevent_dist)(0.5)
-    paste("Your median value for case ascertainment is:",round(median,digits=2))
+    paste("Your median value for the proportion of HCWs/FLWs who accept vaccination is:",round(median,digits=2))
   })
   
   
-  observeEvent(input$previousHCWVax,{
+  observeEvent(input$previousHCWVacc_prevent,{
     updateNavbarPage(session=session,"mainpage",selected="5")
   })
   
-  observeEvent(input$nextHCWVax,{
-    accordion_panel_close(session=session,id="CT",values = "CTprop")
-    accordion_panel_open(session=session,id="CT",values="CTfollow")
+  observeEvent(input$nextHCWVacc,{
+    accordion_panel_close(session=session,id="HCWvacc",values = "HCWvacc_prevent")
+    accordion_panel_open(session=session,id="HCWvacc",values="HCWvacc_react")
   })
   
   ## Ring vaccination #############################################################
