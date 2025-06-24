@@ -1667,8 +1667,9 @@ server <- function(input, output, session) {
   }
   
   v <- reactiveValues(R0_dist = NULL, 
+                      DT_dist = NULL,
                       asc_dist = NULL, 
-                      AscSlider=NULL)
+                      HCWvacc_prevent_dist = NULL)
   
 
 # Overview - server----------------------------------------------------------------
