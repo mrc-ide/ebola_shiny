@@ -799,8 +799,10 @@ ui <- page_navbar(
   
   bslib::nav_panel(title="6",
                    
+
                    shiny::p(tags$h3("Healthcare and frontline worker vaccination")), 
                    shiny::p("Healthcare and frontline workers are ..."), 
+
                    accordion(
                      id = "HCWvacc",
                      accordion_panel(
@@ -830,6 +832,7 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_prevent_shape=='Uniform'",
                                sliderInput(
                                  "HCWvacc_prevent_min",
+
 
                                  "What do you think the minimum proportion of HCWs/FLWs who accept vaccination is?",
 
@@ -918,6 +921,7 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_prevent_shape=='Beta'",
                                sliderInput(
                                  "HCWvacc_prevent_means",
+
                                  "What do you think the mean proportion of HCWs/FLWs who accept vaccination is",
 
                                  min = 0.1,
@@ -933,7 +937,8 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_prevent_shape=='Beta'",
                                sliderInput(
                                  "HCWvacc_prevent_var",
-                                 "What do you think the variance proportion of HCWs/FLWs who accept vaccination is?",
+
+                                 "What do you think the variance of the proportion of HCWs/FLWs who accept vaccination is?",
 
                                  min = 0.01,
                                  max = 0.25,
@@ -1028,6 +1033,7 @@ ui <- page_navbar(
                            #   )
                            #   
                            # ),
+
                            
                            textAreaInput(
                              "source_HCWvacc_prevent",
@@ -1045,6 +1051,7 @@ ui <- page_navbar(
                        )
                      ),
                      accordion_panel(
+
                        "Reactive vaccination",
                        value = "HCWvacc_react",
                        layout_sidebar(
@@ -1056,7 +1063,9 @@ ui <- page_navbar(
 
                            selectInput(
                              "answerHCWvacc_react",
+
                              "Can you provide your intuition about the proportion of HCW/FLWs who accept reactive vaccination?",
+
                              c("No", "Yes")
                            ),
 
@@ -1064,15 +1073,19 @@ ui <- page_navbar(
                              condition = "input.answerHCWvacc_react=='Yes'",
                              selectInput(
                                "HCWvacc_react_shape",
+
                                "What do you think the shape of the distribution of the proportion of HCW/FLWs who accept reactive vaccination is?",
                                c("Uniform", "Normal", "Beta")
+
                              ),
 
                              conditionalPanel(
                                condition = "input.HCWvacc_react_shape=='Uniform'",
                                sliderInput(
                                  "HCWvacc_react_min",
+
                                  "What do you think the minimum value of the proportion of HCW/FLWs who accept reactive vaccination is?",
+
                                  min = 0,
                                  max = 1,
                                  value = 0,
@@ -1085,7 +1098,9 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_react_shape=='Uniform'",
                                sliderInput(
                                  "HCWvacc_react_max",
+
                                  "What do you think the maximum value of the proportion of HCW/FLWs who accept reactive vaccination is?",
+
                                  min = 0,
                                  max = 1,
                                  value = 1,
@@ -1098,7 +1113,9 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_react_shape=='Normal'",
                                sliderInput(
                                  "HCWvacc_react_mean",
+
                                  "What do you think the mean value of the proportion of HCW/FLWs who accept reactive vaccination is?",
+
                                  min = 0,
                                  max = 1,
                                  value = 0.5,
@@ -1111,7 +1128,9 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_react_shape=='Normal'",
                                sliderInput(
                                  "HCWvacc_react_sd",
+
                                  "What do you think the standard deviation of the proportion of HCW/FLWs who accept reactive vaccination is?",
+
                                  min = 0.1,
                                  max = 1,
                                  value = 0.5,
@@ -1121,6 +1140,7 @@ ui <- page_navbar(
                              ),
                              
                              conditionalPanel(
+
                                condition = "input.HCWvacc_react_shape=='Normal'",
                                sliderInput(
                                  "HCWvacc_react_min_norm",
@@ -1151,6 +1171,7 @@ ui <- page_navbar(
                                sliderInput(
                                  "HCWvacc_react_means",
                                  "What do you think the mean value of the proportion of HCW/FLWs who accept reactive vaccination is?",
+
                                  min = 0.1,
                                  max = 1,
                                  value = 0.5,
@@ -1160,10 +1181,12 @@ ui <- page_navbar(
                              ),
 
                              conditionalPanel(
+
                                condition = "input.HCWvacc_react_shape=='Beta'",
                                sliderInput(
                                  "HCWvacc_react_var",
                                  "What do you think the variance of the proportion of HCW/FLWs who accept reactive vaccination is?",
+
                                  min = 0.01,
                                  max = 0.25,
                                  value = 0.1,
@@ -1219,7 +1242,9 @@ ui <- page_navbar(
 
                            selectInput(
                              "is_corr_HCWvacc_react_R0",
+
                              "Do you think there is any correlation between the proportion of HCW/FLWs who accept reactive vaccination and reproduction number? e.g. if the reproduction number is higher, the proportion of HCW/FLWs who accept reactive vaccination is also higher.",
+
                              c("Not sure", "Yes", "No"),
                              selected = NULL,
                              width = "80%"
@@ -1229,6 +1254,7 @@ ui <- page_navbar(
                              condition = "input.is_corr_HCWvacc_react_R0=='Yes'",
                              selectInput(
                                "corr_HCWvacc_react_R0",
+
                                "Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of HCW/FLWs who accept reactive vaccination is high and when reproduction number is low, the proportion of HCW/FLWs who accept reactive vaccination is low) or negative (i.e. when reproduction number is low, the proportion of HCW/FLWs who accept reactive vaccination is high and vice versa)?",
                                c("Positive", "Negative"),
                                selected = NULL,
@@ -1239,7 +1265,9 @@ ui <- page_navbar(
 
                            selectInput(
                              "is_corr_HCWvacc_react_Asc",
+
                              "Do you think there is any correlation between the proportion of HCW/FLWs who accept reactive vaccination and case ascertainment? e.g. if case ascertainment is higher, the proportion of HCW/FLWs who accept reactive vaccination is also higher.",
+
                              c("Not sure", "Yes", "No"),
                              selected = NULL,
                              width = "80%"
@@ -1249,7 +1277,9 @@ ui <- page_navbar(
                              condition = "input.is_corr_HCWvacc_react_Asc=='Yes'",
                              selectInput(
                                "corr_HCWvacc_react_Asc",
+
                                "Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of HCW/FLWs who accept reactive vaccination is high and when case ascertainment is low, the proportion of HCW/FLWs who accept reactive vaccination is low) or negative (i.e. when case ascertainment is low, the proportion of HCW/FLWs who accept reactive vaccination is high and vice versa)?",
+
                                c("Positive", "Negative"),
                                selected = NULL,
                                width = "80%"
@@ -1273,7 +1303,9 @@ ui <- page_navbar(
                        )
                      ),
                      accordion_panel(
+
                        "Delay from outbreak detection to HCW/FLW vaccination",
+
                        value = "HCWvacc_delay",
                        layout_sidebar(
                          sidebar = sidebar(
@@ -1284,7 +1316,9 @@ ui <- page_navbar(
 
                            selectInput(
                              "answerHCWvacc_delay",
+
                              "Can you provide your intuition about the distribution delays to start HCW/FLW vaccination?",
+
                              c("No", "Yes")
                            ),
 
@@ -1292,7 +1326,9 @@ ui <- page_navbar(
                              condition = "input.answerHCWvacc_delay=='Yes'",
                              selectInput(
                                "HCWvacc_delay_shape",
+
                                "What do you think the shape of the distribution of delays to start HCW/FLW vaccination is?",
+
                                c("Uniform", "Normal", "Skewed")
                              ),
 
@@ -1300,7 +1336,9 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_delay_shape=='Uniform'",
                                sliderInput(
                                  "HCWvacc_delay_min",
+
                                  "What do you think the minimum delay to start HCW/FLW vaccination is?",
+
                                  min = 0,
                                  max = 1,
                                  value = 0,
@@ -1313,7 +1351,9 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_delay_shape=='Uniform'",
                                sliderInput(
                                  "HCWvacc_delay_max",
+
                                  "What do you think the maximum delay to start HCW/FLW vaccination is?",
+
                                  min = 0,
                                  max = 1,
                                  value = 1,
@@ -1326,7 +1366,9 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_delay_shape=='Normal'",
                                sliderInput(
                                  "HCWvacc_delay_mean",
+
                                  "What do you think the mean delay to start HCW/FLW vaccination is?",
+
                                  min = 0,
                                  max = 1,
                                  value = 0.5,
@@ -1339,7 +1381,9 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_delay_shape=='Normal'",
                                sliderInput(
                                  "HCWvacc_delay_sd",
+
                                  "What do you think the standard deviation of the delay to start HCW/FLW vaccination is?",
+
                                  min = 0.1,
                                  max = 1,
                                  value = 0.5,
@@ -1351,6 +1395,7 @@ ui <- page_navbar(
                              conditionalPanel(
                                condition = "input.HCWvacc_delay_shape=='Normal'",
                                sliderInput(
+
                                  "HCWvacc_delay_min_norm",
                                  "What do you think the minimum delay to start HCW/FLW vaccination is?",
                                  min = 0.01,
@@ -1379,6 +1424,7 @@ ui <- page_navbar(
                                sliderInput(
                                  "HCWvacc_delay_means",
                                  "What do you think the mean delay to start HCW/FLW vaccination is?",
+
                                  min = 0.1,
                                  max = 1,
                                  value = 0.5,
@@ -2050,7 +2096,89 @@ server <- function(input, output, session) {
   
   ## HCW vaccination #############################################################
 
+  observeEvent(input$HCWvacc_prevent_min,{
+    updateSliderInput(session,"HCWvacc_prevent_max",min=input$HCWvacc_prevent_min+0.1)
+  })
   
+  plotTypeHCWvacc_prevent <- reactive({input$HCWvacc_prevent_shape
+  })
+  
+  observeEvent(input$HCWvacc_prevent_means, {
+    # If the beta mean changes, compute the new implied standard deviation
+    HCWvacc_prevent_var <- input$HCWvacc_prevent_betasd^2
+    # by definition we require
+    # mean*(1 - mean) > variance
+    if(input$HCWvacc_prevent_means * (1-input$HCWvacc_prevent_means) < HCWvacc_prevent_var){
+      HCWvacc_prevent_var <- input$HCWvacc_prevent_means * (1-input$HCWvacc_prevent_means)
+      max_sd = round(sqrt(HCWvacc_prevent_var), 3)
+      updateSliderInput(session, "HCWvacc_prevent_betasd", value = max_sd)
+    }
+    beta_pars <- get_beta_parameters(input$HCWvacc_prevent_means, round(sqrt(HCWvacc_prevent_var), 3))
+    HCWvacc_preventAlpha <- beta_pars[1]
+    HCWvacc_preventBeta <- beta_pars[2]
+    # normalise alpha and beta so that both are at least 1
+    if(min(HCWvacc_preventAlpha,HCWvacc_preventBeta)<1){
+      minab <- min(HCWvacc_preventAlpha,HCWvacc_preventBeta)
+      HCWvacc_preventAlpha <- HCWvacc_preventAlpha/minab
+      HCWvacc_preventBeta <- HCWvacc_preventBeta/minab
+      implied_sd = round(sqrt(HCWvacc_preventAlpha*HCWvacc_preventBeta / ((HCWvacc_preventAlpha + HCWvacc_preventBeta)^2 * (HCWvacc_preventAlpha + HCWvacc_preventBeta + 1))), 3)
+      updateSliderInput(session, "HCWvacc_prevent_betasd", value = implied_sd)
+    }
+  })
+  
+  output$plotHCWvacc_prevent <- renderPlot({
+    datHCWvacc_prevent <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+    if(plotTypeHCWvacc_prevent()=="Uniform"){
+      HCWvacc_prevent_dist = distr::Unif(Min=input$HCWvacc_prevent_min,Max=input$HCWvacc_prevent_max)
+    }
+    else if(plotTypeHCWvacc_prevent()=="Normal"){
+      HCWvacc_prevent_dist = distr::Truncate(distr::Norm(mean=input$HCWvacc_prevent_mean,sd=input$HCWvacc_prevent_sd),lower=0,upper=1)
+    }
+    else if(plotTypeHCWvacc_prevent()=="Skewed"){
+      #then make these into gamma or beta distribution parameters
+      HCWvacc_preventShape<-(input$HCWvacc_prevent_means*input$HCWvacc_prevent_means)/input$HCWvacc_prevent_var
+      HCWvacc_preventScale<-input$HCWvacc_prevent_var/input$HCWvacc_prevent_means
+      HCWvacc_preventAlpha<-input$HCWvacc_prevent_means*(((input$HCWvacc_prevent_means*(1-input$HCWvacc_prevent_means))/input$HCWvacc_prevent_var)-1)
+      HCWvacc_preventBeta<-(1-input$HCWvacc_prevent_means)*(((input$HCWvacc_prevent_means*(1-input$HCWvacc_prevent_means))/input$HCWvacc_prevent_var)-1)
+      datHCWvacc_prevent<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+      HCWvacc_prevent_dist = distr::Gammad(shape1 = HCWvacc_preventAlpha, shape2 = HCWvacc_preventBeta)
+    }
+    else if(plotTypeHCWvacc_prevent()=="Beta"){
+      #then make these into beta distribution parameters
+      beta_pars <- get_beta_parameters(input$HCWvacc_prevent_means, input$HCWvacc_prevent_betasd)
+      datHCWvacc_prevent <- subset(datHCWvacc_prevent,xpos*(1-xpos)!=0)
+      # print(c(14, input$HCWvacc_prevent_means, input$HCWvacc_prevent_betasd, beta_pars))
+      HCWvacc_prevent_dist = distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2])
+      # if(sum(beta_pars<.99)>0) return(NULL) # cut if parameters have not been updated
+    }
+    v$HCWvacc_prevent_dist = HCWvacc_prevent_dist
+    datHCWvacc_prevent$ypos <- distr::d(HCWvacc_prevent_dist)(datHCWvacc_prevent$xpos)
+    datHCWvacc_prevent$qt  <- cut(distr::p(HCWvacc_prevent_dist)(datHCWvacc_prevent$xpos),breaks=qrt,labels=F) #cut(pbeta(datHCWvacc_prevent$xpos,alpha=HCWvacc_preventShape,beta=HCWvacc_preventScale,log=F),breaks=qrt,labels=F)
+    
+    ggplot(datHCWvacc_prevent,aes(x=xpos,y=ypos))+
+      geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
+      labs(x="Proportion of HCWs/FLWs accepting vaccination",y="pdf",color="Percentile",title="Probability density of proportion of HCWs/FLWs accepting vaccination")+
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksunit)
+  }
+  )
+  
+  output$HCWvacc_prevent_conf<-renderText({
+    HCWvacc_prevent_dist = v$HCWvacc_prevent_dist
+    lower50 <- distr::q(HCWvacc_prevent_dist)(0.25)
+    upper50 <- distr::q(HCWvacc_prevent_dist)(0.75) # qbeta(p=0.75*pbeta(1,shape=HCWvacc_preventShape,scale=HCWvacc_preventScale),shape=HCWvacc_preventShape,scale=HCWvacc_preventScale)
+    lower95 <- distr::q(HCWvacc_prevent_dist)(0.025) # qbeta(p=0.025*pbeta(1,shape=HCWvacc_preventShape,scale=HCWvacc_preventScale),shape=HCWvacc_preventShape,scale=HCWvacc_preventScale)
+    upper95 <- distr::q(HCWvacc_prevent_dist)(0.975) # qbeta(p=0.975*pbeta(1,shape=HCWvacc_preventShape,scale=HCWvacc_preventScale),shape=HCWvacc_preventShape,scale=HCWvacc_preventScale)
+    paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
+          confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
+  })
+  
+  output$HCWvacc_prevent_median<-renderText({
+    HCWvacc_prevent_dist = v$HCWvacc_prevent_dist
+    median <- distr::q(HCWvacc_prevent_dist)(0.5)
+    paste("Your median value for the proportion of HCWs/FLWs who accept vaccination is:",round(median,digits=2))
+  })
+ 
   # For preventative vaccination
   observeEvent(input$previousHCWvacc_prevent,{
     updateNavbarPage(session=session,"mainpage",selected="5")
@@ -2080,6 +2208,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$nextHCWvacc_delay,{
     updateNavbarPage(session=session,"mainpage",selected="7")
+
   })
   
   ## Ring vaccination #############################################################
