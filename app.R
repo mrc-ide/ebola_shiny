@@ -830,7 +830,9 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_prevent_shape=='Uniform'",
                                sliderInput(
                                  "HCWvacc_prevent_min",
+
                                  "What do you think the minimum proportion of HCWs/FLWs who accept vaccination is?",
+
                                  min = 0,
                                  max = 1,
                                  value = 0,
@@ -843,7 +845,9 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_prevent_shape=='Uniform'",
                                sliderInput(
                                  "HCWvacc_prevent_max",
+
                                  "What do you think the maximum proportion of HCWs/FLWs who accept vaccination is?",
+
                                  min = 0,
                                  max = 1,
                                  value = 1,
@@ -856,7 +860,9 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_prevent_shape=='Normal'",
                                sliderInput(
                                  "HCWvacc_prevent_mean",
+
                                  "What do you think the mean proportion of HCWs/FLWs who accept vaccination is?",
+
                                  min = 0,
                                  max = 1,
                                  value = 0.5,
@@ -869,7 +875,9 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_prevent_shape=='Normal'",
                                sliderInput(
                                  "HCWvacc_prevent_sd",
+
                                  "What do you think the standard deviation proportion of HCWs/FLWs who accept vaccination is?",
+
                                  min = 0.1,
                                  max = 1,
                                  value = 0.5,
@@ -879,6 +887,7 @@ ui <- page_navbar(
                              ),
                              
                              conditionalPanel(
+
                                condition = "input.HCWvacc_prevent_shape=='Normal'",
                                sliderInput(
                                  "HCWvacc_prevent_min_norm",
@@ -910,6 +919,7 @@ ui <- page_navbar(
                                sliderInput(
                                  "HCWvacc_prevent_means",
                                  "What do you think the mean proportion of HCWs/FLWs who accept vaccination is",
+
                                  min = 0.1,
                                  max = 1,
                                  value = 0.5,
@@ -919,10 +929,12 @@ ui <- page_navbar(
                              ),
                              
                              conditionalPanel(
+
                                condition = "input.HCWvacc_prevent_shape=='Beta'",
                                sliderInput(
                                  "HCWvacc_prevent_var",
                                  "What do you think the variance proportion of HCWs/FLWs who accept vaccination is?",
+
                                  min = 0.01,
                                  max = 0.25,
                                  value = 0.1,
@@ -962,10 +974,12 @@ ui <- page_navbar(
                          
                          conditionalPanel(
                            condition = "input.answerHCWvacc_prevent=='Yes'",
+
                            plotOutput("plotHCWvacc_prevent", width =
                                         "100%", height = '500px'),
                            textOutput("HCWvacc_preventmedian"),
                            textOutput("HCWvacc_preventconf"),
+
                            
                            selectInput(
                              "conf_HCWvacc_prevent",
@@ -1188,6 +1202,7 @@ ui <- page_navbar(
                          ),
 
                          conditionalPanel(
+
                            condition = "input.answerHCWvacc_react=='Yes'",
                            plotOutput("plotHCWvacc_react", width =
                                         "100%", height = '500px'),
@@ -2106,9 +2121,11 @@ server <- function(input, output, session) {
   observeEvent(input$submit,{
     # tabulate answers
     # these are all the parameter prefixes for which values could be reported
-    categories <- c('R0','DT','Asc','CTprop','CTfoll')
+    categories <- c('R0','DT','Asc','CTprop','CTfoll','HCWvacc_prevent')
     answers <- c()
     for(ct in categories){
+      print(ct)
+      print(input[[paste0(ct,'_shape')]])
       if(!is.null(input[[paste0(ct,'_shape')]])){
         thisdist = input[[paste0(ct,'_shape')]]
         answers = rbind(answers, c(paste0(ct,' distribution'), thisdist))
@@ -2159,15 +2176,19 @@ server <- function(input, output, session) {
     
     # tabulate user info
     expinfo = c()
-    expvars = c('ExpCT', 'ExpCT_length', 'ExpCase', 'ExpCase_length', 'ExpEpi', 'ExpEpi_length', 'ExpOutbreaks', 'ExpOutbreaksOther', 'ExpSetting', 'ExpVacc', 'ExpVacc_length', 'ExpWorkplace','ExpDept')
+    expvars = c('ExpCT', 'ExpCT_length', 'ExpCase', 'ExpCase_length', 'ExpEpi', 'ExpEpi_length', 'ExpOutbreaks', 
+                'ExpOutbreaksOther', 'ExpSetting', 'ExpVacc', 'ExpVacc_length', 'ExpWorkplace','ExpDept',
+                "worst_case","stockpile")
     expvars = as.data.frame(sapply(expvars,function(x)ifelse(is.null(input[[x]]),'',paste0(input[[x]],collapse=', '))))
-    answers <- as.data.frame(answers)
     
     # give column names; print; save
+    answers <- as.data.frame(answers)
     colnames(expvars) <- c('Value')
     colnames(answers) <- c('Variable','Value')
     print(expvars)
     print(answers)
+    allnames <- names(input)
+    print(paste0(allnames[!allnames%in%c(answers$Variable,rownames(expvars))],collapse=', '))
     filename = paste0(format(now(), "%Y%m%d_%H%M%S_"), "data_set.xlsx")
     xlsx::write.xlsx(expvars,file = filename,sheetName='User data', append=F,row.names = T)
     xlsx::write.xlsx(answers,file = filename,sheetName='Parameter data', append=T,row.names = F)
@@ -2176,9 +2197,11 @@ server <- function(input, output, session) {
     updateNavbarPage(session=session,"mainpage",selected="End")
     
     # these are some values stored in input not written out
-    # answerAsc, answerCTfoll, answerCTprop, answerR0, 
-    # mainpage, nextAsc, nextCTfollow, nextCTprop, nextExp, nextOverview, nextR0, nextVax, 
-    # previousAsc, previousCTfollow, previousCTprop, previousExp, previousR0, previousSubmit, previousVax, 
+    
+    # CaseAsc, CT, HCW, mainpage, nextOverview, previousExp, nextExp, previousR0, nextR0, previousDT, nextDT, previousAsc, 
+    # nextAsc, previousCTprop, nextCTprop, previousCTfollow, nextCTfollow, previousHCWvacc_prevent, nextHCWvacc_prevent, previousStockpile, submit, 
+    # answerR0, answerDT, answerAsc, answerCTprop, answerCTfoll, answerHCWvacc_prevent
+    
   })
 
 }
