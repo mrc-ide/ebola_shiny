@@ -931,23 +931,23 @@ ui <- page_navbar(
                                  round = -2
                                )
                              ),
+                           
+                           conditionalPanel(
                              
-                             conditionalPanel(
-
-                               condition = "input.HCWvacc_prevent_shape=='Beta'",
-                               sliderInput(
-                                 "HCWvacc_prevent_var",
-
-                                 "What do you think the variance of the proportion of HCWs/FLWs who accept vaccination is?",
-
-                                 min = 0.01,
-                                 max = 0.25,
-                                 value = 0.1,
-                                 step = 0.001,
-                                 round = -3
-                               )
+                             condition = "input.HCWvacc_prevent_shape=='Beta'",
+                             sliderInput(
+                               "HCWvacc_prevent_betasd",
+                               
+                               "What do you think the variance of the proportion of HCWs/FLWs who accept vaccination is?",
+                               
+                               min = 0.01,
+                               max = 0.25,
+                               value = 0.1,
+                               step = 0.001,
+                               round = -3
                              )
-                           ),
+                           )
+                         ),
                            
                            conditionalPanel(
                              condition = "input.HCWvacc_prevent_shape=='Beta'",
@@ -1649,6 +1649,8 @@ server <- function(input, output, session) {
   breaks10 = 0:xmax
   breaksunit = seq(0,1,length=11)
   breaksDT=seq(xminDT,xmaxDT,by=2)
+  
+  ## functions to handle distributions
   get_beta_parameters <- function(betamean, betasd){
     # parameters alpha and beta
     # mean = alpha /(alpha + beta)
@@ -1659,13 +1661,12 @@ server <- function(input, output, session) {
     var <- betasd^2
     if(betamean * (1-betamean) < var)
       var <- (betamean * (1-betamean))*.99
-    # print(var)
     Alpha <- (betamean^2 * (1-betamean) - betamean*var) / var
     Beta <- Alpha * (1 - betamean) / betamean
-    # print(c(Alpha,Beta))
     c(Alpha, Beta)
   }
   
+  ## store distributions
   v <- reactiveValues(R0_dist = NULL, 
                       DT_dist = NULL,
                       asc_dist = NULL, 
