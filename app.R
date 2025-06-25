@@ -3933,7 +3933,9 @@ server <- function(input, output, session) {
     categories <- c('R0','DT','Asc','CTprop','CTfoll','HCWvacc_prevent','HCWvacc_react','HCWvacc_delay','Ringvacc_ring','Ringvacc_react','Ringvacc_delay','Geovacc_react','Geovacc_delay')
     answers <- c()
     for(ct in categories){
-      if(!is.null(input[[paste0(ct,'_shape')]])){
+      answer <- paste0('answer',ct)
+      if(input[[answer]]=='Yes'){
+      # if(!is.null(input[[paste0(ct,'_shape')]])){
         thisdist = input[[paste0(ct,'_shape')]]
         answers = rbind(answers, c(paste0(ct,' distribution'), thisdist))
         if(thisdist=='Uniform') {
@@ -3986,6 +3988,7 @@ server <- function(input, output, session) {
     # print in case any correlation terms were missed:
     print(corrnames[!corrnames%in%tested_corr])
     
+    
     # tabulate user info
     expinfo = c()
     expvarnames = c('ExpOutbreaks', 'ExpOutbreaksOther', 'ExpSetting', 'ExpWorkplace','ExpDept',"vacc_doses","vacc_teams","worst_case","stockpile")
@@ -4001,13 +4004,15 @@ server <- function(input, output, session) {
     }
     
     # give column names; print; save
-    answers <- as.data.frame(answers)
-    colnames(answers) <- c('Variable','Value')
     print(expvarstab)
     print(answers)
     filename = paste0(format(now(), "%Y%m%d_%H%M%S_"), "data_set.xlsx")
     xlsx::write.xlsx(expvarstab,file = filename,sheetName='User data', append=F,row.names = F)
-    xlsx::write.xlsx(answers,file = filename,sheetName='Parameter data', append=T,row.names = F)
+    if(length(answers)>0){
+      answers <- as.data.frame(answers)
+      colnames(answers) <- c('Variable','Value')
+      xlsx::write.xlsx(answers,file = filename,sheetName='Parameter data', append=T,row.names = F)
+    }
     
     ## maybe create a "thanks" page or restart? i think you need to close and reopen to reset everything for the next user.
     updateNavbarPage(session=session,"mainpage",selected="End")
