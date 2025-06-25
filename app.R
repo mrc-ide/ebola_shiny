@@ -3933,8 +3933,6 @@ server <- function(input, output, session) {
     categories <- c('R0','DT','Asc','CTprop','CTfoll','HCWvacc_prevent','HCWvacc_react','HCWvacc_delay','Ringvacc_ring','Ringvacc_react','Ringvacc_delay','Geovacc_react','Geovacc_delay')
     answers <- c()
     for(ct in categories){
-      print(ct)
-      print(input[[paste0(ct,'_shape')]])
       if(!is.null(input[[paste0(ct,'_shape')]])){
         thisdist = input[[paste0(ct,'_shape')]]
         answers = rbind(answers, c(paste0(ct,' distribution'), thisdist))
@@ -3985,31 +3983,32 @@ server <- function(input, output, session) {
     
     # tabulate user info
     expinfo = c()
-    expvars = c('ExpCT', 'ExpCT_length', 'ExpCase', 'ExpCase_length', 'ExpEpi', 'ExpEpi_length', 'ExpOutbreaks', 
-                'ExpOutbreaksOther', 'ExpSetting', 'ExpVacc', 'ExpVacc_length', 'ExpWorkplace','ExpDept',
-                "vacc_doses","vacc_teams","worst_case","stockpile")
-    expvars = as.data.frame(sapply(expvars,function(x)ifelse(is.null(input[[x]]),'',paste0(input[[x]],collapse=', '))))
+    expvarnames = c('ExpOutbreaks', 'ExpOutbreaksOther', 'ExpSetting', 'ExpWorkplace','ExpDept',"vacc_doses","vacc_teams","worst_case","stockpile")
+    print(sapply(expvarnames,function(x)ifelse(is.null(input[[x]]),'',paste0(input[[x]],collapse=', '))))
+    expvars = sapply(expvarnames,function(x)ifelse(is.null(input[[x]]),'',paste0(input[[x]],collapse=', ')))
+    expvarstab = data.frame(Variable=expvarnames,Value=expvars)
+    rownames(expvarstab) <- NULL
+    expvars_spec = c('ExpCT', 'ExpCase', 'ExpEpi', 'ExpVacc')
+    for(vspec in expvars_spec){
+      if(input[[vspec]] != 'No') {
+        lenvar <- paste0(vspec,'_length')
+        expvarstab <- rbind(expvarstab, c(lenvar, input[[lenvar]]))
+      }
+    }
     
     # give column names; print; save
     answers <- as.data.frame(answers)
-    colnames(expvars) <- c('Value')
+    # colnames(expvars) <- c('Value')
     colnames(answers) <- c('Variable','Value')
-    print(expvars)
+    print(expvarstab)
     print(answers)
-    allnames <- names(input)
-    print(paste0(allnames[!allnames%in%c(answers$Variable,rownames(expvars))],collapse=', '))
     filename = paste0(format(now(), "%Y%m%d_%H%M%S_"), "data_set.xlsx")
-    xlsx::write.xlsx(expvars,file = filename,sheetName='User data', append=F,row.names = T)
+    xlsx::write.xlsx(expvarstab,file = filename,sheetName='User data', append=F,row.names = F)
     xlsx::write.xlsx(answers,file = filename,sheetName='Parameter data', append=T,row.names = F)
     
     ## maybe create a "thanks" page or restart? i think you need to close and reopen to reset everything for the next user.
     updateNavbarPage(session=session,"mainpage",selected="End")
     
-    # these are some values stored in input not written out
-    
-    # CaseAsc, CT, HCW, mainpage, nextOverview, previousExp, nextExp, previousR0, nextR0, previousDT, nextDT, previousAsc, 
-    # nextAsc, previousCTprop, nextCTprop, previousCTfollow, nextCTfollow, previousHCWvacc_prevent, nextHCWvacc_prevent, previousStockpile, submit, 
-    # answerR0, answerDT, answerAsc, answerCTprop, answerCTfoll, answerHCWvacc_prevent
     
   })
 
