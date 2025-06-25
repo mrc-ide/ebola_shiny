@@ -2852,7 +2852,17 @@ server <- function(input, output, session) {
   v <- reactiveValues(R0_dist = NULL, 
                       DT_dist = NULL,
                       asc_dist = NULL, 
-                      HCWvacc_prevent_dist = NULL)
+                      CTprop_dist = NULL,
+                      CTfoll_dist = NULL,
+                      HCWvacc_prevent_dist = NULL,
+                      HCWvacc_react_dist = NULL,
+                      HCWvacc_delay_dist = NULL,
+                      Ringvacc_ring_dist = NULL,
+                      Ringvacc_react_dist = NULL,
+                      Ringvacc_delay_dist = NULL,
+                      Geovacc_react_dist = NULL,
+                      Geovacc_delay_dist = NULL
+  )
   
 
 # Overview - server----------------------------------------------------------------
@@ -3154,7 +3164,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$nextCTprop,{
     accordion_panel_close(session=session,id="CT",values = "CTprop")
-    accordion_panel_open(session=session,id="CT",values="CTfollow")
+    accordion_panel_open(session=session,id="CT",values="CTfoll")
   })
   
   ## proportion of contacts followed up #############################################################
@@ -3225,12 +3235,12 @@ server <- function(input, output, session) {
   })
   
   
-  observeEvent(input$previousCTfollow,{
+  observeEvent(input$previousCTfoll,{
     accordion_panel_close(session=session,id="CT",values="CTfollow")
     accordion_panel_open(session=session,id="CT",values="CTprop")
   })
   
-  observeEvent(input$nextCTfollow,{
+  observeEvent(input$nextCTfoll,{
     updateNavbarPage(session=session,"mainpage",selected="6")
   })
   
@@ -3660,8 +3670,8 @@ server <- function(input, output, session) {
   
   # For reactive vaccination
   observeEvent(input$previousRingvacc_react,{
-    accordion_panel_close(session=session,id="Ringvacc",values="Ringvacc_ring")
-    accordion_panel_open(session=session,id="Ringvacc",values="Ringvacc_react")
+    accordion_panel_close(session=session,id="Ringvacc",values="Ringvacc_react")
+    accordion_panel_open(session=session,id="Ringvacc",values="Ringvacc_ring")
   })
   
   observeEvent(input$nextRingvacc_react,{
@@ -3830,7 +3840,7 @@ server <- function(input, output, session) {
   
   # For reactive vaccination
   observeEvent(input$previousGeovacc_react,{
-    updateNavbarPage(session=session,"mainpage",selected="8")
+    updateNavbarPage(session=session,"mainpage",selected="7")
   })
   
   observeEvent(input$nextGeovacc_react,{
