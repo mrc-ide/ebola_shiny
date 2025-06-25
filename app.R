@@ -40,7 +40,7 @@ ui <- page_navbar(
     shiny::p(tags$h3("Rationale")),
     
     shiny::p("Mathematical modelling studies to inform Ebola virus disease (EVD) outbreak response policy are highly reliant on input parameters, which are 
-      often derived from epidemiological data. Whilst there is reasonable empirical evidence underpinning some parameters (see Nash et al, 2024), 
+      often derived from epidemiological data. Whilst there is reasonable empirical evidence underpinning some disease natural history parameters (see Nash et al, 2024), 
       other parameters often cannot be fully observed or are not routinely reported, and therefore do not appear in published literature. However, 
       many of these parameters, related to both transmission and outbreak response, have important implications for policy decisions."),
     
@@ -67,10 +67,6 @@ ui <- page_navbar(
     shiny::p(tags$b("Not very:"),"I don't have firsthand experience working on or analysing data related to this parameter. I have some intuition about this value
       based on conversations with colleague, but there are no sources available to support this intuition."),
     
-    shiny::p("For more information on this survey, please contact: Anne Cori (anne.cori@imperial.ac.uk), Katharina Hauck (k.hauck@imperial.ac.uk) or 
-      Gemma Nedjati-Gilani (g.nedjati-gilani@imperial.ac.uk)"),
-    
-  
     actionButton("nextOverview","Next",class="btn-primary")
   ),
   
@@ -368,6 +364,16 @@ ui <- page_navbar(
                                                sliderInput("Asc_sd","What do you think the standard deviation of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.01,round=-2)
                                              ),
                                              
+                                             conditionalPanel(
+                                               condition="input.Asc_shape=='Normal'",
+                                               sliderInput("Asc_min_norm","What do you think the minimum value of case ascertainment is?",min=0,max=1,value=0,step=0.05,round=-2)
+                                             ),
+                                             
+                                             conditionalPanel(
+                                               condition="input.Asc_shape=='Normal'",
+                                               sliderInput("Asc_max_norm","What do you think the maximum value of case ascertainment is?",min=0,max=1,value=1,step=0.05,round=-2)
+                                             ),
+                                             
                                              # conditionalPanel(
                                              #   condition="input.Asc_shape=='Skewed'",
                                              #   sliderInput("Asc_means","What do you think the mean value of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
@@ -386,6 +392,16 @@ ui <- page_navbar(
                                              conditionalPanel(
                                                condition="input.Asc_shape=='Beta'",
                                                sliderInput("Asc_betasd","What do you think the standard deviation of case ascertainment is?",min=0.01,max=round(sqrt(1/12),2),value=sqrt(1/12),step=0.001,round=-3)
+                                             ),
+                                             
+                                             conditionalPanel(
+                                               condition="input.Asc_shape=='Beta'",
+                                               sliderInput("Asc_min_beta","What do you think the minimum value of case ascertainment is?",min=0,max=1,value=0,step=0.05,round=-2)
+                                             ),
+                                             
+                                             conditionalPanel(
+                                               condition="input.Asc_shape=='Beta'",
+                                               sliderInput("Asc_max_beta","What do you think the maximum value of case ascertainment is?",min=0,max=1,value=1,step=0.05,round=-2)
                                              )
                                            )
                            ),
@@ -440,118 +456,98 @@ ui <- page_navbar(
     
     
     accordion(
-      id = "CT",
-      accordion_panel(
-        "Proportion of contacts traced",
-        value = "CTprop",
-        layout_sidebar(
-          sidebar = sidebar(
-            title = tags$h4("Proportion traced"),
-            width = 300,
-            shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
-            
+       id = "CT",
+       accordion_panel(
+         "Proportion of contacts traced",
+         value = "CTprop",
+         layout_sidebar(
+           sidebar = sidebar(
+             title = tags$h4("Proportion traced"),
+             width = 300,
+             shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+
             selectInput(
               "answerCTprop",
               "Can you provide your intuition about the distribution of the proportion of contacts who are traced?",
               c("No", "Yes")
             ),
-            
+
             conditionalPanel(
-              condition = "input.answerCTprop=='Yes'",
-              selectInput(
-                "CTprop_shape",
-                "What do you think the shape of the distribution of the proportion of contacts who are traced is?",
-                c("Uniform", "Normal", "Skewed")
+              condition="input.answerCTprop=='Yes'",
+              selectInput("CTprop_shape","What do you think the shape of the distribution of the proportion of contacts who are traced is?",
+                          c("Uniform","Normal","Beta")),
+              
+              conditionalPanel(
+                condition="input.CTprop_shape=='Uniform'",
+                sliderInput("CTprop_min","What do you think the minimum value of the proportion of contacts who are traced is?",min=0,max=1,value=0,step=0.05,round=-2)
               ),
               
               conditionalPanel(
-                condition = "input.CTprop_shape=='Uniform'",
-                sliderInput(
-                  "CTprop_min",
-                  "What do you think the minimum value of the proportion of contacts who are traced is?",
-                  min = 0,
-                  max = 1,
-                  value = 0,
-                  step = 0.05,
-                  round = -2
-                )
+                condition="input.CTprop_shape=='Uniform'",
+                sliderInput("CTprop_max","What do you think the maximum value of the proportion of contacts who are traced is?",min=0,max=1,value=1,step=0.05,round=-2)
               ),
               
               conditionalPanel(
-                condition = "input.CTprop_shape=='Uniform'",
-                sliderInput(
-                  "CTprop_max",
-                  "What do you think the maximum value of the proportion of contacts who are traced is?",
-                  min = 0,
-                  max = 1,
-                  value = 1,
-                  step = 0.05,
-                  round = -2
-                )
+                condition="input.CTprop_shape=='Normal'",
+                sliderInput("CTprop_mean","What do you think the mean value of the proportion of contacts who are traced is?",min=0,max=1,value=0.5,step=0.05,round=-2)
               ),
               
               conditionalPanel(
-                condition = "input.CTprop_shape=='Normal'",
-                sliderInput(
-                  "CTprop_mean",
-                  "What do you think the mean value of the proportion of contacts who are traced is?",
-                  min = 0,
-                  max = 1,
-                  value = 0.5,
-                  step = 0.05,
-                  round = -2
-                )
+                condition="input.CTprop_shape=='Normal'",
+                sliderInput("CTprop_sd","What do you think the standard deviation of the proportion of contacts who are traced is?",min=0.1,max=1,value=0.5,step=0.01,round=-2)
               ),
               
               conditionalPanel(
-                condition = "input.CTprop_shape=='Normal'",
-                sliderInput(
-                  "CTprop_sd",
-                  "What do you think the standard deviation of the proportion of contacts who are traced is?",
-                  min = 0.1,
-                  max = 1,
-                  value = 0.5,
-                  step = 0.01,
-                  round = -2
-                )
+                condition="input.CTprop_shape=='Normal'",
+                sliderInput("CTprop_min_norm","What do you think the minimum value of the proportion of contacts who are traced is?",min=0,max=1,value=0,step=0.05,round=-2)
               ),
               
               conditionalPanel(
-                condition = "input.CTprop_shape=='Skewed'",
-                sliderInput(
-                  "CTprop_means",
-                  "What do you think the mean value of the proportion of contacts who are traced is?",
-                  min = 0.1,
-                  max = 1,
-                  value = 0.5,
-                  step = 0.05,
-                  round = -2
-                )
+                condition="input.CTprop_shape=='Normal'",
+                sliderInput("CTprop_max_norm","What do you think the maximum value of the proportion of contacts who are traced is?",min=0,max=1,value=1,step=0.05,round=-2)
+              ),
+              
+              # conditionalPanel(
+              #   condition="input.Asc_shape=='Skewed'",
+              #   sliderInput("Asc_means","What do you think the mean value of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
+              # ),
+              # 
+              # conditionalPanel(
+              #   condition="input.Asc_shape=='Skewed'",
+              #   sliderInput("Asc_var","What do you think the variance of case ascertainment is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
+              # ),
+              
+              conditionalPanel(
+                condition="input.CTprop_shape=='Beta'",
+                sliderInput("CTprop_means","What do you think the mean value of the proportion of contacts who are traced is?",min=0.01,max=0.99,value=0.5,step=0.05,round=-2)
               ),
               
               conditionalPanel(
-                condition = "input.CTprop_shape=='Skewed'",
-                sliderInput(
-                  "CTprop_var",
-                  "What do you think the variance of the proportion of contacts who are traced is?",
-                  min = 0.01,
-                  max = 0.25,
-                  value = 0.1,
-                  step = 0.001,
-                  round = -3
-                )
+                condition="input.CTprop_shape=='Beta'",
+                sliderInput("CTprop_betasd","What do you think the standard deviation of the proportion of contacts who are traced is?",min=0.01,max=round(sqrt(1/12),2),value=sqrt(1/12),step=0.001,round=-3)
+              ),
+              
+              conditionalPanel(
+                condition="input.CTprop_shape=='Beta'",
+                sliderInput("CTprop_min_beta","What do you think the minimum value of the proportion of contacts who are traced is?",min=0,max=1,value=0,step=0.05,round=-2)
+              ),
+              
+              conditionalPanel(
+                condition="input.CTprop_shape=='Beta'",
+                sliderInput("CTprop_max_beta","What do you think the maximum value of the proportion of contacts who are traced is?",min=0,max=1,value=1,step=0.05,round=-2)
               )
             )
-            
-          ),
-          
+           ),
+
+
+
           conditionalPanel(
             condition = "input.answerCTprop=='Yes'",
             plotOutput("plotCTprop", width =
                          "100%", height = '500px'),
             textOutput("CTpropmedian"),
             textOutput("CTpropconf"),
-            
+
             selectInput(
               "conf_CTprop",
               "How confident are you about the shape of the distribution?",
@@ -559,7 +555,7 @@ ui <- page_navbar(
               width = "80%",
               selected = "Not very"
             ),
-            
+
             selectInput(
               "is_corr_CTprop_R0",
               "Do you think there is any correlation between the proportion of contacts traced and the reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",
@@ -567,7 +563,7 @@ ui <- page_navbar(
               selected = NULL,
               width = "80%"
             ),
-            
+
             conditionalPanel(
               condition = "input.is_corr_CTprop_R0=='Yes'",
               selectInput(
@@ -577,9 +573,9 @@ ui <- page_navbar(
                 selected = NULL,
                 width = "80%"
               )
-              
+
             ),
-            
+
             selectInput(
               "is_corr_CTprop_Asc",
               "Do you think there is any correlation between the proportion of contacts traced and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts traced is also higher.",
@@ -587,7 +583,7 @@ ui <- page_navbar(
               selected = NULL,
               width = "80%"
             ),
-            
+
             conditionalPanel(
               condition = "input.is_corr_CTprop_Asc=='Yes'",
               selectInput(
@@ -597,201 +593,180 @@ ui <- page_navbar(
                 selected = NULL,
                 width = "80%"
               )
-              
+
             ),
-            
+
             textAreaInput(
               "source_CTprop",
               "Please provide any context or sources that have guided your intuition:",
               width = "80%"
             )
           ),
-          
+
           layout_column_wrap(
             1 / 2,
             actionButton("previousCTprop", "Previous"),
             actionButton("nextCTprop", "Next", class =
                            "btn-primary")
           )
-        )
-      ),
-      accordion_panel(
-        "Proportion of contacts who complete follow-up",
-        value = "CTfollow",
-        layout_sidebar(
-          sidebar = sidebar(
-            title = tags$h4("Proportion followed-up"),
-            width = 300,
-            shiny::p(""),
-            shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
-            
-            selectInput(
-              "answerCTfoll",
-              "Can you provide your intuition about the distribution of the proportion of contacts who complete follow-up?",
-              c("No", "Yes")
-            ),
-            
-            conditionalPanel(
-              condition = "input.answerCTfoll=='Yes'",
-              selectInput(
-                "CTfoll_shape",
-                "What do you think the shape of the distribution of the proportion of contacts who complete follow-up is?",
-                c("Uniform", "Normal", "Skewed")
-              ),
-              
-              conditionalPanel(
-                condition = "input.CTfoll_shape=='Uniform'",
-                sliderInput(
-                  "CTfoll_min",
-                  "What do you think the minimum value of the proportion of contacts who complete follow-up is?",
-                  min = 0,
-                  max = 1,
-                  value = 0,
-                  step = 0.05,
-                  round = -2
-                )
-              ),
-              
-              conditionalPanel(
-                condition = "input.CTfoll_shape=='Uniform'",
-                sliderInput(
-                  "CTfoll_max",
-                  "What do you think the maximum value of the proportion of contacts who complete follow-up is?",
-                  min = 0,
-                  max = 1,
-                  value = 1,
-                  step = 0.05,
-                  round = -2
-                )
-              ),
-              
-              conditionalPanel(
-                condition = "input.CTfoll_shape=='Normal'",
-                sliderInput(
-                  "CTfoll_mean",
-                  "What do you think the mean value of the proportion of contacts who complete follow-up is?",
-                  min = 0,
-                  max = 1,
-                  value = 0.5,
-                  step = 0.05,
-                  round = -2
-                )
-              ),
-              
-              conditionalPanel(
-                condition = "input.CTfoll_shape=='Normal'",
-                sliderInput(
-                  "CTfoll_sd",
-                  "What do you think the standard deviation of the proportion of contacts who complete follow-up is?",
-                  min = 0.1,
-                  max = 1,
-                  value = 0.5,
-                  step = 0.01,
-                  round = -2
-                )
-              ),
-              
-              conditionalPanel(
-                condition = "input.CTfoll_shape=='Skewed'",
-                sliderInput(
-                  "CTfoll_means",
-                  "What do you think the mean value of the proportion of contacts who complete follow-up is?",
-                  min = 0.1,
-                  max = 1,
-                  value = 0.5,
-                  step = 0.05,
-                  round = -2
-                )
-              ),
-              
-              conditionalPanel(
-                condition = "input.CTfoll_shape=='Skewed'",
-                sliderInput(
-                  "CTfoll_var",
-                  "What do you think the variance of the proportion of contacts who complete follow-up is?",
-                  min = 0.01,
-                  max = 0.25,
-                  value = 0.1,
-                  step = 0.001,
-                  round = -3
-                )
-              )
-            )
-            
-          ),
-          
-          conditionalPanel(
-            condition = "input.answerCTfoll=='Yes'",
-            plotOutput("plotCTfoll", width =
-                         "100%", height = '500px'),
-            textOutput("CTfollmedian"),
-            textOutput("CTfollconf"),
-            
-            selectInput(
-              "conf_CTfoll",
-              "How confident are you about the shape of the distribution?",
-              c("Very", "Somewhat", "Slightly", "Not very"),
-              width = "80%",
-              selected = "Not very"
-            ),
-            
-            selectInput(
-              "is_corr_CTfoll_R0",
-              "Do you think there is any correlation between the proportion of contacts who complete follow-up and reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",
-              c("Not sure", "Yes", "No"),
-              selected = NULL,
-              width = "80%"
-            ),
-            
-            conditionalPanel(
-              condition = "input.is_corr_CTfoll_R0=='Yes'",
-              selectInput(
-                "corr_CTfoll_R0",
-                "Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts who complete follow-up is high and when reproduction number is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when reproduction number is low, the proportion of contacts who complete follow-up is high and vice versa)?",
-                c("Positive", "Negative"),
-                selected = NULL,
-                width = "80%"
-              )
-              
-            ),
-            
-            selectInput(
-              "is_corr_CTfoll_Asc",
-              "Do you think there is any correlation between the proportion of contacts who complete follow-up and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts who complete follow-up is also higher.",
-              c("Not sure", "Yes", "No"),
-              selected = NULL,
-              width = "80%"
-            ),
-            
-            conditionalPanel(
-              condition = "input.is_corr_CTfoll_Asc=='Yes'",
-              selectInput(
-                "corr_CTfoll_Asc",
-                "Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow-up is high and when case ascertainment is low, the proportion of contacts who complete follow-up is low) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow-up is high and vice versa)?",
-                c("Positive", "Negative"),
-                selected = NULL,
-                width = "80%"
-              )
-              
-            ),
-            
-            textAreaInput(
-              "source_CTfoll",
-              "Please provide any context or sources that have guided your intuition:",
-              width = "80%"
-            )
-          ),
-          
-          layout_column_wrap(
-            1 / 2,
-            actionButton("previousCTfollow", "Previous"),
-            actionButton("nextCTfollow", "Next", class =
-                           "btn-primary")
-          )
-        )
-      )
-    )
-  ), 
+         )
+       ),
+       accordion_panel(
+         "Proportion of contacts who complete follow up",
+         value = "CTfoll",
+         layout_sidebar(
+           sidebar = sidebar(
+             title = tags$h4("Proportion followed up"),
+             width = 300,
+             shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+             
+             selectInput(
+               "answerCTfoll",
+               "Can you provide your intuition about the distribution of the proportion of contacts who complete follow up?",
+               c("No", "Yes")
+             ),
+             
+             conditionalPanel(
+               condition="input.answerCTfoll=='Yes'",
+               selectInput("CTfoll_shape","What do you think the shape of the distribution of the proportion of contacts who complete follow up is?",
+                           c("Uniform","Normal","Beta")),
+               
+               conditionalPanel(
+                 condition="input.CTfoll_shape=='Uniform'",
+                 sliderInput("CTfoll_min","What do you think the minimum value of the proportion of contacts who complete follow up is?",min=0,max=1,value=0,step=0.05,round=-2)
+               ),
+               
+               conditionalPanel(
+                 condition="input.CTfoll_shape=='Uniform'",
+                 sliderInput("CTfoll_max","What do you think the maximum value of the proportion of contacts who complete follow up is?",min=0,max=1,value=1,step=0.05,round=-2)
+               ),
+               
+               conditionalPanel(
+                 condition="input.CTfoll_shape=='Normal'",
+                 sliderInput("CTfoll_mean","What do you think the mean value of the proportion of contacts who complete follow up is?",min=0,max=1,value=0.5,step=0.05,round=-2)
+               ),
+               
+               conditionalPanel(
+                 condition="input.CTfoll_shape=='Normal'",
+                 sliderInput("CTfoll_sd","What do you think the standard deviation of the proportion of contacts who complete follow up is?",min=0.1,max=1,value=0.5,step=0.01,round=-2)
+               ),
+               
+               conditionalPanel(
+                 condition="input.CTfoll_shape=='Normal'",
+                 sliderInput("CTfoll_min_norm","What do you think the minimum value of the proportion of contacts who complete follow up is?",min=0,max=1,value=0,step=0.05,round=-2)
+               ),
+               
+               conditionalPanel(
+                 condition="input.CTfoll_shape=='Normal'",
+                 sliderInput("CTfoll_max_norm","What do you think the maximum value of the proportion of contacts who complete follow up is?",min=0,max=1,value=1,step=0.05,round=-2)
+               ),
+               
+               # conditionalPanel(
+               #   condition="input.Asc_shape=='Skewed'",
+               #   sliderInput("Asc_means","What do you think the mean value of case ascertainment is?",min=0.1,max=1,value=0.5,step=0.05,round=-2)
+               # ),
+               # 
+               # conditionalPanel(
+               #   condition="input.Asc_shape=='Skewed'",
+               #   sliderInput("Asc_var","What do you think the variance of case ascertainment is?",min=0.01,max=0.25,value=0.1,step=0.001,round=-3)
+               # ),
+               
+               conditionalPanel(
+                 condition="input.CTfoll_shape=='Beta'",
+                 sliderInput("CTfoll_means","What do you think the mean value of the proportion of contacts who complete follow up is?",min=0.01,max=0.99,value=0.5,step=0.05,round=-2)
+               ),
+               
+               conditionalPanel(
+                 condition="input.CTfoll_shape=='Beta'",
+                 sliderInput("CTfoll_betasd","What do you think the standard deviation of the proportion of contacts who complete follow up is?",min=0.01,max=round(sqrt(1/12),2),value=sqrt(1/12),step=0.001,round=-3)
+               ),
+               
+               conditionalPanel(
+                 condition="input.CTfoll_shape=='Beta'",
+                 sliderInput("CTfoll_min_beta","What do you think the minimum value of the proportion of contacts who complete follow up is?",min=0,max=1,value=0,step=0.05,round=-2)
+               ),
+               
+               conditionalPanel(
+                 condition="input.CTfoll_shape=='Beta'",
+                 sliderInput("CTfoll_max_beta","What do you think the maximum value of the proportion of contacts who complete follow up is?",min=0,max=1,value=1,step=0.05,round=-2)
+               )
+             )
+           ),
+           
+           
+           
+           conditionalPanel(
+             condition = "input.answerCTfoll=='Yes'",
+             plotOutput("plotCTfoll", width =
+                          "100%", height = '500px'),
+             textOutput("CTfollmedian"),
+             textOutput("CTfollconf"),
+             
+             selectInput(
+               "conf_CTfoll",
+               "How confident are you about the shape of the distribution?",
+               c("Very", "Somewhat", "Slightly", "Not very"),
+               width = "80%",
+               selected = "Not very"
+             ),
+             
+             selectInput(
+               "is_corr_CTfoll_R0",
+               "Do you think there is any correlation between the proportion of contacts who complete follow up and the reproduction number? e.g. if the reproduction number is higher, the proportion of contacts who complete follow up is also higher.",
+               c("Not sure", "Yes", "No"),
+               selected = NULL,
+               width = "80%"
+             ),
+             
+             conditionalPanel(
+               condition = "input.is_corr_CTfoll_R0=='Yes'",
+               selectInput(
+                 "corr_CTfoll_R0",
+                 "Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of contacts who complete follow up is high and when reproduction number is low, the proportion of contactswho complete follow up is low) or negative (i.e. when reproduction number is low, the proportion of contacts who complete follow up is high and vice versa)?",
+                 c("Positive", "Negative"),
+                 selected = NULL,
+                 width = "80%"
+               )
+               
+             ),
+             
+             selectInput(
+               "is_corr_CTfoll_Asc",
+               "Do you think there is any correlation between the proportion of contacts who complete follow up and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts who complete follow up is also higher.",
+               c("Not sure", "Yes", "No"),
+               selected = NULL,
+               width = "80%"
+             ),
+             
+             conditionalPanel(
+               condition = "input.is_corr_CTfoll_Asc=='Yes'",
+               selectInput(
+                 "corr_CTfoll_Asc",
+                 "Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of contacts who complete follow up is high and when case ascertainment is low, the proportion of contacts who complete follow up is low) or negative (i.e. when case ascertainment is low, the proportion of contacts who complete follow up is high and vice versa)?",
+                 c("Positive", "Negative"),
+                 selected = NULL,
+                 width = "80%"
+               )
+               
+             ),
+             
+             textAreaInput(
+               "source_CTfoll",
+               "Please provide any context or sources that have guided your intuition:",
+               width = "80%"
+             )
+           ),
+           
+           layout_column_wrap(
+             1 / 2,
+             actionButton("previousCTfoll", "Previous"),
+             actionButton("nextCTfoll", "Next", class =
+                            "btn-primary")
+           )
+         )
+       )
+     )
+  ),
 
 
 # HCW vaccination ---------------------------------------------------------
@@ -922,14 +897,7 @@ ui <- page_navbar(
                                sliderInput(
                                  "HCWvacc_prevent_means",
 
-                                 "What do you think the mean proportion of HCWs/FLWs who accept preventative vaccination is",
-
-                                 min = 0.1,
-                                 max = 1,
-                                 value = 0.5,
-                                 step = 0.05,
-                                 round = -2
-                               )
+                                 "What do you think the mean proportion of HCWs/FLWs who accept preventative vaccination is",min=0.01,max=0.99,value=0.5,step=0.05,round=-2)
                              ),
                            
                            
@@ -941,44 +909,35 @@ ui <- page_navbar(
                                sliderInput(
                                  "HCWvacc_prevent_betasd",
 
-                                 "What do you think the standard deviation of the proportion of HCWs/FLWs who accept preventative vaccination is?",
-
-                                 min = 0.01,
-                                 max = 0.25,
-                                 value = 0.1,
-                                 step = 0.001,
-                                 round = -3
+                                 "What do you think the standard deviation of the proportion of HCWs/FLWs who accept preventative vaccination is?",min=0.01,max=round(sqrt(1/12),2),value=sqrt(1/12),step=0.001,round=-3)
+                             ),
+                           
+                             conditionalPanel(
+                               condition = "input.HCWvacc_prevent_shape=='Beta'",
+                               sliderInput(
+                                 "HCWvacc_prevent_min_beta",
+                                 "What do you think the minimum proportion of HCWs/FLWs who accept preventative vaccination is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 0,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.HCWvacc_prevent_shape=='Beta'",
+                               sliderInput(
+                                 "HCWvacc_prevent_max_beta",
+                                 "What do you think the maximum proportion of HCWs/FLWs who accept preventative vaccination is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 1,
+                                 step = 0.05,
+                                 round = -2
                                )
                              )
-                           
-                         ),
-                           
-                           conditionalPanel(
-                             condition = "input.HCWvacc_prevent_shape=='Beta'",
-                             sliderInput(
-                               "HCWvacc_prevent_min_beta",
-                               "What do you think the minimum proportion of HCWs/FLWs who accept preventative vaccination is?",
-                               min = 0,
-                               max = 1,
-                               value = 0,
-                               step = 0.05,
-                               round = -2
-                             )
-                           ),
-                           
-                           conditionalPanel(
-                             condition = "input.HCWvacc_prevent_shape=='Beta'",
-                             sliderInput(
-                               "HCWvacc_prevent_max_beta",
-                               "What do you think the maximum proportion of HCWs/FLWs who accept preventative vaccination is?",
-                               min = 0,
-                               max = 1,
-                               value = 1,
-                               step = 0.05,
-                               round = -2
-                             )
-                           ),
-                           
+                           )
                          ),
                          
                          conditionalPanel(
@@ -1174,14 +1133,7 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_react_shape=='Beta'",
                                sliderInput(
                                  "HCWvacc_react_means",
-                                 "What do you think the mean value of the proportion of HCW/FLWs who accept reactive vaccination is?",
-
-                                 min = 0.1,
-                                 max = 1,
-                                 value = 0.5,
-                                 step = 0.05,
-                                 round = -2
-                               )
+                                 "What do you think the mean value of the proportion of HCW/FLWs who accept reactive vaccination is?",min=0.01,max=0.99,value=0.5,step=0.05,round=-2)
                              ),
 
                              conditionalPanel(
@@ -1189,44 +1141,40 @@ ui <- page_navbar(
                                condition = "input.HCWvacc_react_shape=='Beta'",
                                sliderInput(
                                  "HCWvacc_react_betasd",
-                                 "What do you think the variance of the proportion of HCW/FLWs who accept reactive vaccination is?",
-
-                                 min = 0.01,
-                                 max = 0.25,
-                                 value = 0.1,
-                                 step = 0.001,
-                                 round = -3
+                                 "What do you think the variance of the proportion of HCW/FLWs who accept reactive vaccination is?",min=0.01,max=round(sqrt(1/12),2),value=sqrt(1/12),step=0.001,round=-3)
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.HCWvacc_react_shape=='Beta'",
+                               sliderInput(
+                                 "HCWvacc_react_min_beta",
+                                 "What do you think the minimum value of the proportion of HCW/FLWs who accept reactive vaccination is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 0,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.HCWvacc_react_shape=='Beta'",
+                               sliderInput(
+                                 "HCWvacc_react_max_beta",
+                                 "What do you think the maximum value of the proportion of HCW/FLWs who accept reactive vaccination is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 1,
+                                 step = 0.05,
+                                 round = -2
                                )
                              )
-                           ),
-                           
-                           conditionalPanel(
-                             condition = "input.HCWvacc_react_shape=='Beta'",
-                             sliderInput(
-                               "HCWvacc_react_min_beta",
-                               "What do you think the minimum value of the proportion of HCW/FLWs who accept reactive vaccination is?",
-                               min = 0,
-                               max = 1,
-                               value = 0,
-                               step = 0.05,
-                               round = -2
-                             )
-                           ),
-                           
-                           conditionalPanel(
-                             condition = "input.HCWvacc_react_shape=='Beta'",
-                             sliderInput(
-                               "HCWvacc_react_max_beta",
-                               "What do you think the maximum value of the proportion of HCW/FLWs who accept reactive vaccination is?",
-                               min = 0,
-                               max = 1,
-                               value = 1,
-                               step = 0.05,
-                               round = -2
-                             )
                            )
+                        ),
+                           
+                           
 
-                         ),
+                         
 
                          conditionalPanel(
 
@@ -1566,6 +1514,688 @@ ui <- page_navbar(
                    shiny::p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
                      latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in
                      vaccine uptake for these different strategies, as well as the time taken to initiate vaccination following ascertainment of a case."),
+                   
+                   
+                   accordion(
+                     id = "Ringvacc",
+                     accordion_panel(
+                       "Proportion of cases that have vaccination rings established",
+                       value = "Ringvacc_ring",
+                       layout_sidebar(
+                         sidebar = sidebar(
+                           title = tags$h4("Proportion of cases that have vaccination rings established"),
+                           width = 300,
+                           shiny::p("Based on your knowledge and experience of recent reactive vaccination campaigns against EVD:"),
+                           
+                           selectInput(
+                             "answerRingvacc_ring",
+                             "Can you provide your intuition about the distribution of the proportion of cases for which a vaccination ring is established?",
+                             c("No", "Yes")
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.answerRingvacc_ring=='Yes'",
+                             selectInput(
+                               "Ringvacc_ring_shape",
+                               "What do you think the shape of the distribution of the proportion of cases for which a vaccination ring is established is?",
+                               c("Uniform", "Normal", "Beta")
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_ring_shape=='Uniform'",
+                               sliderInput(
+                                 "Ringvacc_ring_min",
+                                 
+                                 
+                                 "What do you think the minimum proportion of cases for which a vaccination ring is established is?",
+                                 
+                                 min = 0,
+                                 max = 1,
+                                 value = 0,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_ring_shape=='Uniform'",
+                               sliderInput(
+                                 "Ringvacc_ring_max",
+                                 
+                                 "What do you think the maximum proportion of cases for which a vaccination ring is established is?",
+                                 
+                                 min = 0,
+                                 max = 1,
+                                 value = 1,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_ring_shape=='Normal'",
+                               sliderInput(
+                                 "Ringvacc_ring_mean",
+                                 
+                                 "What do you think the mean proportion of cases for which a vaccination ring is established is?",
+                                 
+                                 min = 0,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_ring_shape=='Normal'",
+                               sliderInput(
+                                 "Ringvacc_ring_sd",
+                                 
+                                 "What do you think the standard deviation proportion of cases for which a vaccination ring is established is?",
+                                 
+                                 min = 0.1,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.01,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               
+                               condition = "input.Ringvacc_ring_shape=='Normal'",
+                               sliderInput(
+                                 "Ringvacc_ring_min_norm",
+                                 "What do you think the minimum proportion of cases for which a vaccination ring is established is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 0,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_ring_shape=='Normal'",
+                               sliderInput(
+                                 "Ringvacc_ring_max_norm",
+                                 "What do you think the maximum proportion of cases for which a vaccination ring is established is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 1,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_ring_shape=='Beta'",
+                               sliderInput(
+                                 "Ringvacc_ring_means",
+                                 
+                                 "What do you think the mean proportion of cases for which a vaccination ring is established is",min=0.01,max=0.99,value=0.5,step=0.05,round=-2)
+                             ),
+                             
+                             
+                             
+                             
+                             conditionalPanel(
+                               
+                               condition = "input.Ringvacc_ring_shape=='Beta'",
+                               sliderInput(
+                                 "Ringvacc_ring_betasd",
+                                 
+                                 "What do you think the standard deviation of the proportion of cases for which a vaccination ring is established is?",min=0.01,max=round(sqrt(1/12),2),value=sqrt(1/12),step=0.001,round=-3)
+                             )
+                             
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.Ringvacc_ring_shape=='Beta'",
+                             sliderInput(
+                               "Ringvacc_ring_min_beta",
+                               "What do you think the minimum proportion of cases for which a vaccination ring is established is?",
+                               min = 0,
+                               max = 1,
+                               value = 0,
+                               step = 0.05,
+                               round = -2
+                             )
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.Ringvacc_ring_shape=='Beta'",
+                             sliderInput(
+                               "Ringvacc_ring_max_beta",
+                               "What do you think the maximum proportion of cases for which a vaccination ring is established is?",
+                               min = 0,
+                               max = 1,
+                               value = 1,
+                               step = 0.05,
+                               round = -2
+                             )
+                           ),
+                           
+                         ),
+                         
+                         conditionalPanel(
+                           condition = "input.answerRingvacc_ring=='Yes'",
+                           
+                           plotOutput("plotRingvacc_ring", width =
+                                        "100%", height = '500px'),
+                           textOutput("Ringvacc_ringmedian"),
+                           textOutput("Ringvacc_ringconf"),
+                           
+                           
+                           selectInput(
+                             "conf_Ringvacc_ring",
+                             "How confident are you about the shape of the distribution?",
+                             c("Very", "Somewhat", "Slightly", "Not very"),
+                             width = "80%",
+                             selected = "Not very"
+                           ),
+                           
+                           
+                           
+                           textAreaInput(
+                             "source_Ringvacc_ring",
+                             "Please provide any context or sources that have guided your intuition:",
+                             width = "80%"
+                           )
+                         ),
+                         
+                         layout_column_wrap(
+                           1 / 2,
+                           actionButton("previousRingvacc_ring", "Previous"),
+                           actionButton("nextRingvacc_ring", "Next", class =
+                                          "btn-primary")
+                         )
+                       )
+                     ),
+                     accordion_panel(
+                       
+                       "Proportion of ring members who accept the vaccine",
+                       value = "Ringvacc_react",
+                       layout_sidebar(
+                         sidebar = sidebar(
+                           title = tags$h4("Proportion members of a ring accept the vaccine"),
+                           width = 300,
+                           shiny::p(""),
+                           shiny::p("Based on your knowledge and experience of recent Ebola outbreaks:"),
+                           
+                           selectInput(
+                             "answerRingvacc_react",
+                             
+                             "Can you provide your intuition about the proportion of ring members who accept vaccination?",
+                             
+                             c("No", "Yes")
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.answerRingvacc_react=='Yes'",
+                             selectInput(
+                               "Ringvacc_react_shape",
+                               
+                               "What do you think the shape of the distribution of the proportion of ring members who accept vaccination is?",
+                               c("Uniform", "Normal", "Beta")
+                               
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_react_shape=='Uniform'",
+                               sliderInput(
+                                 "Ringvacc_react_min",
+                                 
+                                 "What do you think the minimum value of the proportion of ring members who accept vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 1,
+                                 value = 0,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_react_shape=='Uniform'",
+                               sliderInput(
+                                 "Ringvacc_react_max",
+                                 
+                                 "What do you think the maximum value of the proportion of ring members who accept vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 1,
+                                 value = 1,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_react_shape=='Normal'",
+                               sliderInput(
+                                 "Ringvacc_react_mean",
+                                 
+                                 "What do you think the mean value of the proportion of ring members who accept vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_react_shape=='Normal'",
+                               sliderInput(
+                                 "Ringvacc_react_sd",
+                                 
+                                 "What do you think the standard deviation of the proportion of ring members who accept vaccination is?",
+                                 
+                                 min = 0.1,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.01,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               
+                               condition = "input.Ringvacc_react_shape=='Normal'",
+                               sliderInput(
+                                 "Ringvacc_react_min_norm",
+                                 "What do you think the minimum value of the proportion of ring members who accept vaccination is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 0,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_react_shape=='Normal'",
+                               sliderInput(
+                                 "Ringvacc_react_max_norm",
+                                 "What do you think the maximum value of the proportion of ring members who accept vaccination is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 1,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_react_shape=='Beta'",
+                               sliderInput(
+                                 "Ringvacc_react_means",
+                                 "What do you think the mean value of the proportion of ring members who accept vaccination is?",min=0.01,max=0.99,value=0.5,step=0.05,round=-2)
+                             ),
+                             
+                             conditionalPanel(
+                               
+                               condition = "input.Ringvacc_react_shape=='Beta'",
+                               sliderInput(
+                                 "Ringvacc_react_betasd",
+                                 "What do you think the standard deviation of the proportion of ring members who accept vaccination is?",min=0.01,max=round(sqrt(1/12),2),value=sqrt(1/12),step=0.001,round=-3)
+                             )
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.Ringvacc_react_shape=='Beta'",
+                             sliderInput(
+                               "Ringvacc_react_min_beta",
+                               "What do you think the minimum value of the proportion of ring members who accept vaccination is?",
+                               min = 0,
+                               max = 1,
+                               value = 0,
+                               step = 0.05,
+                               round = -2
+                             )
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.Ringvacc_react_shape=='Beta'",
+                             sliderInput(
+                               "Ringvacc_react_max_beta",
+                               "What do you think the maximum value of the proportion of ring members who accept vaccination is?",
+                               min = 0,
+                               max = 1,
+                               value = 1,
+                               step = 0.05,
+                               round = -2
+                             )
+                           )
+                         
+                         ),
+                         
+                         conditionalPanel(
+                           
+                           condition = "input.answerRingvacc_react=='Yes'",
+                           plotOutput("plotRingvacc_react", width =
+                                        "100%", height = '500px'),
+                           textOutput("Ringvacc_reactmedian"),
+                           textOutput("Ringvacc_reactconf"),
+                           
+                           selectInput(
+                             "conf_Ringvacc_react",
+                             "How confident are you about the shape of the distribution?",
+                             c("Very", "Somewhat", "Slightly", "Not very"),
+                             width = "80%",
+                             selected = "Not very"
+                           ),
+                           
+                           selectInput(
+                             "is_corr_Ringvacc_react_R0",
+                             
+                             "Do you think there is any correlation between the proportion of ring members who accept vaccination and reproduction number? e.g. if the reproduction number is higher, the proportion of ring members who accept vaccination is also higher.",
+                             
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_Ringvacc_react_R0=='Yes'",
+                             selectInput(
+                               "corr_Ringvacc_react_R0",
+                               
+                               "Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of ring members who accept vaccination is high and when reproduction number is low, the proportion of ring members who accept vaccination is low) or negative (i.e. when reproduction number is low, the proportion of ring members who accept vaccination is high and vice versa)?",
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           selectInput(
+                             "is_corr_Ringvacc_react_Asc",
+                             
+                             "Do you think there is any correlation between the proportion of ring members who accept vaccination and case ascertainment? e.g. if case ascertainment is higher, the proportion of ring members who accept vaccination is also higher.",
+                             
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_Ringvacc_react_Asc=='Yes'",
+                             selectInput(
+                               "corr_Ringvacc_react_Asc",
+                               
+                               "Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of ring members who accept vaccination is high and when case ascertainment is low, the proportion of ring members who accept vaccination is low) or negative (i.e. when case ascertainment is low, the proportion of ring members who accept vaccination is high and vice versa)?",
+                               
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           textAreaInput(
+                             "source_Ringvacc_react",
+                             "Please provide any context or sources that have guided your intuition:",
+                             width = "80%"
+                           )
+                         ),
+                         
+                         layout_column_wrap(
+                           1 / 2,
+                           actionButton("previousRingvacc_react", "Previous"),
+                           actionButton("nextRingvacc_react", "Next", class =
+                                          "btn-primary")
+                         )
+                       )
+                     ),
+                     accordion_panel(
+                       
+                       "Delay from case ascertainment to ring vaccination",
+                       
+                       value = "Ringvacc_delay",
+                       layout_sidebar(
+                         sidebar = sidebar(
+                           title = tags$h4("Delay from case ascertainment to ring vaccination"),
+                           width = 300,
+                           shiny::p(""),
+                           shiny::p("Based on your knowledge and experience of recent Ebola outbreak vaccination campaigns:"),
+                           
+                           selectInput(
+                             "answerRingvacc_delay",
+                             
+                             "Can you provide your intuition about the distribution of delays from case ascertainment to the start of ring vaccination?",
+                             
+                             c("No", "Yes")
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.answerRingvacc_delay=='Yes'",
+                             selectInput(
+                               "Ringvacc_delay_shape",
+                               
+                               "What do you think the shape of the distribution of delays from case ascertainment to the start of ring vaccination is?",
+                               
+                               c("Uniform", "Normal", "Skewed")
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_delay_shape=='Uniform'",
+                               sliderInput(
+                                 "Ringvacc_delay_min",
+                                 
+                                 "What do you think the minimum delay from case ascertainment to the start of ring vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 15,
+                                 value = 0,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_delay_shape=='Uniform'",
+                               sliderInput(
+                                 "Ringvacc_delay_max",
+                                 
+                                 "What do you think the maximum delay from case ascertainment to the start of ring vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 15,
+                                 value = 15,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_delay_shape=='Normal'",
+                               sliderInput(
+                                 "Ringvacc_delay_mean",
+                                 
+                                 "What do you think the mean delay from case ascertainment to the start of ring vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 15,
+                                 value = 7.5,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_delay_shape=='Normal'",
+                               sliderInput(
+                                 "Ringvacc_delay_sd",
+                                 
+                                 "What do you think the standard deviation of the delay from case ascertainment to the start of ring vaccination is?",
+                                 
+                                 min = 1,
+                                 max = 10,
+                                 value = 5,
+                                 step = 0.1,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_delay_shape=='Normal'",
+                               sliderInput(
+                                 
+                                 "Ringvacc_delay_min_norm",
+                                 "What do you think the minimum delay from case ascertainment to the start of ring vaccination is?",
+                                 min = 0,
+                                 max = 15,
+                                 value = 0,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_delay_shape=='Normal'",
+                               sliderInput(
+                                 "Ringvacc_delay_max_norm",
+                                 "What do you think the maximum delay from case ascertainment to the start of ring vaccination is?",
+                                 min = 0,
+                                 max = 15,
+                                 value = 15,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_delay_shape=='Skewed'",
+                               sliderInput(
+                                 "Ringvacc_delay_means",
+                                 "What do you think the mean delay from case ascertainment to the start of ring vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 15,
+                                 value = 7.5,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_delay_shape=='Skewed'",
+                               sliderInput(
+                                 "Ringvacc_delay_var",
+                                 "What do you think the variance of the delay from case ascertainment to the start of ring vaccination is?",
+                                 min = 1,
+                                 max = 50,
+                                 value = 25,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_delay_shape=='Skewed'",
+                               sliderInput(
+                                 "Ringvacc_delay_min_skewed",
+                                 "hat do you think the minimum delay from case ascertainment to the start of ring vaccination is?",
+                                 min = 0,
+                                 max = 15,
+                                 value = 0,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Ringvacc_delay_shape=='Skewed'",
+                               sliderInput(
+                                 "Ringvacc_delay_max_skewed",
+                                 "What do you think the maximum delay from case ascertainment to the start of ring vaccination is?",
+                                 min = 0,
+                                 max = 15,
+                                 value = 15,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             )
+                           )
+                           
+                         ),
+                         
+                         conditionalPanel(
+                           condition = "input.answerRingvacc_delay=='Yes'",
+                           plotOutput("plotRingvacc_delay", width =
+                                        "100%", height = '500px'),
+                           textOutput("Ringvacc_delay_median"),
+                           textOutput("Ringvacc_delay_conf"),
+                           
+                           selectInput(
+                             "conf_Ringvacc_delay",
+                             "How confident are you about the shape of the distribution?",
+                             c("Very", "Somewhat", "Slightly", "Not very"),
+                             width = "80%",
+                             selected = "Not very"
+                           ),
+                           
+                           selectInput(
+                             "is_corr_Ringvacc_delay_R0",
+                             "Do you think there is any correlation between the delay from case ascertainment to the start of ring vaccination and reproduction number? e.g. if the reproduction number is higher, the delay from case ascertainment to the start of ring vaccination is also higher.",
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_Ringvacc_delay_R0=='Yes'",
+                             selectInput(
+                               "corr_Ringvacc_delay_R0",
+                               "Do you think the correlation is positive (i.e. when reproduction number is high, the delay from case ascertainment to the start of ring vaccination is high and when reproduction number is low, the delay from case ascertainment to the start of ring vaccination is low) or negative (i.e. when reproduction number is low, the delay from case ascertainment to the start of ring vaccination is high and vice versa)?",
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           selectInput(
+                             "is_corr_Ringvacc_delay_Asc",
+                             "Do you think there is any correlation between the delay to start vaccination and case ascertainment? e.g. if case ascertainment is higher, the delay from case ascertainment to the start of ring vaccination is also higher.",
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_Ringvacc_delay_Asc=='Yes'",
+                             selectInput(
+                               "corr_Ringvacc_delay_Asc",
+                               "Do you think the correlation is positive (i.e. when case ascertainment is high, the delay from case ascertainment to the start of ring vaccination is high and when case ascertainment is low, the delay from case ascertainment to the start of ring vaccination is low) or negative (i.e. when case ascertainment is low, the delay to start HCW vaccination is high and vice versa)?",
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           textAreaInput(
+                             "source_Ringvacc_delay",
+                             "Please provide any context or sources that have guided your intuition:",
+                             width = "80%"
+                           )
+                         ),
+                         
+                         layout_column_wrap(
+                           1 / 2,
+                           actionButton("previousRingvacc_delay", "Previous"),
+                           actionButton("nextRingvacc_delay", "Next", class =
+                                          "btn-primary")
+                         )
+                       )
+                     )
+                   )
 
 
   ),
@@ -1575,16 +2205,509 @@ ui <- page_navbar(
 
 
   
-  # bslib::nav_panel(title="8",
-  #                  
-  #                  shiny::p(tags$h3("Geographically targeted vaccination")),
-  #                  
-  #                  shiny::p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
-  #                    latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in 
-  #                    vaccine uptake for these different strategies, as well as the time taken to initiate vaccination following ascertainment of a case."),
-  #                  
-  #                  
-  # ),
+  bslib::nav_panel(title="8",
+
+                   shiny::p(tags$h3("Geographically targeted vaccination")),
+
+                   shiny::p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
+                     latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in
+                     vaccine uptake for these different strategies, as well as the time taken to initiate vaccination following ascertainment of a case."),
+                   
+                   accordion(
+                     id = "Geovacc",
+                     
+                     accordion_panel(
+                       
+                       "Proportion of community members who accept geographically targeted vaccination",
+                       value = "Geovacc_react",
+                       layout_sidebar(
+                         sidebar = sidebar(
+                           title = tags$h4("Proportion of community members who accept geographically targeted vaccination"),
+                           width = 300,
+                           shiny::p(""),
+                           shiny::p("Based on your knowledge and experience of recent Ebola outbreak vaccination campaigns:"),
+                           
+                           selectInput(
+                             "answerGeovacc_react",
+                             
+                             "Can you provide your intuition about the proportion of community members who accept geographically targeted vaccination?",
+                             
+                             c("No", "Yes")
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.answerGeovacc_react=='Yes'",
+                             selectInput(
+                               "Geovacc_react_shape",
+                               
+                               "What do you think the shape of the distribution of the proportion of community members who accept geographically targeted vaccination is?",
+                               c("Uniform", "Normal", "Beta")
+                               
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_react_shape=='Uniform'",
+                               sliderInput(
+                                 "Geovacc_react_min",
+                                 
+                                 "What do you think the minimum value of the proportion of community members who accept geographically targeted vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 1,
+                                 value = 0,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_react_shape=='Uniform'",
+                               sliderInput(
+                                 "Geovacc_react_max",
+                                 
+                                 "What do you think the maximum value of the proportion of community members who accept geographically targeted vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 1,
+                                 value = 1,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_react_shape=='Normal'",
+                               sliderInput(
+                                 "Geovacc_react_mean",
+                                 
+                                 "What do you think the mean value of the proportion of community members who accept geographically targeted vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_react_shape=='Normal'",
+                               sliderInput(
+                                 "Geovacc_react_sd",
+                                 
+                                 "What do you think the standard deviation of the proportion of community members who accept geographically targeted vaccination is?",
+                                 
+                                 min = 0.1,
+                                 max = 1,
+                                 value = 0.5,
+                                 step = 0.01,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               
+                               condition = "input.Geovacc_react_shape=='Normal'",
+                               sliderInput(
+                                 "Geovacc_react_min_norm",
+                                 "What do you think the minimum value of the proportion of community members who accept geographically targeted vaccination is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 0,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_react_shape=='Normal'",
+                               sliderInput(
+                                 "Geovacc_react_max_norm",
+                                 "What do you think the maximum value of the proportion of community members who accept geographically targeted vaccination is?",
+                                 min = 0,
+                                 max = 1,
+                                 value = 1,
+                                 step = 0.05,
+                                 round = -2
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_react_shape=='Beta'",
+                               sliderInput(
+                                 "Geovacc_react_means",
+                                 "What do you think the mean value of the proportion of community members who accept geographically targeted vaccination is?",min=0.01,max=0.99,value=0.5,step=0.05,round=-2)
+                             ),
+                             
+                             conditionalPanel(
+                               
+                               condition = "input.Geovacc_react_shape=='Beta'",
+                               sliderInput(
+                                 "Geovacc_react_betasd",
+                                 "What do you think the variance of the proportion of community members who accept geographically targeted vaccination is?",
+                                 
+                                 min = 0.01,
+                                 max = 0.25,
+                                 value = 0.1,
+                                 step = 0.001,
+                                 round = -3
+                               )
+                             )
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.Geovacc_react_shape=='Beta'",
+                             sliderInput(
+                               "Geovacc_react_min_beta",
+                               "What do you think the minimum value of the proportion of community members who accept geographically targeted vaccination is?",
+                               min = 0,
+                               max = 1,
+                               value = 0,
+                               step = 0.05,
+                               round = -2
+                             )
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.Geovacc_react_shape=='Beta'",
+                             sliderInput(
+                               "Geovacc_react_max_beta",
+                               "What do you think the maximum value of the proportion of community members who accept geographically targeted vaccination is?",
+                               min = 0,
+                               max = 1,
+                               value = 1,
+                               step = 0.05,
+                               round = -2
+                             )
+                           )
+                           
+                         ),
+                         
+                         conditionalPanel(
+                           
+                           condition = "input.answerGeovacc_react=='Yes'",
+                           plotOutput("plotGeovacc_react", width =
+                                        "100%", height = '500px'),
+                           textOutput("Geovacc_reactmedian"),
+                           textOutput("Geovacc_reactconf"),
+                           
+                           selectInput(
+                             "conf_Geovacc_react",
+                             "How confident are you about the shape of the distribution?",
+                             c("Very", "Somewhat", "Slightly", "Not very"),
+                             width = "80%",
+                             selected = "Not very"
+                           ),
+                           
+                           selectInput(
+                             "is_corr_Geovacc_react_R0",
+                             
+                             "Do you think there is any correlation between the proportion of community members who accept geographically targeted vaccination and reproduction number? e.g. if the reproduction number is higher, the proportion of community members who accept geographically targeted vaccination is also higher.",
+                             
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_Geovacc_react_R0=='Yes'",
+                             selectInput(
+                               "corr_Geovacc_react_R0",
+                               
+                               "Do you think the correlation is positive (i.e. when reproduction number is high, the proportion of community members who accept geographically targeted vaccination is high and when reproduction number is low, the proportion of community members who accept geographically targeted vaccination is low) or negative (i.e. when reproduction number is low, the proportion of community members who accept geographically targeted vaccination is high and vice versa)?",
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           selectInput(
+                             "is_corr_Geovacc_react_Asc",
+                             
+                             "Do you think there is any correlation between the proportion of community members who accept geographically targeted vaccination and case ascertainment? e.g. if case ascertainment is higher, the proportion of community members who accept geographically targeted vaccination is also higher.",
+                             
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_Geovacc_react_Asc=='Yes'",
+                             selectInput(
+                               "corr_Geovacc_react_Asc",
+                               
+                               "Do you think the correlation is positive (i.e. when case ascertainment is high, the proportion of community members who accept geographically targeted vaccination is high and when case ascertainment is low, the proportion of community members who accept geographically targeted vaccination is low) or negative (i.e. when case ascertainment is low, the proportion of community members who accept geographically targeted vaccination is high and vice versa)?",
+                               
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           textAreaInput(
+                             "source_Geovacc_react",
+                             "Please provide any context or sources that have guided your intuition:",
+                             width = "80%"
+                           )
+                         ),
+                         
+                         layout_column_wrap(
+                           1 / 2,
+                           actionButton("previousGeovacc_react", "Previous"),
+                           actionButton("nextGeovacc_react", "Next", class =
+                                          "btn-primary")
+                         )
+                       )
+                     ),
+                     accordion_panel(
+                       
+                       "Delay from case ascertainment to geographical vaccination",
+                       
+                       value = "Geovacc_delay",
+                       layout_sidebar(
+                         sidebar = sidebar(
+                           title = tags$h4("Delay from case ascertainment to the start of geographically targeted vaccination"),
+                           width = 300,
+                           shiny::p(""),
+                           shiny::p("Based on your knowledge and experience of recent Ebola outbreak vaccination campaigns:"),
+                           
+                           selectInput(
+                             "answerGeovacc_delay",
+                             
+                             "Can you provide your intuition about the distribution of delays from case ascertainment to the start of geographically targeted vaccination?",
+                             
+                             c("No", "Yes")
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.answerGeovacc_delay=='Yes'",
+                             selectInput(
+                               "Geovacc_delay_shape",
+                               
+                               "What do you think the shape of the distribution of delays from case ascertainment to the start of geographically targeted vaccination is?",
+                               
+                               c("Uniform", "Normal", "Skewed")
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_delay_shape=='Uniform'",
+                               sliderInput(
+                                 "Geovacc_delay_min",
+                                 
+                                 "What do you think the minimum delay from case ascertainment to the start of geographically targeted vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 15,
+                                 value = 0,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_delay_shape=='Uniform'",
+                               sliderInput(
+                                 "Geovacc_delay_max",
+                                 
+                                 "What do you think the maximum delay from case ascertainment to the start of geographically targeted vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 15,
+                                 value = 15,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_delay_shape=='Normal'",
+                               sliderInput(
+                                 "Geovacc_delay_mean",
+                                 
+                                 "What do you think the mean delay from case ascertainment to the start of geographically targeted vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 15,
+                                 value = 7.5,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_delay_shape=='Normal'",
+                               sliderInput(
+                                 "Geovacc_delay_sd",
+                                 
+                                 "What do you think the standard deviation of the delay from case ascertainment to the start of geographically targeted vaccination is?",
+                                 
+                                 min = 1,
+                                 max = 10,
+                                 value = 5,
+                                 step = 0.1,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_delay_shape=='Normal'",
+                               sliderInput(
+                                 
+                                 "Geovacc_delay_min_norm",
+                                 "What do you think the minimum delay from case ascertainment to the start of geographically targeted vaccination is?",
+                                 min = 0,
+                                 max = 15,
+                                 value = 0,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_delay_shape=='Normal'",
+                               sliderInput(
+                                 "Geovacc_delay_max_norm",
+                                 "What do you think the maximum delay from case ascertainment to the start of geographically targeted vaccination is?",
+                                 min = 0,
+                                 max = 15,
+                                 value = 15,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_delay_shape=='Skewed'",
+                               sliderInput(
+                                 "Geovacc_delay_means",
+                                 "What do you think the mean delay from case ascertainment to the start of geographically targeted vaccination is?",
+                                 
+                                 min = 0,
+                                 max = 15,
+                                 value = 7.5,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_delay_shape=='Skewed'",
+                               sliderInput(
+                                 "Geovacc_delay_var",
+                                 "What do you think the variance of the delay from case ascertainment to the start of geographically targeted vaccination is?",
+                                 min = 1,
+                                 max = 50,
+                                 value = 25,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_delay_shape=='Skewed'",
+                               sliderInput(
+                                 "Geovacc_delay_min_skewed",
+                                 "hat do you think the minimum delay from case ascertainment to the start of geographically targeted vaccination is?",
+                                 min = 0,
+                                 max = 15,
+                                 value = 0,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             ),
+                             
+                             conditionalPanel(
+                               condition = "input.Geovacc_delay_shape=='Skewed'",
+                               sliderInput(
+                                 "Geovacc_delay_max_skewed",
+                                 "What do you think the maximum delay from case ascertainment to the start of geographically targeted vaccination is?",
+                                 min = 0,
+                                 max = 15,
+                                 value = 15,
+                                 step = 0.5,
+                                 round = -1
+                               )
+                             )
+                           )
+                           
+                         ),
+                         
+                         conditionalPanel(
+                           condition = "input.answerGeovacc_delay=='Yes'",
+                           plotOutput("plotGeovacc_delay", width =
+                                        "100%", height = '500px'),
+                           textOutput("Geovacc_delay_median"),
+                           textOutput("Geovacc_delay_conf"),
+                           
+                           selectInput(
+                             "conf_Geovacc_delay",
+                             "How confident are you about the shape of the distribution?",
+                             c("Very", "Somewhat", "Slightly", "Not very"),
+                             width = "80%",
+                             selected = "Not very"
+                           ),
+                           
+                           selectInput(
+                             "is_corr_Geovacc_delay_R0",
+                             "Do you think there is any correlation between the delay from case ascertainment to the start of geographically targeted vaccination and reproduction number? e.g. if the reproduction number is higher, the delay from case ascertainment to the start of geographically targeted vaccination is also higher.",
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_Geovacc_delay_R0=='Yes'",
+                             selectInput(
+                               "corr_Geovacc_delay_R0",
+                               "Do you think the correlation is positive (i.e. when reproduction number is high, the delay from case ascertainment to the start of geographically targeted vaccination is high and when reproduction number is low, the delay from case ascertainment to the start of geographically targeted vaccination is low) or negative (i.e. when reproduction number is low, the delay from case ascertainment to the start of geographically targeted vaccination is high and vice versa)?",
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           selectInput(
+                             "is_corr_Geovacc_delay_Asc",
+                             "Do you think there is any correlation between the delay to start vaccination and case ascertainment? e.g. if case ascertainment is higher, the delay from case ascertainment to the start of geographically targeted vaccination is also higher.",
+                             c("Not sure", "Yes", "No"),
+                             selected = NULL,
+                             width = "80%"
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.is_corr_Geovacc_delay_Asc=='Yes'",
+                             selectInput(
+                               "corr_Geovacc_delay_Asc",
+                               "Do you think the correlation is positive (i.e. when case ascertainment is high, the delay from case ascertainment to the start of geographically targeted vaccination is high and when case ascertainment is low, the delay from case ascertainment to the start of geographically targeted vaccination is low) or negative (i.e. when case ascertainment is low, the delay to start HCW vaccination is high and vice versa)?",
+                               c("Positive", "Negative"),
+                               selected = NULL,
+                               width = "80%"
+                             )
+                             
+                           ),
+                           
+                           textAreaInput(
+                             "source_Geovacc_delay",
+                             "Please provide any context or sources that have guided your intuition:",
+                             width = "80%"
+                           )
+                         ),
+                         
+                         layout_column_wrap(
+                           1 / 2,
+                           actionButton("previousGeovacc_delay", "Previous"),
+                           actionButton("nextGeovacc_delay", "Next", class =
+                                          "btn-primary")
+                         )
+                       )
+                     )
+                   )
+
+
+  ),
 
 
 # Stockpile opinions ------------------------------------------------------
@@ -1595,8 +2718,22 @@ ui <- page_navbar(
                    
                    shiny::p(tags$h3("Your views about EVD outbreaks and the role of the stockpile")),
                    
-                   shiny::p("On the final page of the survey, we'd like you to give your views regarding the size of potential worst-case EVD outbreaks as well as
-                            the purpose of the stockpile"),
+                   shiny::p("On the final page of the survey, we'd like you to give your views regarding the deployment of vaccines in future EVD outbreaks, the potential worst-case EVD outbreaks that we should
+                   be planning for, and the purpose of the stockpile"),
+                   
+                   textInput( 
+                     "vacc_doses",
+                     "Before licensing, the Ervebo vaccine had to be administered by GCP-trained vaccinators, potentially limiting the number of vaccination teams and the number of 
+                     doses administered by each team. Now that the requirement for GCP-trained vaccinators is no longer in place, what do you think is a reasonable upper bound on the
+                     number of doses a vaccination team can adminster per day?",placeholder="e.g. 100",
+                     width = "80%"
+                   ),
+                   
+                   textInput( 
+                     "vacc_teams",
+                     "And what do you think is a reasonable upper bound on the number of vaccination teams that are sent as part of the outbreak response?",placeholder="e.g. 50",
+                     width = "80%"
+                   ),
                    
                    textAreaInput( 
                      "worst_case",
@@ -1629,7 +2766,12 @@ ui <- page_navbar(
 
 
   bslib::nav_panel(title="End",
-                   shiny::p("Many thanks for your input!")
+                   shiny::p(tags$h3("Many thanks for your input!")),
+                   
+                   shiny::p("For more information on this survey, please contact: Anne Cori (anne.cori@imperial.ac.uk), Katharina Hauck (k.hauck@imperial.ac.uk) or 
+      Gemma Nedjati-Gilani (g.nedjati-gilani@imperial.ac.uk)"),
+                   
+                   shiny::p("Survey design: Gemma Nedjati-Gilani and Rob Johnson"),
                    
                    
                    
@@ -1870,6 +3012,14 @@ server <- function(input, output, session) {
     updateSliderInput(session,"Asc_max",min=input$Asc_min+0.1)
   })
   
+  observeEvent(input$Asc_min_norm,{
+    updateSliderInput(session,"Asc_max_norm",min=input$Asc_min_norm+0.1)
+  })
+  
+  observeEvent(input$Asc_min_beta,{
+    updateSliderInput(session,"Asc_max_beta",min=input$Asc_min_norm+0.1)
+  })
+  
   plotTypeAsc <- reactive({input$Asc_shape
   })
   
@@ -1884,7 +3034,7 @@ server <- function(input, output, session) {
       asc_dist = distr::Unif(Min=input$Asc_min,Max=input$Asc_max)
     }
     else if(plotTypeAsc()=="Normal"){
-      asc_dist = distr::Truncate(distr::Norm(mean=input$Asc_mean,sd=input$Asc_sd),lower=0,upper=1)
+      asc_dist = distr::Truncate(distr::Norm(mean=input$Asc_mean,sd=input$Asc_sd),lower=input$Asc_min_norm,upper=input$Asc_max_norm)
     }
     else if(plotTypeAsc()=="Skewed"){
       asc_dist <- get_gamma_dist(input$Asc_means, input$Asc_var, 0, 1)
@@ -1893,7 +3043,7 @@ server <- function(input, output, session) {
       #then make these into beta distribution parameters
       beta_pars <- get_beta_parameters(input$Asc_means, input$Asc_betasd)
       datAsc <- subset(datAsc,xpos*(1-xpos)!=0)
-      asc_dist = distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2])
+      asc_dist = distr::Truncate(distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2]),lower=input$Asc_min_beta,upper=input$Asc_max_beta)
     }
     v$asc_dist = asc_dist
     datAsc$ypos <- distr::d(asc_dist)(datAsc$xpos)
@@ -1937,75 +3087,64 @@ server <- function(input, output, session) {
     updateSliderInput(session,"CTprop_max",min=input$CTprop_min+0.1)
   })
   
+  observeEvent(input$CTprop_min_norm,{
+    updateSliderInput(session,"CTprop_max_norm",min=input$CTprop_min_norm+0.1)
+  })
+  
+  observeEvent(input$CTprop_min_beta,{
+    updateSliderInput(session,"CTprop_max_beta",min=input$CTprop_min_norm+0.1)
+  })
+  
   plotTypeCTprop <- reactive({input$CTprop_shape
   })
   
+  observeEvent(input$CTprop_means, {
+    # If the beta mean changes, compute the new implied standard deviation
+    update_beta_dist(input$CTprop_betasd, input$CTprop_means, "CTprop_betasd")
+  })
+  
   output$plotCTprop <- renderPlot({
+    datCTprop <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
     if(plotTypeCTprop()=="Uniform"){
-      datCTprop<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      datCTprop$ypos<-dunif(datCTprop$xpos,min=input$CTprop_min,max=input$CTprop_max,log=F)
-      datCTprop$qt  <- cut(punif(datCTprop$xpos,min=input$CTprop_min,max=input$CTprop_max,log=F),breaks=qrt,labels=F)
+      CTprop_dist = distr::Unif(Min=input$CTprop_min,Max=input$CTprop_max)
     }
     else if(plotTypeCTprop()=="Normal"){
-      datCTprop<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      datCTprop$ypos<-dtruncnorm(x=datCTprop$xpos,a=0,b=1,mean=input$CTprop_mean,sd=input$CTprop_sd)
-      datCTprop$qt  <- cut(ptruncnorm(datCTprop$xpos,a=0,b=1,mean=input$CTprop_mean,sd=input$CTprop_sd),breaks=qrt,labels=F)
+      CTprop_dist = distr::Truncate(distr::Norm(mean=input$CTprop_mean,sd=input$CTprop_sd),lower=input$CTprop_min_norm,upper=input$CTprop_max_norm)
     }
     else if(plotTypeCTprop()=="Skewed"){
-      #then make these into gamma or beta distribution parameters
-      CTpropShape<-(input$CTprop_means*input$CTprop_means)/input$CTprop_var
-      CTpropScale<-input$CTprop_var/input$CTprop_means
-      datCTprop<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      datCTprop$ypos<-dgamma(datCTprop$xpos,shape=CTpropShape,scale=CTpropScale,log=F)/pgamma(1,shape=CTpropShape,scale=CTpropScale)
-      datCTprop$qt  <- cut(pgamma(datCTprop$xpos,shape=CTpropShape,scale=CTpropScale,log=F)/pgamma(1,shape=CTpropShape,scale=CTpropScale),breaks=qrt,labels=F)
+      CTprop_dist <- get_gamma_dist(input$CTprop_means, input$CTprop_var, 0, 1)
     }
+    else if(plotTypeCTprop()=="Beta"){
+      #then make these into beta distribution parameters
+      beta_pars <- get_beta_parameters(input$CTprop_means, input$CTprop_betasd)
+      datCTprop <- subset(datCTprop,xpos*(1-xpos)!=0)
+      CTprop_dist = distr::Truncate(distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2]),lower=input$CTprop_min_beta,upper=input$CTprop_max_beta)
+    }
+    v$CTprop_dist = CTprop_dist
+    datCTprop$ypos <- distr::d(CTprop_dist)(datCTprop$xpos)
+    datCTprop$qt  <- cut(distr::p(CTprop_dist)(datCTprop$xpos),breaks=qrt,labels=F) 
     
     ggplot(datCTprop,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
-      labs(x="Proportion of contacts traced",y="pdf",color="Percentile",title="Probability density of proportion of contacts traced")+
+      labs(x="Proportion of contacts traced",y="pdf",color="Percentile",title="Probability density of contact tracing proportion")+
       theme_gray(base_size = text_size)+theme(legend.position ="none") + 
       scale_x_continuous(breaks=breaksunit)
-    
   }
   )
   
   output$CTpropconf<-renderText({
-    if(plotTypeCTprop()=="Uniform"){
-      lower50<-qunif(0.25,input$CTprop_min,input$CTprop_max)
-      upper50<-qunif(0.75,input$CTprop_min,input$CTprop_max)
-      lower95<-qunif(0.025,input$CTprop_min,input$CTprop_max)
-      upper95<-qunif(0.975,input$CTprop_min,input$CTprop_max)
-    }
-    else if(plotTypeCTprop()=="Normal"){
-      lower50<-qtruncnorm(p=0.25,a=0,b=1,mean=input$CTprop_mean,sd=input$CTprop_sd)
-      upper50<-qtruncnorm(p=0.75,a=0,b=1,mean=input$CTprop_mean,sd=input$CTprop_sd)
-      lower95<-qtruncnorm(p=0.025,a=0,b=1,mean=input$CTprop_mean,sd=input$CTprop_sd)
-      upper95<-qtruncnorm(p=0.975,a=0,b=1,mean=input$CTprop_mean,sd=input$CTprop_sd)
-    }
-    else if(plotTypeCTprop()=="Skewed"){
-      CTpropShape<-(input$CTprop_means*input$CTprop_means)/input$CTprop_var
-      CTpropScale<-input$CTprop_var/input$CTprop_means
-      lower50<-qgamma(p=0.25*pgamma(1,shape=CTpropShape,scale=CTpropScale),shape=CTpropShape,scale=CTpropScale)
-      upper50<-qgamma(p=0.75*pgamma(1,shape=CTpropShape,scale=CTpropScale),shape=CTpropShape,scale=CTpropScale)
-      lower95<-qgamma(p=0.025*pgamma(1,shape=CTpropShape,scale=CTpropScale),shape=CTpropShape,scale=CTpropScale)
-      upper95<-qgamma(p=0.975*pgamma(1,shape=CTpropShape,scale=CTpropScale),shape=CTpropShape,scale=CTpropScale)
-    }
+    CTprop_dist = v$CTprop_dist
+    lower50 <- distr::q(CTprop_dist)(0.25)
+    upper50 <- distr::q(CTprop_dist)(0.75) 
+    lower95 <- distr::q(CTprop_dist)(0.025) 
+    upper95 <- distr::q(CTprop_dist)(0.975) 
     paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
           confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
   })
   
   output$CTpropmedian<-renderText({
-    if(plotTypeCTprop()=="Uniform"){
-      median<-qunif(0.5,input$CTprop_min,input$CTprop_max)
-    }
-    else if(plotTypeCTprop()=="Normal"){
-      median<-qtruncnorm(p=0.5,a=0,b=1,mean=input$CTprop_mean,sd=input$CTprop_sd)
-    }
-    else if(plotTypeCTprop()=="Skewed"){
-      CTpropShape<-(input$CTprop_means*input$CTprop_means)/input$CTprop_var
-      CTpropScale<-input$CTprop_var/input$CTprop_means
-      median<-qgamma(p=0.5*pgamma(1,shape=CTpropShape,scale=CTpropScale),shape=CTpropShape,scale=CTpropScale)
-    }
+    CTprop_dist = v$CTprop_dist
+    median <- distr::q(CTprop_dist)(0.5)
     paste("Your median value for the proportion of contacts traced is:",round(median,digits=2))
   })
   
@@ -2024,76 +3163,65 @@ server <- function(input, output, session) {
     updateSliderInput(session,"CTfoll_max",min=input$CTfoll_min+0.1)
   })
   
+  observeEvent(input$CTfoll_min_norm,{
+    updateSliderInput(session,"CTfoll_max_norm",min=input$CTfoll_min_norm+0.1)
+  })
+  
+  observeEvent(input$CTfoll_min_beta,{
+    updateSliderInput(session,"CTfoll_max_beta",min=input$CTfoll_min_norm+0.1)
+  })
+  
   plotTypeCTfoll <- reactive({input$CTfoll_shape
   })
   
+  observeEvent(input$CTfoll_means, {
+    # If the beta mean changes, compute the new implied standard deviation
+    update_beta_dist(input$CTfoll_betasd, input$CTfoll_means, "CTfoll_betasd")
+  })
+  
   output$plotCTfoll <- renderPlot({
+    datCTfoll <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
     if(plotTypeCTfoll()=="Uniform"){
-      datCTfoll<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      datCTfoll$ypos<-dunif(datCTfoll$xpos,min=input$CTfoll_min,max=input$CTfoll_max,log=F)
-      datCTfoll$qt  <- cut(punif(datCTfoll$xpos,min=input$CTfoll_min,max=input$CTfoll_max,log=F),breaks=qrt,labels=F)
+      CTfoll_dist = distr::Unif(Min=input$CTfoll_min,Max=input$CTfoll_max)
     }
     else if(plotTypeCTfoll()=="Normal"){
-      datCTfoll<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      datCTfoll$ypos<-dtruncnorm(x=datCTfoll$xpos,a=0,b=1,mean=input$CTfoll_mean,sd=input$CTfoll_sd)
-      datCTfoll$qt  <- cut(ptruncnorm(datCTfoll$xpos,a=0,b=1,mean=input$CTfoll_mean,sd=input$CTfoll_sd),breaks=qrt,labels=F)
+      CTfoll_dist = distr::Truncate(distr::Norm(mean=input$CTfoll_mean,sd=input$CTfoll_sd),lower=input$CTfoll_min_norm,upper=input$CTfoll_max_norm)
     }
     else if(plotTypeCTfoll()=="Skewed"){
-      #then make these into gamma or beta distribution parameters
-      CTfollShape<-(input$CTfoll_means*input$CTfoll_means)/input$CTfoll_var
-      CTfollScale<-input$CTfoll_var/input$CTfoll_means
-      datCTfoll<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      datCTfoll$ypos<-dgamma(datCTfoll$xpos,shape=CTfollShape,scale=CTfollScale,log=F)/pgamma(1,shape=CTfollShape,scale=CTfollScale)
-      datCTfoll$qt  <- cut(pgamma(datCTfoll$xpos,shape=CTfollShape,scale=CTfollScale,log=F)/pgamma(1,shape=CTfollShape,scale=CTfollScale),breaks=qrt,labels=F)
+      CTfoll_dist <- get_gamma_dist(input$CTfoll_means, input$CTfoll_var, 0, 1)
     }
+    else if(plotTypeCTfoll()=="Beta"){
+      #then make these into beta distribution parameters
+      beta_pars <- get_beta_parameters(input$CTfoll_means, input$CTfoll_betasd)
+      datCTfoll <- subset(datCTfoll,xpos*(1-xpos)!=0)
+      CTfoll_dist = distr::Truncate(distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2]),lower=input$CTfoll_min_beta,upper=input$CTfoll_max_beta)
+    }
+    v$CTfoll_dist = CTfoll_dist
+    datCTfoll$ypos <- distr::d(CTfoll_dist)(datCTfoll$xpos)
+    datCTfoll$qt  <- cut(distr::p(CTfoll_dist)(datCTfoll$xpos),breaks=qrt,labels=F) 
     
     ggplot(datCTfoll,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
-      labs(x="Proportion of contacts followed up",y="pdf",color="Percentile",title="Probability density of proportion of contacts followed up")+
+      labs(x="Proportion of contacts who complete follow up",y="pdf",color="Percentile",title="Probability density of contact tracing completion")+
       theme_gray(base_size = text_size)+theme(legend.position ="none") + 
       scale_x_continuous(breaks=breaksunit)
-    
   }
   )
   
   output$CTfollconf<-renderText({
-    if(plotTypeCTfoll()=="Uniform"){
-      lower50<-qunif(0.25,input$CTfoll_min,input$CTfoll_max)
-      upper50<-qunif(0.75,input$CTfoll_min,input$CTfoll_max)
-      lower95<-qunif(0.025,input$CTfoll_min,input$CTfoll_max)
-      upper95<-qunif(0.975,input$CTfoll_min,input$CTfoll_max)
-    }
-    else if(plotTypeCTfoll()=="Normal"){
-      lower50<-qtruncnorm(p=0.25,a=0,b=1,mean=input$CTfoll_mean,sd=input$CTfoll_sd)
-      upper50<-qtruncnorm(p=0.75,a=0,b=1,mean=input$CTfoll_mean,sd=input$CTfoll_sd)
-      lower95<-qtruncnorm(p=0.025,a=0,b=1,mean=input$CTfoll_mean,sd=input$CTfoll_sd)
-      upper95<-qtruncnorm(p=0.975,a=0,b=1,mean=input$CTfoll_mean,sd=input$CTfoll_sd)
-    }
-    else if(plotTypeCTfoll()=="Skewed"){
-      CTfollShape<-(input$CTfoll_means*input$CTfoll_means)/input$CTfoll_var
-      CTfollScale<-input$CTfoll_var/input$CTfoll_means
-      lower50<-qgamma(p=0.25*pgamma(1,shape=CTfollShape,scale=CTfollScale),shape=CTfollShape,scale=CTfollScale)
-      upper50<-qgamma(p=0.75*pgamma(1,shape=CTfollShape,scale=CTfollScale),shape=CTfollShape,scale=CTfollScale)
-      lower95<-qgamma(p=0.025*pgamma(1,shape=CTfollShape,scale=CTfollScale),shape=CTfollShape,scale=CTfollScale)
-      upper95<-qgamma(p=0.975*pgamma(1,shape=CTfollShape,scale=CTfollScale),shape=CTfollShape,scale=CTfollScale)
-    }
+    CTfoll_dist = v$CTfoll_dist
+    lower50 <- distr::q(CTfoll_dist)(0.25)
+    upper50 <- distr::q(CTfoll_dist)(0.75) 
+    lower95 <- distr::q(CTfoll_dist)(0.025) 
+    upper95 <- distr::q(CTfoll_dist)(0.975) 
     paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
           confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
   })
   
   output$CTfollmedian<-renderText({
-    if(plotTypeCTfoll()=="Uniform"){
-      median<-qunif(0.5,input$CTfoll_min,input$CTfoll_max)
-    }
-    else if(plotTypeCTfoll()=="Normal"){
-      median<-qtruncnorm(p=0.5,a=0,b=1,mean=input$CTfoll_mean,sd=input$CTfoll_sd)
-    }
-    else if(plotTypeCTfoll()=="Skewed"){
-      CTfollShape<-(input$CTfoll_means*input$CTfoll_means)/input$CTfoll_var
-      CTfollScale<-input$CTfoll_var/input$CTfoll_means
-      median<-qgamma(p=0.5*pgamma(1,shape=CTfollShape,scale=CTfollScale),shape=CTfollShape,scale=CTfollScale)
-    }
-    paste("Your median value for the proportion contacts followed up is:",round(median,digits=2))
+    CTfoll_dist = v$CTfoll_dist
+    median <- distr::q(CTfoll_dist)(0.5)
+    paste("Your median value for the proportion of contacts who complete follow up is:",round(median,digits=2))
   })
   
   
@@ -2110,6 +3238,14 @@ server <- function(input, output, session) {
 
   observeEvent(input$HCWvacc_prevent_min,{
     updateSliderInput(session,"HCWvacc_prevent_max",min=input$HCWvacc_prevent_min+0.1)
+  })
+  
+  observeEvent(input$HCWvacc_prevent_min_norm,{
+    updateSliderInput(session,"HCWvacc_prevent_max_norm",min=input$HCWvacc_prevent_min_norm+0.1)
+  })
+  
+  observeEvent(input$HCWvacc_prevent_min_beta,{
+    updateSliderInput(session,"HCWvacc_prevent_max_beta",min=input$HCWvacc_prevent_min_beta+0.1)
   })
   
   plotTypeHCWvacc_prevent <- reactive({input$HCWvacc_prevent_shape
@@ -2130,13 +3266,13 @@ server <- function(input, output, session) {
     }
     else if(plotTypeHCWvacc_prevent()=="Skewed"){
       #then make these into gamma or beta distribution parameters
-      HCWvacc_prevent_dist = get_gamma_dist(input$HCWvacc_prevent_means, input$HCWvacc_prevent_var, 0, 1)
+      HCWvacc_prevent_dist = get_gamma_dist(input$HCWvacc_prevent_means, input$HCWvacc_prevent_var, input$HCWvacc_prevent_min_skewed, input$HCWvacc_prevent_max_skewed)
     }
     else if(plotTypeHCWvacc_prevent()=="Beta"){
       #then make these into beta distribution parameters
       beta_pars <- get_beta_parameters(input$HCWvacc_prevent_means, input$HCWvacc_prevent_betasd)
       datHCWvacc_prevent <- subset(datHCWvacc_prevent,xpos*(1-xpos)!=0)
-      HCWvacc_prevent_dist = distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2])
+      HCWvacc_prevent_dist = distr::Truncate(distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2]),input$HCWvacc_prevent_min_beta, input$HCWvacc_prevent_max_beta)
     }
     v$HCWvacc_prevent_dist = HCWvacc_prevent_dist
     datHCWvacc_prevent$ypos <- distr::d(HCWvacc_prevent_dist)(datHCWvacc_prevent$xpos)
@@ -2176,6 +3312,14 @@ server <- function(input, output, session) {
     accordion_panel_open(session=session,id="HCWvacc",values="HCWvacc_react")
   })
   
+  observeEvent(input$HCWvacc_react_min_norm,{
+    updateSliderInput(session,"HCWvacc_react_max_norm",min=input$HCWvacc_react_min_norm+0.1)
+  })
+  
+  observeEvent(input$HCWvacc_react_min_beta,{
+    updateSliderInput(session,"HCWvacc_react_max_beta",min=input$HCWvacc_react_min_beta+0.1)
+  })
+  
   observeEvent(input$HCWvacc_react_min,{
     updateSliderInput(session,"HCWvacc_react_max",min=input$HCWvacc_react_min+0.1)
   })
@@ -2213,7 +3357,7 @@ server <- function(input, output, session) {
       HCWvacc_react_dist = distr::Unif(Min=input$HCWvacc_react_min,Max=input$HCWvacc_react_max)
     }
     else if(plotTypeHCWvacc_react()=="Normal"){
-      HCWvacc_react_dist = distr::Truncate(distr::Norm(mean=input$HCWvacc_react_mean,sd=input$HCWvacc_react_sd),lower=0,upper=1)
+      HCWvacc_react_dist = distr::Truncate(distr::Norm(mean=input$HCWvacc_react_mean,sd=input$HCWvacc_react_sd),lower=input$HCWvacc_react_min_norm,upper=input$HCWvacc_react_max_norm)
     }
     else if(plotTypeHCWvacc_react()=="Skewed"){
       #then make these into gamma or beta distribution parameters
@@ -2229,7 +3373,7 @@ server <- function(input, output, session) {
       beta_pars <- get_beta_parameters(input$HCWvacc_react_means, input$HCWvacc_react_betasd)
       datHCWvacc_react <- subset(datHCWvacc_react,xpos*(1-xpos)!=0)
       # print(c(14, input$HCWvacc_react_means, input$HCWvacc_react_betasd, beta_pars))
-      HCWvacc_react_dist = distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2])
+      HCWvacc_react_dist = distr::Truncate(distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2]),lower=input$HCWvacc_react_min_beta,upper=input$HCWvacc_react_max_beta)
       # if(sum(beta_pars<.99)>0) return(NULL) # cut if parameters have not been updated
     }
     v$HCWvacc_react_dist = HCWvacc_react_dist
@@ -2346,23 +3490,426 @@ server <- function(input, output, session) {
   
   ## Ring vaccination #############################################################
   
-  # observeEvent(input$previousRingVax,{
-  #   updateNavbarPage(session=session,"mainpage",selected="6")
-  # })
-  # 
-  # observeEvent(input$nextRingVax,{
-  #   updateNavbarPage(session=session,"mainpage",selected="8")
-  # })
+  observeEvent(input$Ringvacc_ring_min,{
+    updateSliderInput(session,"Ringvacc_ring_max",min=input$Ringvacc_ring_min+0.1)
+  })
+  
+  observeEvent(input$Ringvacc_ring_min_norm,{
+    updateSliderInput(session,"Ringvacc_ring_max_norm",min=input$Ringvacc_ring_min_norm+0.1)
+  })
+  
+  observeEvent(input$Ringvacc_ring_min_norm,{
+    updateSliderInput(session,"Ringvacc_ring_max_norm",min=input$Ringvacc_ring_min_norm+0.1)
+  })
+  
+  plotTypeRingvacc_ring <- reactive({input$Ringvacc_ring_shape
+  })
+  
+  observeEvent(input$Ringvacc_ring_means, {
+    # If the beta mean changes, compute the new implied standard deviation
+    update_beta_dist(input$Ringvacc_ring_betasd, input$Ringvacc_ring_means, "Ringvacc_ring_betasd")
+  })
+  
+  output$plotRingvacc_ring <- renderPlot({
+    datRingvacc_ring <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+    if(plotTypeRingvacc_ring()=="Uniform"){
+      Ringvacc_ring_dist = distr::Unif(Min=input$Ringvacc_ring_min,Max=input$Ringvacc_ring_max)
+    }
+    else if(plotTypeRingvacc_ring()=="Normal"){
+      Ringvacc_ring_dist = distr::Truncate(distr::Norm(mean=input$Ringvacc_ring_mean,sd=input$Ringvacc_ring_sd),lower=input$Ringvacc_ring_min_norm,upper=input$Ringvacc_ring_max_norm)
+    }
+    else if(plotTypeRingvacc_ring()=="Skewed"){
+      #then make these into gamma or beta distribution parameters
+      Ringvacc_ring_dist = get_gamma_dist(input$Ringvacc_ring_means, input$Ringvacc_ring_var, input$Ringvacc_ring_min_beta, input$Ringvacc_ring_max_beta)
+    }
+    else if(plotTypeRingvacc_ring()=="Beta"){
+      #then make these into beta distribution parameters
+      beta_pars <- get_beta_parameters(input$Ringvacc_ring_means, input$Ringvacc_ring_betasd)
+      datRingvacc_ring <- subset(datRingvacc_ring,xpos*(1-xpos)!=0)
+      Ringvacc_ring_dist = distr::Truncate(distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2]), input$Ringvacc_ring_min_beta, input$Ringvacc_ring_max_beta)
+    }
+    v$Ringvacc_ring_dist = Ringvacc_ring_dist
+    datRingvacc_ring$ypos <- distr::d(Ringvacc_ring_dist)(datRingvacc_ring$xpos)
+    datRingvacc_ring$qt  <- cut(distr::p(Ringvacc_ring_dist)(datRingvacc_ring$xpos),breaks=qrt,labels=F) #cut(pbeta(datRingvacc_ring$xpos,alpha=Ringvacc_ringShape,beta=Ringvacc_ringScale,log=F),breaks=qrt,labels=F)
+    
+    ggplot(datRingvacc_ring,aes(x=xpos,y=ypos))+
+      geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
+      labs(x="Proportion of cases for which vaccination rings are established",y="pdf",color="Percentile",title="Probability density of the proportion of cases for which vaccination rings are established")+
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksunit)
+  }
+  )
+  
+  output$Ringvacc_ring_conf<-renderText({
+    Ringvacc_ring_dist = v$Ringvacc_ring_dist
+    lower50 <- distr::q(Ringvacc_ring_dist)(0.25)
+    upper50 <- distr::q(Ringvacc_ring_dist)(0.75) 
+    lower95 <- distr::q(Ringvacc_ring_dist)(0.025) 
+    upper95 <- distr::q(Ringvacc_ring_dist)(0.975)
+    paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
+          confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
+  })
+  
+  output$Ringvacc_ring_median<-renderText({
+    Ringvacc_ring_dist = v$Ringvacc_ring_dist
+    median <- distr::q(Ringvacc_ring_dist)(0.5)
+    paste("Your median value for the proportion of cases around which a ring is established is:",round(median,digits=2))
+  })
+  
+  # For ringative vaccination
+  observeEvent(input$previousRingvacc_ring,{
+    updateNavbarPage(session=session,"mainpage",selected="6")
+  })
+  
+  observeEvent(input$nextRingvacc_ring,{
+    accordion_panel_close(session=session,id="Ringvacc",values="Ringvacc_ring")
+    accordion_panel_open(session=session,id="Ringvacc",values="Ringvacc_react")
+  })
+  
+  observeEvent(input$Ringvacc_react_min,{
+    updateSliderInput(session,"Ringvacc_react_max",min=input$Ringvacc_react_min+0.1)
+  })
+  
+  observeEvent(input$Ringvacc_react_min_norm,{
+    updateSliderInput(session,"Ringvacc_react_max_norm",min=input$Ringvacc_react_min_norm+0.1)
+  })
+  
+  observeEvent(input$Ringvacc_react_min_norm,{
+    updateSliderInput(session,"Ringvacc_react_max_norm",min=input$Ringvacc_react_min_norm+0.1)
+  })
+  
+  plotTypeRingvacc_react <- reactive({input$Ringvacc_react_shape
+  })
+  
+  
+  observeEvent(input$Ringvacc_react_means, {
+    # If the beta mean changes, compute the new implied standard deviation
+    Ringvacc_react_var <- input$Ringvacc_react_betasd^2
+    # by definition we require
+    # mean*(1 - mean) > variance
+    if(input$Ringvacc_react_means * (1-input$Ringvacc_react_means) < Ringvacc_react_var){
+      Ringvacc_react_var <- input$Ringvacc_react_means * (1-input$Ringvacc_react_means)
+      max_sd = round(sqrt(Ringvacc_react_var), 3)
+      updateSliderInput(session, "Ringvacc_react_betasd", value = max_sd)
+    }
+    beta_pars <- get_beta_parameters(input$Ringvacc_react_means, round(sqrt(Ringvacc_react_var), 3))
+    Ringvacc_reactAlpha <- beta_pars[1]
+    Ringvacc_reactBeta <- beta_pars[2]
+    # normalise alpha and beta so that both are at least 1
+    if(min(Ringvacc_reactAlpha,Ringvacc_reactBeta)<1){
+      minab <- min(Ringvacc_reactAlpha,Ringvacc_reactBeta)
+      Ringvacc_reactAlpha <- Ringvacc_reactAlpha/minab
+      Ringvacc_reactBeta <- Ringvacc_reactBeta/minab
+      implied_sd = round(sqrt(Ringvacc_reactAlpha*Ringvacc_reactBeta / ((Ringvacc_reactAlpha + Ringvacc_reactBeta)^2 * (Ringvacc_reactAlpha + Ringvacc_reactBeta + 1))), 3)
+      updateSliderInput(session, "Ringvacc_react_betasd", value = implied_sd)
+    }
+  })
+  
+  output$plotRingvacc_react <- renderPlot({
+    datRingvacc_react <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+    if(plotTypeRingvacc_react()=="Uniform"){
+      Ringvacc_react_dist = distr::Unif(Min=input$Ringvacc_react_min,Max=input$Ringvacc_react_max)
+    }
+    else if(plotTypeRingvacc_react()=="Normal"){
+      Ringvacc_react_dist = distr::Truncate(distr::Norm(mean=input$Ringvacc_react_mean,sd=input$Ringvacc_react_sd),lower=input$Ringvacc_react_min_norm,upper=input$Ringvacc_react_max_norm)
+    }
+    else if(plotTypeRingvacc_react()=="Skewed"){
+      #then make these into gamma or beta distribution parameters
+      Ringvacc_reactShape<-(input$Ringvacc_react_means*input$Ringvacc_react_means)/input$Ringvacc_react_var
+      Ringvacc_reactScale<-input$Ringvacc_react_var/input$Ringvacc_react_means
+      Ringvacc_reactAlpha<-input$Ringvacc_react_means*(((input$Ringvacc_react_means*(1-input$Ringvacc_react_means))/input$Ringvacc_react_var)-1)
+      Ringvacc_reactBeta<-(1-input$Ringvacc_react_means)*(((input$Ringvacc_react_means*(1-input$Ringvacc_react_means))/input$Ringvacc_react_var)-1)
+      datRingvacc_react<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+      Ringvacc_react_dist = distr::Gammad(shape1 = Ringvacc_reactAlpha, shape2 = Ringvacc_reactBeta)
+    }
+    else if(plotTypeRingvacc_react()=="Beta"){
+      #then make these into beta distribution parameters
+      beta_pars <- get_beta_parameters(input$Ringvacc_react_means, input$Ringvacc_react_betasd)
+      datRingvacc_react <- subset(datRingvacc_react,xpos*(1-xpos)!=0)
+      # print(c(14, input$Ringvacc_react_means, input$Ringvacc_react_betasd, beta_pars))
+      Ringvacc_react_dist = distr::Truncate(distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2]),lower=input$Ringvacc_react_min_beta,upper=input$Ringvacc_react_max_beta)
+      # if(sum(beta_pars<.99)>0) return(NULL) # cut if parameters have not been updated
+    }
+    v$Ringvacc_react_dist = Ringvacc_react_dist
+    datRingvacc_react$ypos <- distr::d(Ringvacc_react_dist)(datRingvacc_react$xpos)
+    datRingvacc_react$qt  <- cut(distr::p(Ringvacc_react_dist)(datRingvacc_react$xpos),breaks=qrt,labels=F) #cut(pbeta(datRingvacc_react$xpos,alpha=Ringvacc_reactShape,beta=Ringvacc_reactScale,log=F),breaks=qrt,labels=F)
+    
+    ggplot(datRingvacc_react,aes(x=xpos,y=ypos))+
+      geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
+      labs(x="Proportion of ring member who accept vaccination",y="pdf",color="Percentile",title="Probability density of the proportion of ring members who accept vaccination")+
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksunit)
+  }
+  )
+  
+  output$Ringvacc_react_conf<-renderText({
+    Ringvacc_react_dist = v$Ringvacc_react_dist
+    lower50 <- distr::q(Ringvacc_react_dist)(0.25)
+    upper50 <- distr::q(Ringvacc_react_dist)(0.75) # qbeta(p=0.75*pbeta(1,shape=Ringvacc_reactShape,scale=Ringvacc_reactScale),shape=Ringvacc_reactShape,scale=Ringvacc_reactScale)
+    lower95 <- distr::q(Ringvacc_react_dist)(0.025) # qbeta(p=0.025*pbeta(1,shape=Ringvacc_reactShape,scale=Ringvacc_reactScale),shape=Ringvacc_reactShape,scale=Ringvacc_reactScale)
+    upper95 <- distr::q(Ringvacc_react_dist)(0.975) # qbeta(p=0.975*pbeta(1,shape=Ringvacc_reactShape,scale=Ringvacc_reactScale),shape=Ringvacc_reactShape,scale=Ringvacc_reactScale)
+    paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
+          confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
+  })
+  
+  output$Ringvacc_react_median<-renderText({
+    Ringvacc_react_dist = v$Ringvacc_react_dist
+    median <- distr::q(Ringvacc_react_dist)(0.5)
+    paste("Your median value for the proportion of ring members who accept vaccination is:",round(median,digits=2))
+  })
+  
+  # For reactive vaccination
+  observeEvent(input$previousRingvacc_react,{
+    accordion_panel_close(session=session,id="Ringvacc",values="Ringvacc_ring")
+    accordion_panel_open(session=session,id="Ringvacc",values="Ringvacc_react")
+  })
+  
+  observeEvent(input$nextRingvacc_react,{
+    accordion_panel_close(session=session,id="Ringvacc",values="Ringvacc_react")
+    accordion_panel_open(session=session,id="Ringvacc",values="Ringvacc_delay")
+  })
+  
+  # For vaccination delay
+  
+  observeEvent(input$Ringvacc_delay_min,{
+    updateSliderInput(session,"Ringvacc_delay_max",min=input$Ringvacc_delay_min+0.1)
+  })
+  
+  observeEvent(input$Ringvacc_delay_min_skewed,{
+    updateSliderInput(session,"Ringvacc_delay_max_skewed",min=input$Ringvacc_delay_min_skewed+0.1)
+  })
+  
+  observeEvent(input$Ringvacc_delay_min_norm,{
+    updateSliderInput(session,"Ringvacc_delay_max_norm",min=input$Ringvacc_delay_min_norm+0.1)
+  })
+  
+  plotTypeRingvacc_delay <- reactive({input$Ringvacc_delay_shape
+  })
+  
+  output$plotRingvacc_delay <- renderPlot({
+    datRingvacc_delay <- data.frame(xpos=seq(xmin,xmaxDelay,by=0.01))
+    if(plotTypeRingvacc_delay()=="Uniform"){
+      Ringvacc_delay_dist = distr::Unif(Min=input$Ringvacc_delay_min,Max=input$Ringvacc_delay_max)
+    }
+    else if(plotTypeRingvacc_delay()=="Normal"){
+      Ringvacc_delay_dist = distr::Truncate(distr::Norm(mean=input$Ringvacc_delay_mean,sd=input$Ringvacc_delay_sd),lower=input$Ringvacc_delay_min_norm,upper=input$Ringvacc_delay_max_norm)
+    }
+    else if(plotTypeRingvacc_delay()=="Skewed"){
+      #then make these into gamma or beta distribution parameters
+      Ringvacc_delayShape<-(input$Ringvacc_delay_means*input$Ringvacc_delay_means)/input$Ringvacc_delay_var
+      Ringvacc_delayScale<-input$Ringvacc_delay_var/input$Ringvacc_delay_means
+      # Ringvacc_delayAlpha<-input$Ringvacc_delay_means*(((input$Ringvacc_delay_means*(1-input$Ringvacc_delay_means))/input$Ringvacc_delay_var)-1)
+      # Ringvacc_delayBeta<-(1-input$Ringvacc_delay_means)*(((input$Ringvacc_delay_means*(1-input$Ringvacc_delay_means))/input$Ringvacc_delay_var)-1)
+      # datRingvacc_delay<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+      Ringvacc_delay_dist = Truncate(Gammad(shape = Ringvacc_delayShape, scale=Ringvacc_delayScale),lower=input$Ringvacc_delay_min_skewed,upper=input$Ringvacc_delay_max_skewed)
+      
+    }
+    v$Ringvacc_delay_dist = Ringvacc_delay_dist
+    datRingvacc_delay$ypos <- distr::d(Ringvacc_delay_dist)(datRingvacc_delay$xpos)
+    datRingvacc_delay$qt  <- cut(distr::p(Ringvacc_delay_dist)(datRingvacc_delay$xpos),breaks=qrt,labels=F) #cut(pbeta(datRingvacc_delay$xpos,alpha=Ringvacc_delayShape,beta=Ringvacc_delayScale,log=F),breaks=qrt,labels=F)
+    
+    ggplot(datRingvacc_delay,aes(x=xpos,y=ypos))+
+      geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
+      labs(x="Delay from case ascertainment to the start of ring vaccination (days)",y="pdf",color="Percentile",title="Probability density of the delay from case ascertainment to the start of ring vaccination")+
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksDelay)
+  }
+  )
+  
+  output$Ringvacc_delay_conf<-renderText({
+    Ringvacc_delay_dist = v$Ringvacc_delay_dist
+    lower50 <- distr::q(Ringvacc_delay_dist)(0.25)
+    upper50 <- distr::q(Ringvacc_delay_dist)(0.75) # qbeta(p=0.75*pbeta(1,shape=Ringvacc_delayShape,scale=Ringvacc_delayScale),shape=Ringvacc_delayShape,scale=Ringvacc_delayScale)
+    lower95 <- distr::q(Ringvacc_delay_dist)(0.025) # qbeta(p=0.025*pbeta(1,shape=Ringvacc_delayShape,scale=Ringvacc_delayScale),shape=Ringvacc_delayShape,scale=Ringvacc_delayScale)
+    upper95 <- distr::q(Ringvacc_delay_dist)(0.975) # qbeta(p=0.975*pbeta(1,shape=Ringvacc_delayShape,scale=Ringvacc_delayScale),shape=Ringvacc_delayShape,scale=Ringvacc_delayScale)
+    paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
+          confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
+  })
+  
+  output$Ringvacc_delay_median<-renderText({
+    Ringvacc_delay_dist = v$Ringvacc_delay_dist
+    median <- distr::q(Ringvacc_delay_dist)(0.5)
+    paste("Your median value for the delay from case ascertainment to the beginning of ring vaccination is:",round(median,digits=2),"days")
+  })
+  
+  observeEvent(input$previousRingvacc_delay,{
+    accordion_panel_close(session=session,id="Ringvacc",values="Ringvacc_delay")
+    accordion_panel_open(session=session,id="Ringvacc",values="Ringvacc_react")
+  })
+  
+  observeEvent(input$nextRingvacc_delay,{
+    updateNavbarPage(session=session,"mainpage",selected="8")
+    
+  })
   
   ## Geographic vaccination #############################################################
   
-  # observeEvent(input$previousGeoVax,{
-  #   updateNavbarPage(session=session,"mainpage",selected="7")
-  # })
-  # 
-  # observeEvent(input$nextGeoVax,{
-  #   updateNavbarPage(session=session,"mainpage",selected="9")
-  # })
+  observeEvent(input$Geovacc_react_min,{
+    updateSliderInput(session,"Geovacc_react_max",min=input$Geovacc_react_min+0.1)
+  })
+  
+  plotTypeGeovacc_react <- reactive({input$Geovacc_react_shape
+  })
+  
+  
+  observeEvent(input$Geovacc_react_means, {
+    # If the beta mean changes, compute the new implied standard deviation
+    Geovacc_react_var <- input$Geovacc_react_betasd^2
+    # by definition we require
+    # mean*(1 - mean) > variance
+    if(input$Geovacc_react_means * (1-input$Geovacc_react_means) < Geovacc_react_var){
+      Geovacc_react_var <- input$Geovacc_react_means * (1-input$Geovacc_react_means)
+      max_sd = round(sqrt(Geovacc_react_var), 3)
+      updateSliderInput(session, "Geovacc_react_betasd", value = max_sd)
+    }
+    beta_pars <- get_beta_parameters(input$Geovacc_react_means, round(sqrt(Geovacc_react_var), 3))
+    Geovacc_reactAlpha <- beta_pars[1]
+    Geovacc_reactBeta <- beta_pars[2]
+    # normalise alpha and beta so that both are at least 1
+    if(min(Geovacc_reactAlpha,Geovacc_reactBeta)<1){
+      minab <- min(Geovacc_reactAlpha,Geovacc_reactBeta)
+      Geovacc_reactAlpha <- Geovacc_reactAlpha/minab
+      Geovacc_reactBeta <- Geovacc_reactBeta/minab
+      implied_sd = round(sqrt(Geovacc_reactAlpha*Geovacc_reactBeta / ((Geovacc_reactAlpha + Geovacc_reactBeta)^2 * (Geovacc_reactAlpha + Geovacc_reactBeta + 1))), 3)
+      updateSliderInput(session, "Geovacc_react_betasd", value = implied_sd)
+    }
+  })
+  
+  output$plotGeovacc_react <- renderPlot({
+    datGeovacc_react <- data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+    if(plotTypeGeovacc_react()=="Uniform"){
+      Geovacc_react_dist = distr::Unif(Min=input$Geovacc_react_min,Max=input$Geovacc_react_max)
+    }
+    else if(plotTypeGeovacc_react()=="Normal"){
+      Geovacc_react_dist = distr::Truncate(distr::Norm(mean=input$Geovacc_react_mean,sd=input$Geovacc_react_sd),lower=input$Geovacc_react_min_norm,upper=input$Geovacc_react_max_norm)
+    }
+    else if(plotTypeGeovacc_react()=="Skewed"){
+      #then make these into gamma or beta distribution parameters
+      Geovacc_reactShape<-(input$Geovacc_react_means*input$Geovacc_react_means)/input$Geovacc_react_var
+      Geovacc_reactScale<-input$Geovacc_react_var/input$Geovacc_react_means
+      Geovacc_reactAlpha<-input$Geovacc_react_means*(((input$Geovacc_react_means*(1-input$Geovacc_react_means))/input$Geovacc_react_var)-1)
+      Geovacc_reactBeta<-(1-input$Geovacc_react_means)*(((input$Geovacc_react_means*(1-input$Geovacc_react_means))/input$Geovacc_react_var)-1)
+      datGeovacc_react<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+      Geovacc_react_dist = distr::Gammad(shape1 = Geovacc_reactAlpha, shape2 = Geovacc_reactBeta)
+    }
+    else if(plotTypeGeovacc_react()=="Beta"){
+      #then make these into beta distribution parameters
+      beta_pars <- get_beta_parameters(input$Geovacc_react_means, input$Geovacc_react_betasd)
+      datGeovacc_react <- subset(datGeovacc_react,xpos*(1-xpos)!=0)
+      # print(c(14, input$Geovacc_react_means, input$Geovacc_react_betasd, beta_pars))
+      Geovacc_react_dist = distr::Truncate(distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2]),lower=input$Geovacc_react_min_beta,upper=input$Geovacc_react_max_beta)
+      # if(sum(beta_pars<.99)>0) return(NULL) # cut if parameters have not been updated
+    }
+    v$Geovacc_react_dist = Geovacc_react_dist
+    datGeovacc_react$ypos <- distr::d(Geovacc_react_dist)(datGeovacc_react$xpos)
+    datGeovacc_react$qt  <- cut(distr::p(Geovacc_react_dist)(datGeovacc_react$xpos),breaks=qrt,labels=F) #cut(pbeta(datGeovacc_react$xpos,alpha=Geovacc_reactShape,beta=Geovacc_reactScale,log=F),breaks=qrt,labels=F)
+    
+    ggplot(datGeovacc_react,aes(x=xpos,y=ypos))+
+      geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
+      labs(x="Proportion of community members who accept geographically targeted vaccination",y="pdf",color="Percentile",title="Probability density of the proportion of community members who accept geographically targeted vaccination")+
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksunit)
+  }
+  )
+  
+  output$Geovacc_react_conf<-renderText({
+    Geovacc_react_dist = v$Geovacc_react_dist
+    lower50 <- distr::q(Geovacc_react_dist)(0.25)
+    upper50 <- distr::q(Geovacc_react_dist)(0.75) # qbeta(p=0.75*pbeta(1,shape=Geovacc_reactShape,scale=Geovacc_reactScale),shape=Geovacc_reactShape,scale=Geovacc_reactScale)
+    lower95 <- distr::q(Geovacc_react_dist)(0.025) # qbeta(p=0.025*pbeta(1,shape=Geovacc_reactShape,scale=Geovacc_reactScale),shape=Geovacc_reactShape,scale=Geovacc_reactScale)
+    upper95 <- distr::q(Geovacc_react_dist)(0.975) # qbeta(p=0.975*pbeta(1,shape=Geovacc_reactShape,scale=Geovacc_reactScale),shape=Geovacc_reactShape,scale=Geovacc_reactScale)
+    paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
+          confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
+  })
+  
+  output$Geovacc_react_median<-renderText({
+    Geovacc_react_dist = v$Geovacc_react_dist
+    median <- distr::q(Geovacc_react_dist)(0.5)
+    paste("Your median value for the proportion of community members who accept geographically targeted vaccination is:",round(median,digits=2))
+  })
+  
+  # For reactive vaccination
+  observeEvent(input$previousGeovacc_react,{
+    updateNavbarPage(session=session,"mainpage",selected="8")
+  })
+  
+  observeEvent(input$nextGeovacc_react,{
+    accordion_panel_close(session=session,id="Geovacc",values="Geovacc_react")
+    accordion_panel_open(session=session,id="Geovacc",values="Geovacc_delay")
+  })
+  
+  # For vaccination delay
+  
+  observeEvent(input$Geovacc_delay_min,{
+    updateSliderInput(session,"Geovacc_delay_max",min=input$Geovacc_delay_min+0.1)
+  })
+  
+  observeEvent(input$Geovacc_delay_min_skewed,{
+    updateSliderInput(session,"Geovacc_delay_max_skewed",min=input$Geovacc_delay_min_skewed+0.1)
+  })
+  
+  observeEvent(input$Geovacc_delay_min_norm,{
+    updateSliderInput(session,"Geovacc_delay_max_norm",min=input$Geovacc_delay_min_norm+0.1)
+  })
+  
+  plotTypeGeovacc_delay <- reactive({input$Geovacc_delay_shape
+  })
+  
+  output$plotGeovacc_delay <- renderPlot({
+    datGeovacc_delay <- data.frame(xpos=seq(xmin,xmaxDelay,by=0.01))
+    if(plotTypeGeovacc_delay()=="Uniform"){
+      Geovacc_delay_dist = distr::Unif(Min=input$Geovacc_delay_min,Max=input$Geovacc_delay_max)
+    }
+    else if(plotTypeGeovacc_delay()=="Normal"){
+      Geovacc_delay_dist = distr::Truncate(distr::Norm(mean=input$Geovacc_delay_mean,sd=input$Geovacc_delay_sd),lower=input$Geovacc_delay_min_norm,upper=input$Geovacc_delay_max_norm)
+    }
+    else if(plotTypeGeovacc_delay()=="Skewed"){
+      #then make these into gamma or beta distribution parameters
+      Geovacc_delayShape<-(input$Geovacc_delay_means*input$Geovacc_delay_means)/input$Geovacc_delay_var
+      Geovacc_delayScale<-input$Geovacc_delay_var/input$Geovacc_delay_means
+      # Geovacc_delayAlpha<-input$Geovacc_delay_means*(((input$Geovacc_delay_means*(1-input$Geovacc_delay_means))/input$Geovacc_delay_var)-1)
+      # Geovacc_delayBeta<-(1-input$Geovacc_delay_means)*(((input$Geovacc_delay_means*(1-input$Geovacc_delay_means))/input$Geovacc_delay_var)-1)
+      # datGeovacc_delay<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
+      Geovacc_delay_dist = Truncate(Gammad(shape = Geovacc_delayShape, scale=Geovacc_delayScale),lower=input$Geovacc_delay_min_skewed,upper=input$Geovacc_delay_max_skewed)
+      
+    }
+    v$Geovacc_delay_dist = Geovacc_delay_dist
+    datGeovacc_delay$ypos <- distr::d(Geovacc_delay_dist)(datGeovacc_delay$xpos)
+    datGeovacc_delay$qt  <- cut(distr::p(Geovacc_delay_dist)(datGeovacc_delay$xpos),breaks=qrt,labels=F) #cut(pbeta(datGeovacc_delay$xpos,alpha=Geovacc_delayShape,beta=Geovacc_delayScale,log=F),breaks=qrt,labels=F)
+    
+    ggplot(datGeovacc_delay,aes(x=xpos,y=ypos))+
+      geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
+      labs(x="Delay from case ascertainment to the start of geographically targeted vaccination (days)",y="pdf",color="Percentile",title="Probability density of the delay from case ascertainment to the start of geographically targeted vaccination")+
+      theme_gray(base_size = text_size)+theme(legend.position ="none") + 
+      scale_x_continuous(breaks=breaksDelay)
+  }
+  )
+  
+  output$Geovacc_delay_conf<-renderText({
+    Geovacc_delay_dist = v$Geovacc_delay_dist
+    lower50 <- distr::q(Geovacc_delay_dist)(0.25)
+    upper50 <- distr::q(Geovacc_delay_dist)(0.75) # qbeta(p=0.75*pbeta(1,shape=Geovacc_delayShape,scale=Geovacc_delayScale),shape=Geovacc_delayShape,scale=Geovacc_delayScale)
+    lower95 <- distr::q(Geovacc_delay_dist)(0.025) # qbeta(p=0.025*pbeta(1,shape=Geovacc_delayShape,scale=Geovacc_delayScale),shape=Geovacc_delayShape,scale=Geovacc_delayScale)
+    upper95 <- distr::q(Geovacc_delay_dist)(0.975) # qbeta(p=0.975*pbeta(1,shape=Geovacc_delayShape,scale=Geovacc_delayScale),shape=Geovacc_delayShape,scale=Geovacc_delayScale)
+    paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
+          confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
+  })
+  
+  output$Geovacc_delay_median<-renderText({
+    Geovacc_delay_dist = v$Geovacc_delay_dist
+    median <- distr::q(Geovacc_delay_dist)(0.5)
+    paste("Your median value for the delay from case ascertainment to the beginning of geographically targeted vaccination is:",round(median,digits=2),"days")
+  })
+  
+  observeEvent(input$previousGeovacc_delay,{
+    accordion_panel_close(session=session,id="Geovacc",values="Geovacc_delay")
+    accordion_panel_open(session=session,id="Geovacc",values="Geovacc_react")
+  })
+  
+  observeEvent(input$nextGeovacc_delay,{
+    updateNavbarPage(session=session,"mainpage",selected="9")
+    
+  })
   
   ## Stockpile views #############################################################
   
@@ -2383,7 +3930,7 @@ server <- function(input, output, session) {
   observeEvent(input$submit,{
     # tabulate answers
     # these are all the parameter prefixes for which values could be reported
-    categories <- c('R0','DT','Asc','CTprop','CTfoll','HCWvacc_prevent')
+    categories <- c('R0','DT','Asc','CTprop','CTfoll','HCWvacc_prevent','HCWvacc_react','HCWvacc_delay','Ringvacc_ring','Ringvacc_react','Ringvacc_delay','Geovacc_react','Geovacc_delay')
     answers <- c()
     for(ct in categories){
       print(ct)
@@ -2440,7 +3987,7 @@ server <- function(input, output, session) {
     expinfo = c()
     expvars = c('ExpCT', 'ExpCT_length', 'ExpCase', 'ExpCase_length', 'ExpEpi', 'ExpEpi_length', 'ExpOutbreaks', 
                 'ExpOutbreaksOther', 'ExpSetting', 'ExpVacc', 'ExpVacc_length', 'ExpWorkplace','ExpDept',
-                "worst_case","stockpile")
+                "vacc_doses","vacc_teams","worst_case","stockpile")
     expvars = as.data.frame(sapply(expvars,function(x)ifelse(is.null(input[[x]]),'',paste0(input[[x]],collapse=', '))))
     
     # give column names; print; save
