@@ -776,7 +776,10 @@ ui <- page_navbar(
                    
 
                    shiny::p(tags$h3("Healthcare and frontline worker vaccination")), 
-                   shiny::p("Healthcare and frontline workers are ..."), 
+                   shiny::p("Healthcare and frontline workers are at increased risk of EVD infection due to their close contact with infectious patients, particularly in the period before the outbreak has been declared 
+                            when EVD-specific infection control measures are not in place. Due to this increased risk, HCWs and FLWs are prioritised for vaccination during an outbreak, and may now also be eligible 
+                            preventative vaccination. We are interested in the acceptance and uptake of the EVD vaccination amongst HCWs and FLWs, both during preventative and outbreak-specific campaigns. We are also
+                            interested in understanding the delay between an outbreak being declared and the first doses being offered to HCW/FLWs."), 
 
                    accordion(
                      id = "HCWvacc",
@@ -1511,9 +1514,9 @@ ui <- page_navbar(
 
                    shiny::p(tags$h3("Ring vaccination")),
 
-                   shiny::p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
-                     latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in
-                     vaccine uptake for these different strategies, as well as the time taken to initiate vaccination following ascertainment of a case."),
+                   shiny::p("Ring vaccination is the recommended strategy for vaccination as part of an EVD outbreak response as it targets high-risk contacts (and contacts of contacts) of known, infectious cases.
+                            We are interested in the proportion of cases around which vaccination rings are established, the proportion of the ring who accept the vaccine, and the delay between ascertaining a case 
+                            and vaccination of the ring members."),
                    
                    
                    accordion(
@@ -2209,9 +2212,9 @@ ui <- page_navbar(
 
                    shiny::p(tags$h3("Geographically targeted vaccination")),
 
-                   shiny::p("Reactive vaccination campaigns carried out during EVD outbreaks target both healthcare workers (HCWs) and frontline workers (FLWs), and at-risk contacts of cases. The
-                     latter is typically triggered by the ascertainment of a case and can be carried out using ring vaccination or geographically targeted vaccination. We are interested in
-                     vaccine uptake for these different strategies, as well as the time taken to initiate vaccination following ascertainment of a case."),
+                   shiny::p("Geographically targeted vaccination can be used as an alternative strategy when tracking contacts and contacts of contacts is not viable,
+                   and involves vaccinating community members in the immediate geographical vaccination of an ascertained case.
+                            We are interested in the proportion of community members who accept the vaccine, and the delay between ascertaining a case and start of adminisration of vaccinations in the community."),
                    
                    accordion(
                      id = "Geovacc",
@@ -3236,7 +3239,7 @@ server <- function(input, output, session) {
   
   
   observeEvent(input$previousCTfoll,{
-    accordion_panel_close(session=session,id="CT",values="CTfollow")
+    accordion_panel_close(session=session,id="CT",values="CTfoll")
     accordion_panel_open(session=session,id="CT",values="CTprop")
   })
   
