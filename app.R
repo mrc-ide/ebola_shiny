@@ -932,7 +932,7 @@ ui <- page_navbar(
                                )
                              ),
                            
-                           conditionalPanel(
+                           
                              
 
                              conditionalPanel(
@@ -950,7 +950,7 @@ ui <- page_navbar(
                                  round = -3
                                )
                              )
-                           )
+                           
                          ),
                            
                            conditionalPanel(
@@ -2126,7 +2126,7 @@ server <- function(input, output, session) {
       HCWvacc_prevent_dist = distr::Unif(Min=input$HCWvacc_prevent_min,Max=input$HCWvacc_prevent_max)
     }
     else if(plotTypeHCWvacc_prevent()=="Normal"){
-      HCWvacc_prevent_dist = distr::Truncate(distr::Norm(mean=input$HCWvacc_prevent_mean,sd=input$HCWvacc_prevent_sd),lower=0,upper=1)
+      HCWvacc_prevent_dist = distr::Truncate(distr::Norm(mean=input$HCWvacc_prevent_mean,sd=input$HCWvacc_prevent_sd),lower=input$HCWvacc_prevent_min_norm,upper=input$HCWvacc_prevent_max_norm)
     }
     else if(plotTypeHCWvacc_prevent()=="Skewed"){
       #then make these into gamma or beta distribution parameters
