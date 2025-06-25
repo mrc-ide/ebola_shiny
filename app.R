@@ -948,8 +948,8 @@ ui <- page_navbar(
 
                            plotOutput("plotHCWvacc_prevent", width =
                                         "100%", height = '500px'),
-                           textOutput("HCWvacc_preventmedian"),
-                           textOutput("HCWvacc_preventconf"),
+                           textOutput("HCWvacc_prevent_median"),
+                           textOutput("HCWvacc_prevent_conf"),
 
                            
                            selectInput(
@@ -1184,8 +1184,8 @@ ui <- page_navbar(
                            condition = "input.answerHCWvacc_react=='Yes'",
                            plotOutput("plotHCWvacc_react", width =
                                         "100%", height = '500px'),
-                           textOutput("HCWvacc_reactmedian"),
-                           textOutput("HCWvacc_reactconf"),
+                           textOutput("HCWvacc_react_median"),
+                           textOutput("HCWvacc_react_conf"),
 
                            selectInput(
                              "conf_HCWvacc_react",
@@ -1688,8 +1688,8 @@ ui <- page_navbar(
                            
                            plotOutput("plotRingvacc_ring", width =
                                         "100%", height = '500px'),
-                           textOutput("Ringvacc_ringmedian"),
-                           textOutput("Ringvacc_ringconf"),
+                           textOutput("Ringvacc_ring_median"),
+                           textOutput("Ringvacc_ring_conf"),
                            
                            
                            selectInput(
@@ -1882,8 +1882,8 @@ ui <- page_navbar(
                            condition = "input.answerRingvacc_react=='Yes'",
                            plotOutput("plotRingvacc_react", width =
                                         "100%", height = '500px'),
-                           textOutput("Ringvacc_reactmedian"),
-                           textOutput("Ringvacc_reactconf"),
+                           textOutput("Ringvacc_react_median"),
+                           textOutput("Ringvacc_react_conf"),
                            
                            selectInput(
                              "conf_Ringvacc_react",
@@ -2391,8 +2391,8 @@ ui <- page_navbar(
                            condition = "input.answerGeovacc_react=='Yes'",
                            plotOutput("plotGeovacc_react", width =
                                         "100%", height = '500px'),
-                           textOutput("Geovacc_reactmedian"),
-                           textOutput("Geovacc_reactconf"),
+                           textOutput("Geovacc_react_median"),
+                           textOutput("Geovacc_react_conf"),
                            
                            selectInput(
                              "conf_Geovacc_react",
