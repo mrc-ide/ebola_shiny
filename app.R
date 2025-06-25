@@ -931,7 +931,10 @@ ui <- page_navbar(
                                  round = -2
                                )
                              ),
+                           
+                           conditionalPanel(
                              
+
                              conditionalPanel(
 
                                condition = "input.HCWvacc_prevent_shape=='Beta'",
@@ -947,7 +950,8 @@ ui <- page_navbar(
                                  round = -3
                                )
                              )
-                           ),
+                           )
+                         ),
                            
                            conditionalPanel(
                              condition = "input.HCWvacc_prevent_shape=='Beta'",
@@ -1651,6 +1655,11 @@ server <- function(input, output, session) {
   breaksunit = seq(0,1,length=11)
   breaksDT=seq(xminDT,xmaxDT,by=2)
   breaksDelay=seq(xmin,xmaxDelay,by=1)
+  
+  ## functions to handle distributions
+  # this function gets beta parameters from the mean and sd
+  # note that there is an upper bound to sd given the mean
+
   get_beta_parameters <- function(betamean, betasd){
     # parameters alpha and beta
     # mean = alpha /(alpha + beta)
@@ -1661,16 +1670,47 @@ server <- function(input, output, session) {
     var <- betasd^2
     if(betamean * (1-betamean) < var)
       var <- (betamean * (1-betamean))*.99
-    # print(var)
     Alpha <- (betamean^2 * (1-betamean) - betamean*var) / var
     Beta <- Alpha * (1 - betamean) / betamean
-    # print(c(Alpha,Beta))
     c(Alpha, Beta)
   }
   
+  # this function updates the beta distribution sd if the mean changes to a more extreme value
+  # it prevents accumulating mass in the tails, which happens when one of the parameters is less than 1
+  update_beta_dist <- function(betasd, betamean, sd_to_update){
+    input_var <- betasd^2
+    # by definition we require
+    # mean*(1 - mean) > variance
+    if(betamean * (1-betamean) < input_var){
+      input_var <- betamean * (1-betamean)
+      max_sd = round(sqrt(input_var), 3)
+      updateSliderInput(session, sd_to_update, value = max_sd)
+    }
+    beta_pars <- get_beta_parameters(betamean, round(sqrt(input_var), 3))
+    Alpha <- beta_pars[1]
+    Beta <- beta_pars[2]
+    # normalise alpha and beta so that both are at least 1
+    if(min(Alpha,Beta)<1){
+      minab <- min(Alpha,Beta)
+      Alpha <- Alpha/minab
+      Beta <- Beta/minab
+      implied_sd = round(sqrt(Alpha*Beta / ((Alpha + Beta)^2 * (Alpha + Beta + 1))), 3)
+      updateSliderInput(session, sd_to_update, value = implied_sd)
+    }
+  }
+  
+  # this function gets shape and scale parameters from gamma mean and variance
+  get_gamma_dist <- function(gammamean, gammavar, min_skew, max_skew){
+    Shape <- gammamean^2/gammavar
+    Scale <- gammavar/gammamean
+    Truncate(Gammad(shape = Shape, scale = Scale), lower=min_skew, upper=max_skew)
+  }
+  
+  ## store distributions
   v <- reactiveValues(R0_dist = NULL, 
+                      DT_dist = NULL,
                       asc_dist = NULL, 
-                      AscSlider=NULL)
+                      HCWvacc_prevent_dist = NULL)
   
 
 # Overview - server----------------------------------------------------------------
@@ -1717,9 +1757,7 @@ server <- function(input, output, session) {
     }
     else if(plotTypeR0()=="Skewed"){
       #then make these into gamma or beta distribution parameters
-      Shape<-(input$R0_means*input$R0_means)/input$R0_var
-      Scale<-input$R0_var/input$R0_means
-      R0_dist = Truncate(Gammad(shape = Shape, scale = Scale),lower=input$R0_min_skew,upper=input$R0_max_skew)
+      R0_dist <- get_gamma_dist(input$R0_means, input$R0_var, input$R0_min_skew, input$R0_max_skew)
     }
     dat <- data.frame(xpos=seq(xmin,xmax,by=0.01))
     v$R0_dist = R0_dist
@@ -1784,9 +1822,7 @@ server <- function(input, output, session) {
       }
     else if(plotTypeDT()=="Skewed"){
       #then make these into gamma distribution parameters
-      Shape<-(input$DT_means*input$DT_means)/input$DT_var
-      Scale<-input$DT_var/input$DT_means
-      DT_dist = Truncate(Gammad(shape = Shape, scale = Scale),lower=input$DT_min_skew,upper=input$DT_max_skew)
+      DT_dist <- get_gamma_dist(input$DT_means, input$DT_var, input$DT_min_skew, input$DT_max_skew)
     }
     
     dat <- data.frame(xpos=seq(xminDT,xmaxDT,by=0.01))
@@ -1839,25 +1875,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$Asc_means, {
     # If the beta mean changes, compute the new implied standard deviation
-    Asc_var <- input$Asc_betasd^2
-    # by definition we require
-    # mean*(1 - mean) > variance
-    if(input$Asc_means * (1-input$Asc_means) < Asc_var){
-      Asc_var <- input$Asc_means * (1-input$Asc_means)
-      max_sd = round(sqrt(Asc_var), 3)
-      updateSliderInput(session, "Asc_betasd", value = max_sd)
-    }
-    beta_pars <- get_beta_parameters(input$Asc_means, round(sqrt(Asc_var), 3))
-    AscAlpha <- beta_pars[1]
-    AscBeta <- beta_pars[2]
-    # normalise alpha and beta so that both are at least 1
-    if(min(AscAlpha,AscBeta)<1){
-      minab <- min(AscAlpha,AscBeta)
-      AscAlpha <- AscAlpha/minab
-      AscBeta <- AscBeta/minab
-      implied_sd = round(sqrt(AscAlpha*AscBeta / ((AscAlpha + AscBeta)^2 * (AscAlpha + AscBeta + 1))), 3)
-      updateSliderInput(session, "Asc_betasd", value = implied_sd)
-    }
+    update_beta_dist(input$Asc_betasd, input$Asc_means, "Asc_betasd")
   })
   
   output$plotAsc <- renderPlot({
@@ -1869,25 +1887,17 @@ server <- function(input, output, session) {
       asc_dist = distr::Truncate(distr::Norm(mean=input$Asc_mean,sd=input$Asc_sd),lower=0,upper=1)
     }
     else if(plotTypeAsc()=="Skewed"){
-      #then make these into gamma or beta distribution parameters
-      AscShape<-(input$Asc_means*input$Asc_means)/input$Asc_var
-      AscScale<-input$Asc_var/input$Asc_means
-      AscAlpha<-input$Asc_means*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      AscBeta<-(1-input$Asc_means)*(((input$Asc_means*(1-input$Asc_means))/input$Asc_var)-1)
-      datAsc<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      asc_dist = distr::Gammad(shape1 = AscAlpha, shape2 = AscBeta)
+      asc_dist <- get_gamma_dist(input$Asc_means, input$Asc_var, 0, 1)
     }
     else if(plotTypeAsc()=="Beta"){
       #then make these into beta distribution parameters
       beta_pars <- get_beta_parameters(input$Asc_means, input$Asc_betasd)
       datAsc <- subset(datAsc,xpos*(1-xpos)!=0)
-      # print(c(14, input$Asc_means, input$Asc_betasd, beta_pars))
       asc_dist = distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2])
-      # if(sum(beta_pars<.99)>0) return(NULL) # cut if parameters have not been updated
     }
     v$asc_dist = asc_dist
     datAsc$ypos <- distr::d(asc_dist)(datAsc$xpos)
-    datAsc$qt  <- cut(distr::p(asc_dist)(datAsc$xpos),breaks=qrt,labels=F) #cut(pbeta(datAsc$xpos,alpha=AscShape,beta=AscScale,log=F),breaks=qrt,labels=F)
+    datAsc$qt  <- cut(distr::p(asc_dist)(datAsc$xpos),breaks=qrt,labels=F) 
     
     ggplot(datAsc,aes(x=xpos,y=ypos))+
       geom_area(aes(x=xpos,y=ypos,group=qt,fill=qt),color="black")+
@@ -1900,9 +1910,9 @@ server <- function(input, output, session) {
   output$Ascconf<-renderText({
     asc_dist = v$asc_dist
     lower50 <- distr::q(asc_dist)(0.25)
-    upper50 <- distr::q(asc_dist)(0.75) # qbeta(p=0.75*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-    lower95 <- distr::q(asc_dist)(0.025) # qbeta(p=0.025*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
-    upper95 <- distr::q(asc_dist)(0.975) # qbeta(p=0.975*pbeta(1,shape=AscShape,scale=AscScale),shape=AscShape,scale=AscScale)
+    upper50 <- distr::q(asc_dist)(0.75) 
+    lower95 <- distr::q(asc_dist)(0.025) 
+    upper95 <- distr::q(asc_dist)(0.975) 
     paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
           confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
   })
@@ -2105,28 +2115,9 @@ server <- function(input, output, session) {
   plotTypeHCWvacc_prevent <- reactive({input$HCWvacc_prevent_shape
   })
   
-  
   observeEvent(input$HCWvacc_prevent_means, {
     # If the beta mean changes, compute the new implied standard deviation
-    HCWvacc_prevent_var <- input$HCWvacc_prevent_betasd^2
-    # by definition we require
-    # mean*(1 - mean) > variance
-    if(input$HCWvacc_prevent_means * (1-input$HCWvacc_prevent_means) < HCWvacc_prevent_var){
-      HCWvacc_prevent_var <- input$HCWvacc_prevent_means * (1-input$HCWvacc_prevent_means)
-      max_sd = round(sqrt(HCWvacc_prevent_var), 3)
-      updateSliderInput(session, "HCWvacc_prevent_betasd", value = max_sd)
-    }
-    beta_pars <- get_beta_parameters(input$HCWvacc_prevent_means, round(sqrt(HCWvacc_prevent_var), 3))
-    HCWvacc_preventAlpha <- beta_pars[1]
-    HCWvacc_preventBeta <- beta_pars[2]
-    # normalise alpha and beta so that both are at least 1
-    if(min(HCWvacc_preventAlpha,HCWvacc_preventBeta)<1){
-      minab <- min(HCWvacc_preventAlpha,HCWvacc_preventBeta)
-      HCWvacc_preventAlpha <- HCWvacc_preventAlpha/minab
-      HCWvacc_preventBeta <- HCWvacc_preventBeta/minab
-      implied_sd = round(sqrt(HCWvacc_preventAlpha*HCWvacc_preventBeta / ((HCWvacc_preventAlpha + HCWvacc_preventBeta)^2 * (HCWvacc_preventAlpha + HCWvacc_preventBeta + 1))), 3)
-      updateSliderInput(session, "HCWvacc_prevent_betasd", value = implied_sd)
-    }
+    update_beta_dist(input$HCWvacc_prevent_betasd, input$HCWvacc_prevent_means, "HCWvacc_prevent_betasd")
   })
   
   output$plotHCWvacc_prevent <- renderPlot({
@@ -2139,20 +2130,13 @@ server <- function(input, output, session) {
     }
     else if(plotTypeHCWvacc_prevent()=="Skewed"){
       #then make these into gamma or beta distribution parameters
-      HCWvacc_preventShape<-(input$HCWvacc_prevent_means*input$HCWvacc_prevent_means)/input$HCWvacc_prevent_var
-      HCWvacc_preventScale<-input$HCWvacc_prevent_var/input$HCWvacc_prevent_means
-      HCWvacc_preventAlpha<-input$HCWvacc_prevent_means*(((input$HCWvacc_prevent_means*(1-input$HCWvacc_prevent_means))/input$HCWvacc_prevent_var)-1)
-      HCWvacc_preventBeta<-(1-input$HCWvacc_prevent_means)*(((input$HCWvacc_prevent_means*(1-input$HCWvacc_prevent_means))/input$HCWvacc_prevent_var)-1)
-      datHCWvacc_prevent<-data.frame(xpos=seq(xmin,xmaxUnit,by=0.001))
-      HCWvacc_prevent_dist = distr::Gammad(shape1 = HCWvacc_preventAlpha, shape2 = HCWvacc_preventBeta)
+      HCWvacc_prevent_dist = get_gamma_dist(input$HCWvacc_prevent_means, input$HCWvacc_prevent_var, 0, 1)
     }
     else if(plotTypeHCWvacc_prevent()=="Beta"){
       #then make these into beta distribution parameters
       beta_pars <- get_beta_parameters(input$HCWvacc_prevent_means, input$HCWvacc_prevent_betasd)
       datHCWvacc_prevent <- subset(datHCWvacc_prevent,xpos*(1-xpos)!=0)
-      # print(c(14, input$HCWvacc_prevent_means, input$HCWvacc_prevent_betasd, beta_pars))
       HCWvacc_prevent_dist = distr::Beta(shape1 = beta_pars[1], shape2 = beta_pars[2])
-      # if(sum(beta_pars<.99)>0) return(NULL) # cut if parameters have not been updated
     }
     v$HCWvacc_prevent_dist = HCWvacc_prevent_dist
     datHCWvacc_prevent$ypos <- distr::d(HCWvacc_prevent_dist)(datHCWvacc_prevent$xpos)
@@ -2169,9 +2153,9 @@ server <- function(input, output, session) {
   output$HCWvacc_prevent_conf<-renderText({
     HCWvacc_prevent_dist = v$HCWvacc_prevent_dist
     lower50 <- distr::q(HCWvacc_prevent_dist)(0.25)
-    upper50 <- distr::q(HCWvacc_prevent_dist)(0.75) # qbeta(p=0.75*pbeta(1,shape=HCWvacc_preventShape,scale=HCWvacc_preventScale),shape=HCWvacc_preventShape,scale=HCWvacc_preventScale)
-    lower95 <- distr::q(HCWvacc_prevent_dist)(0.025) # qbeta(p=0.025*pbeta(1,shape=HCWvacc_preventShape,scale=HCWvacc_preventScale),shape=HCWvacc_preventShape,scale=HCWvacc_preventScale)
-    upper95 <- distr::q(HCWvacc_prevent_dist)(0.975) # qbeta(p=0.975*pbeta(1,shape=HCWvacc_preventShape,scale=HCWvacc_preventScale),shape=HCWvacc_preventShape,scale=HCWvacc_preventScale)
+    upper50 <- distr::q(HCWvacc_prevent_dist)(0.75) 
+    lower95 <- distr::q(HCWvacc_prevent_dist)(0.025) 
+    upper95 <- distr::q(HCWvacc_prevent_dist)(0.975)
     paste("Your 50% confidence interval is:",round(lower50,digits=2),"-",round(upper50,digits=2), "and your 95%
           confidence interval is:",round(lower95,digits=2),"-",round(upper95,digits=2))
   })
