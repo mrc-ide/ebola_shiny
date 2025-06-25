@@ -415,7 +415,7 @@ ui <- page_navbar(
                              selectInput("conf_Asc","How confident are you about the shape of the distribution?",
                                          c("Very","Somewhat","Slightly","Not very"),width="80%", selected = "Not very"),
                              
-                             selectInput("is_corr_Asc_R0","Do you think there is any correlation between case ascertainment and reproduction number? e.g. if the reproduction number is higher, case ascertainment is also higher.",c("Not sure", "Yes","No"),selected=NULL,width="80%"),
+                             selectInput("is_corr_Asc_R0","Do you think there is any correlation between case ascertainment and reproduction number? e.g. if the reproduction number is higher, case ascertainment is also higher.",c("Not sure", "Yes","No"),selected="Not sure",width="80%"),
                              
                              conditionalPanel(condition="input.is_corr_Asc_R0=='Yes'",
                                               selectInput("corr_Asc_R0","Do you think the correlation is positive (i.e. when reproduction number is high, case ascertainment is high and when reproduction number is low, case ascertainment is low) or negative (i.e. when reproduction number is low, case ascertainment is high and vice versa)?",c("Positive","Negative"),selected=NULL,width="80%")
@@ -560,7 +560,7 @@ ui <- page_navbar(
               "is_corr_CTprop_R0",
               "Do you think there is any correlation between the proportion of contacts traced and the reproduction number? e.g. if the reproduction number is higher, the proportion of contacts traced is also higher.",
               c("Not sure", "Yes", "No"),
-              selected = NULL,
+              selected = "Not sure",
               width = "80%"
             ),
 
@@ -580,7 +580,7 @@ ui <- page_navbar(
               "is_corr_CTprop_Asc",
               "Do you think there is any correlation between the proportion of contacts traced and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts traced is also higher.",
               c("Not sure", "Yes", "No"),
-              selected = NULL,
+              selected = "Not sure",
               width = "80%"
             ),
 
@@ -714,7 +714,7 @@ ui <- page_navbar(
                "is_corr_CTfoll_R0",
                "Do you think there is any correlation between the proportion of contacts who complete follow up and the reproduction number? e.g. if the reproduction number is higher, the proportion of contacts who complete follow up is also higher.",
                c("Not sure", "Yes", "No"),
-               selected = NULL,
+               selected = "Not sure",
                width = "80%"
              ),
              
@@ -734,7 +734,7 @@ ui <- page_navbar(
                "is_corr_CTfoll_Asc",
                "Do you think there is any correlation between the proportion of contacts who complete follow up and case ascertainment? e.g. if case ascertainment is higher, the proportion of contacts who complete follow up is also higher.",
                c("Not sure", "Yes", "No"),
-               selected = NULL,
+               selected = "Not sure",
                width = "80%"
              ),
              
@@ -964,7 +964,7 @@ ui <- page_navbar(
                            #   "is_corr_HCWvacc_prevent_R0",
                            #   "Do you think there is any correlation between the proportion of HCWs who accept vaccination and the reproduction number? e.g. if the reproduction number is higher, the proportion of HCWs who accept vaccination is also higher.",
                            #   c("Not sure", "Yes", "No"),
-                           #   selected = NULL,
+                           #   selected = "Not sure",
                            #   width = "80%"
                            # ),
                            # 
@@ -984,7 +984,7 @@ ui <- page_navbar(
                            #   "is_corr_HCWvacc_prevent_Asc",
                            #   "Do you think there is any correlation between the proportion of HCWs who accept vaccination and case ascertainment? e.g. if case ascertainment is higher, the proportion of HCWs who accept vaccination is also higher.",
                            #   c("Not sure", "Yes", "No"),
-                           #   selected = NULL,
+                           #   selected = "Not sure",
                            #   width = "80%"
                            # ),
                            # 
@@ -1201,7 +1201,7 @@ ui <- page_navbar(
                              "Do you think there is any correlation between the proportion of HCW/FLWs who accept reactive vaccination and reproduction number? e.g. if the reproduction number is higher, the proportion of HCW/FLWs who accept reactive vaccination is also higher.",
 
                              c("Not sure", "Yes", "No"),
-                             selected = NULL,
+                             selected = "Not sure",
                              width = "80%"
                            ),
 
@@ -1224,7 +1224,7 @@ ui <- page_navbar(
                              "Do you think there is any correlation between the proportion of HCW/FLWs who accept reactive vaccination and case ascertainment? e.g. if case ascertainment is higher, the proportion of HCW/FLWs who accept reactive vaccination is also higher.",
 
                              c("Not sure", "Yes", "No"),
-                             selected = NULL,
+                             selected = "Not sure",
                              width = "80%"
                            ),
 
@@ -1449,7 +1449,7 @@ ui <- page_navbar(
                              "is_corr_HCWvacc_delay_R0",
                              "Do you think there is any correlation between the delay to start HCW/FLW vaccination and reproduction number? e.g. if the reproduction number is higher, the delay to start HCW/FLW vaccination is also higher.",
                              c("Not sure", "Yes", "No"),
-                             selected = NULL,
+                             selected = "Not sure",
                              width = "80%"
                            ),
 
@@ -1469,7 +1469,7 @@ ui <- page_navbar(
                              "is_corr_HCWvacc_delay_Asc",
                              "Do you think there is any correlation between the delay to start vaccination and case ascertainment? e.g. if case ascertainment is higher, the delay to start HCW/FLW vaccination is also higher.",
                              c("Not sure", "Yes", "No"),
-                             selected = NULL,
+                             selected = "Not sure",
                              width = "80%"
                            ),
 
@@ -1899,7 +1899,7 @@ ui <- page_navbar(
                              "Do you think there is any correlation between the proportion of ring members who accept vaccination and reproduction number? e.g. if the reproduction number is higher, the proportion of ring members who accept vaccination is also higher.",
                              
                              c("Not sure", "Yes", "No"),
-                             selected = NULL,
+                             selected = "Not sure",
                              width = "80%"
                            ),
                            
@@ -1922,7 +1922,7 @@ ui <- page_navbar(
                              "Do you think there is any correlation between the proportion of ring members who accept vaccination and case ascertainment? e.g. if case ascertainment is higher, the proportion of ring members who accept vaccination is also higher.",
                              
                              c("Not sure", "Yes", "No"),
-                             selected = NULL,
+                             selected = "Not sure",
                              width = "80%"
                            ),
                            
@@ -2147,7 +2147,7 @@ ui <- page_navbar(
                              "is_corr_Ringvacc_delay_R0",
                              "Do you think there is any correlation between the delay from case ascertainment to the start of ring vaccination and reproduction number? e.g. if the reproduction number is higher, the delay from case ascertainment to the start of ring vaccination is also higher.",
                              c("Not sure", "Yes", "No"),
-                             selected = NULL,
+                             selected = "Not sure",
                              width = "80%"
                            ),
                            
@@ -2167,7 +2167,7 @@ ui <- page_navbar(
                              "is_corr_Ringvacc_delay_Asc",
                              "Do you think there is any correlation between the delay to start vaccination and case ascertainment? e.g. if case ascertainment is higher, the delay from case ascertainment to the start of ring vaccination is also higher.",
                              c("Not sure", "Yes", "No"),
-                             selected = NULL,
+                             selected = "Not sure",
                              width = "80%"
                            ),
                            
@@ -2408,7 +2408,7 @@ ui <- page_navbar(
                              "Do you think there is any correlation between the proportion of community members who accept geographically targeted vaccination and reproduction number? e.g. if the reproduction number is higher, the proportion of community members who accept geographically targeted vaccination is also higher.",
                              
                              c("Not sure", "Yes", "No"),
-                             selected = NULL,
+                             selected = "Not sure",
                              width = "80%"
                            ),
                            
@@ -2431,7 +2431,7 @@ ui <- page_navbar(
                              "Do you think there is any correlation between the proportion of community members who accept geographically targeted vaccination and case ascertainment? e.g. if case ascertainment is higher, the proportion of community members who accept geographically targeted vaccination is also higher.",
                              
                              c("Not sure", "Yes", "No"),
-                             selected = NULL,
+                             selected = "Not sure",
                              width = "80%"
                            ),
                            
@@ -2656,7 +2656,7 @@ ui <- page_navbar(
                              "is_corr_Geovacc_delay_R0",
                              "Do you think there is any correlation between the delay from case ascertainment to the start of geographically targeted vaccination and reproduction number? e.g. if the reproduction number is higher, the delay from case ascertainment to the start of geographically targeted vaccination is also higher.",
                              c("Not sure", "Yes", "No"),
-                             selected = NULL,
+                             selected = "Not sure",
                              width = "80%"
                            ),
                            
@@ -2676,7 +2676,7 @@ ui <- page_navbar(
                              "is_corr_Geovacc_delay_Asc",
                              "Do you think there is any correlation between the delay to start vaccination and case ascertainment? e.g. if case ascertainment is higher, the delay from case ascertainment to the start of geographically targeted vaccination is also higher.",
                              c("Not sure", "Yes", "No"),
-                             selected = NULL,
+                             selected = "Not sure",
                              width = "80%"
                            ),
                            
@@ -2855,7 +2855,17 @@ server <- function(input, output, session) {
   v <- reactiveValues(R0_dist = NULL, 
                       DT_dist = NULL,
                       asc_dist = NULL, 
-                      HCWvacc_prevent_dist = NULL)
+                      CTprop_dist = NULL,
+                      CTfoll_dist = NULL,
+                      HCWvacc_prevent_dist = NULL,
+                      HCWvacc_react_dist = NULL,
+                      HCWvacc_delay_dist = NULL,
+                      Ringvacc_ring_dist = NULL,
+                      Ringvacc_react_dist = NULL,
+                      Ringvacc_delay_dist = NULL,
+                      Geovacc_react_dist = NULL,
+                      Geovacc_delay_dist = NULL
+  )
   
 
 # Overview - server----------------------------------------------------------------
@@ -3663,8 +3673,8 @@ server <- function(input, output, session) {
   
   # For reactive vaccination
   observeEvent(input$previousRingvacc_react,{
-    accordion_panel_close(session=session,id="Ringvacc",values="Ringvacc_ring")
-    accordion_panel_open(session=session,id="Ringvacc",values="Ringvacc_react")
+    accordion_panel_close(session=session,id="Ringvacc",values="Ringvacc_react")
+    accordion_panel_open(session=session,id="Ringvacc",values="Ringvacc_ring")
   })
   
   observeEvent(input$nextRingvacc_react,{
@@ -3833,7 +3843,7 @@ server <- function(input, output, session) {
   
   # For reactive vaccination
   observeEvent(input$previousGeovacc_react,{
-    updateNavbarPage(session=session,"mainpage",selected="8")
+    updateNavbarPage(session=session,"mainpage",selected="7")
   })
   
   observeEvent(input$nextGeovacc_react,{
@@ -3936,7 +3946,9 @@ server <- function(input, output, session) {
     categories <- c('R0','DT','Asc','CTprop','CTfoll','HCWvacc_prevent','HCWvacc_react','HCWvacc_delay','Ringvacc_ring','Ringvacc_react','Ringvacc_delay','Geovacc_react','Geovacc_delay')
     answers <- c()
     for(ct in categories){
-      if(!is.null(input[[paste0(ct,'_shape')]])){
+      answer <- paste0('answer',ct)
+      if(input[[answer]]=='Yes'){
+      # if(!is.null(input[[paste0(ct,'_shape')]])){
         thisdist = input[[paste0(ct,'_shape')]]
         answers = rbind(answers, c(paste0(ct,' distribution'), thisdist))
         if(thisdist=='Uniform') {
@@ -3976,18 +3988,23 @@ server <- function(input, output, session) {
     
     # tabulate correlations
     cors = unlist(sapply(2:length(categories),function(x) sapply(1:(x-1), function(y) paste0('corr_',categories[x],'_',categories[y]))))
+    tested_corr = c()
     for(sgn in cors){
       cc <- paste0('is_',sgn)
-      if(!is.null(input[[cc]])) {
+      tested_corr <- c(tested_corr, sgn)
+      if(!is.null(input[[cc]]) && input[[cc]]!='Not sure') {
         answers = rbind(answers, c(cc, input[[cc]]))
-        answers = rbind(answers, c(sgn, input[[sgn]]))
+        if (input[[cc]]=='Yes') answers = rbind(answers, c(sgn, input[[sgn]]))
       }
     }
+    corrnames <- names(input)[grepl('^corr_',names(input))]
+    # print in case any correlation terms were missed:
+    print(corrnames[!corrnames%in%tested_corr])
+    
     
     # tabulate user info
     expinfo = c()
     expvarnames = c('ExpOutbreaks', 'ExpOutbreaksOther', 'ExpSetting', 'ExpWorkplace','ExpDept',"vacc_doses","vacc_teams","worst_case","stockpile")
-    print(sapply(expvarnames,function(x)ifelse(is.null(input[[x]]),'',paste0(input[[x]],collapse=', '))))
     expvars = sapply(expvarnames,function(x)ifelse(is.null(input[[x]]),'',paste0(input[[x]],collapse=', ')))
     expvarstab = data.frame(Variable=expvarnames,Value=expvars)
     rownames(expvarstab) <- NULL
@@ -4000,14 +4017,15 @@ server <- function(input, output, session) {
     }
     
     # give column names; print; save
-    answers <- as.data.frame(answers)
-    # colnames(expvars) <- c('Value')
-    colnames(answers) <- c('Variable','Value')
     print(expvarstab)
     print(answers)
     filename = paste0(format(now(), "%Y%m%d_%H%M%S_"), "data_set.xlsx")
     xlsx::write.xlsx(expvarstab,file = filename,sheetName='User data', append=F,row.names = F)
-    xlsx::write.xlsx(answers,file = filename,sheetName='Parameter data', append=T,row.names = F)
+    if(length(answers)>0){
+      answers <- as.data.frame(answers)
+      colnames(answers) <- c('Variable','Value')
+      xlsx::write.xlsx(answers,file = filename,sheetName='Parameter data', append=T,row.names = F)
+    }
     
     ## maybe create a "thanks" page or restart? i think you need to close and reopen to reset everything for the next user.
     updateNavbarPage(session=session,"mainpage",selected="End")
