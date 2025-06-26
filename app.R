@@ -2980,7 +2980,7 @@ server <- function(input, output, session) {
       DT_dist <- get_gamma_dist(input$DT_means, input$DT_var, input$DT_min_skew, input$DT_max_skew)
     }
     
-    dat <- data.frame(xpos=seq(xminDT,xmaxDT,by=0.01))
+    dat <- data.frame(xpos=seq(xminDT,xmaxDT,by=0.05))
     v$DT_dist = DT_dist
     dat$ypos <- distr::d(DT_dist)(dat$xpos)
     dat$qt  <- cut(distr::p(DT_dist)(dat$xpos),breaks=qrt,labels=F) 
